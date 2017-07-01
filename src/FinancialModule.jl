@@ -15,6 +15,7 @@ end
 export blsprice;
 function blsprice{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
   #Black & Scholes Price for European Options
+  blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   d2=d1-sigma*sqrt(T);
   Out=0.0;
@@ -29,6 +30,7 @@ end
 export blsdelta;
 function blsdelta{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
   #Black & Scholes Delta for European Options
+  blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   Out=0.0;
   if (flag)
@@ -42,6 +44,7 @@ end
 export blsgamma;
 function blsgamma{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
   #Black & Scholes Gamma for European Options
+  blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   Out=exp(-d*T)*normpdf(d1)/(S0*sigma*sqrt(T));
 return Out;
@@ -50,6 +53,7 @@ end
 export blsvega;
 function blsvega{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
   #Black & Scholes Vega for European Options
+  blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   Out=S0*exp(-d*T)*normpdf(d1)*sqrt(T);
 return Out;
@@ -58,6 +62,7 @@ end
 export blsrho;
 function blsrho{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
   #Black & Scholes Rho for European Options
+  blscheck(S0,K,r,T,sigma,d);
   d2=(log(S0/K)+(r-d-sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   if (flag)
 	Out=K*exp(-r*T)*normcdf(d2)*T;
@@ -70,6 +75,7 @@ end
 export blstheta;
 function blstheta{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
   #Black & Scholes Theta for European Options
+  blscheck(S0,K,r,T,sigma,d);
 	sqrtT       = sqrt(T);
 	sigma_sqrtT = sigma .* sqrtT;
 
@@ -91,10 +97,27 @@ function blstheta{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F 
 	end
 	return Out;
 end
+export blscheck;
+function blscheck{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0)
+if (S0< A(0))
+	error("Spot Price Cannot Be Negative")
+elseif (K< B(0))
+	error("Strike Price Cannot Be Negative")
+elseif (T< D(0))
+	error("Time to Maturity Cannot Be Negative")
+elseif (sigma< E(0))
+	error("Volatility Cannot Be Negative")
+end
+return;
+end
 
 export blsimpv
 using Optim
 function blsimpv{A <: Real,B <: Real,C <: Real,D <: Real,E <: Real,F <: Real}(S0::A,K::B,r::C,T::D,Price::E,d::F,flag::Bool=true)
+if (Price< E(0))
+	error("Option Price Cannot Be Negative")
+end
+blscheck(S0,K,r,T,0.1,d);
 f(x)=(blsprice(S0,K,r,T,x,d,flag)-Price).^2.0;
 ResultsOptimization=optimize(f,0.001,1.2,Optim.Brent(),abs_tol=1e-16,rel_tol=1e-16);
 Sigma=ResultsOptimization.minimizer;

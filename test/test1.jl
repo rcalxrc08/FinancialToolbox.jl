@@ -21,4 +21,43 @@ Sigma=blsimpv(spot, K, r, T, Price, d);
 @test(abs(Rho-9.066278382208203)<testToll)
 @test(abs(Vega-5.407139176184034)<testToll)
 @test(abs(Sigma-0.2)<testToll)
+
+#Negative Spot Price
+@test_throws(ErrorException, blsprice(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blsdelta(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blsgamma(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blstheta(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blsrho(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blsvega(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blsimpv(-spot,K,r,T,Price,d))
+
+#Negative Strike Price
+@test_throws(ErrorException, blsprice(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blsdelta(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blsgamma(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blstheta(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blsrho(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blsvega(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blsimpv(spot,-K,r,T,Price,d))
+
+#Negative Time to Maturity
+@test_throws(ErrorException, blsprice(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blsdelta(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blsgamma(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blstheta(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blsrho(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blsvega(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blsimpv(spot,K,r,-T,Price,d))
+
+#Negative Volatility
+@test_throws(ErrorException, blsprice(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blsdelta(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blsgamma(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blstheta(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blsrho(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blsvega(spot,K,r,T,-sigma,d))
+
+#Negative Option Price
+@test_throws(ErrorException, blsimpv(spot,K,r,T,-Price,d))
+
 println("Test Passed")
