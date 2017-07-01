@@ -94,11 +94,10 @@ end
 
 export blsimpv
 using Optim
-function blsimpv(S0,K,r,T,price,d,flag=true)
-
-f(x)=(blsprice(S0,K,r,T,x,d,flag)-price).^2.0;
-ResultsOptimization=optimize(f,1e-13,1.2);
-Sigma=ResultsOptimization.minimum;
+function blsimpv(S0,K,r,T,Price,d,flag=true)
+f(x)=(blsprice(S0,K,r,T,x,d,flag)-Price).^2.0;
+ResultsOptimization=optimize(f,0.001,1.2,Optim.Brent(),abs_tol=1e-16,rel_tol=1e-16);
+Sigma=ResultsOptimization.minimizer;
 return Sigma;
 end
 
