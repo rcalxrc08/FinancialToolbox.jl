@@ -99,7 +99,23 @@ function blstheta{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F 
 end
 export blscheck;
 function blscheck{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0)
-if (S0< A(0))
+if isa(S0,Complex)
+	if (S0.re< S0.re*0)
+		error("Spot Price Cannot Be Negative")
+	end
+elseif isa(K,Complex)
+	if (K.re< K.re*0)
+		error("Spot Price Cannot Be Negative")
+	end
+elseif isa(T,Complex)
+	if (T.re< T.re*0)
+		error("Spot Price Cannot Be Negative")
+	end
+elseif isa(sigma,Complex)
+	if (sigma.re< sigma.re*0)
+		error("Spot Price Cannot Be Negative")
+	end
+elseif (S0< A(0))
 	error("Spot Price Cannot Be Negative")
 elseif (K< B(0))
 	error("Strike Price Cannot Be Negative")
