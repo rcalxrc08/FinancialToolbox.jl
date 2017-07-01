@@ -1,5 +1,9 @@
-using FinancialModule
-using Base.Test
+my_tests = ["test1.jl"]
 
-# write your own tests here
-@test 1 == 2
+println("Running tests:")
+
+for my_test in my_tests
+    println("  * $(my_test) *")
+    include(my_test)
+    println("\n\n")
+end
