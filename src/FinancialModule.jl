@@ -1,7 +1,9 @@
 module FinancialModule
 
 export normcdf;
-
+if (VERSION.minor>=6)
+	using SpecialFunctions.erf
+end
 function normcdf(x)
   return (1.0+erf(x/sqrt(2.0)))/2.0;
 end
