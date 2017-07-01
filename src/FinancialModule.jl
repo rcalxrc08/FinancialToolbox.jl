@@ -105,15 +105,15 @@ if isa(S0,Complex)
 	end
 elseif isa(K,Complex)
 	if (K.re< K.re*0)
-		error("Spot Price Cannot Be Negative")
+		error("Strike Price Cannot Be Negative")
 	end
 elseif isa(T,Complex)
 	if (T.re< T.re*0)
-		error("Spot Price Cannot Be Negative")
+		error("Time to Maturity Cannot Be Negative")
 	end
 elseif isa(sigma,Complex)
 	if (sigma.re< sigma.re*0)
-		error("Spot Price Cannot Be Negative")
+		error("Volatility Cannot Be Negative")
 	end
 elseif (S0< A(0))
 	error("Spot Price Cannot Be Negative")
