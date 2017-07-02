@@ -3,6 +3,7 @@ using FinancialModule
 
 #Test Parameters
 testToll=1e-14;
+println("Starting Standard Test")
 spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
 
 #EuropeanCall Option
@@ -23,6 +24,7 @@ SigmaPut=blsimpv(spot, K, r, T, PricePut, d,false);
 Gamma=blsgamma(spot,K,r,T,sigma,d);
 Vega=blsvega(spot,K,r,T,sigma,d);
 
+println("--- European Call Price and Sensitivities")
 #Standard Test European Call Option
 @test(abs(PriceCall-1.191201316999582)<testToll)
 @test(abs(DeltaCall-0.572434050810368)<testToll)
@@ -30,7 +32,7 @@ Vega=blsvega(spot,K,r,T,sigma,d);
 @test(abs(RhoCall-9.066278382208203)<testToll)
 @test(abs(SigmaCall-0.2)<testToll)
 
-
+println("--- European Put Price and Sensitivities")
 #Standard Test European Put Option
 @test(abs(PricePut-0.997108975455260)<testToll)
 @test(abs(DeltaPut+0.407764622496387)<testToll)
@@ -41,9 +43,10 @@ Vega=blsvega(spot,K,r,T,sigma,d);
 #Standard Test for Common Sensitivities
 @test(abs(Gamma-0.135178479404601)<testToll)
 @test(abs(Vega-5.407139176184034)<testToll)
-
+println("Standard Test Passed")
 ## Complex Test with Complex Step Approximation for European Call
 #Test parameters
+println("Starting Complex Number Test")
 DerToll=1e-13;
 di=1e-15;
 df(f,x)=f(x+1im*di)/di;
@@ -53,8 +56,7 @@ G(r)=blsprice(spot,K,r,T,sigma,d);
 H(T)=blsprice(spot,K,r,T,sigma,d);
 L(sigma)=blsprice(spot,K,r,T,sigma,d);
 #TEST
-@test(abs(df(L,sigma).im-Vega)<DerToll)
-#
+println("--- European Call Sensitivities: Complex Step Approximation")
 @test(abs(df(F,spot).im-DeltaCall)<DerToll)
 @test(abs(df(G,r).im-RhoCall)<DerToll)
 @test(abs(-df(H,T).im-ThetaCall)<DerToll)
@@ -65,11 +67,15 @@ F1(spot)=blsprice(spot,K,r,T,sigma,d,false);
 G1(r)=blsprice(spot,K,r,T,sigma,d,false);
 H1(T)=blsprice(spot,K,r,T,sigma,d,false);
 #TEST
+println("--- European Put Sensitivities: Complex Step Approximation")
 @test(abs(df(F1,spot).im-DeltaPut)<DerToll)
 @test(abs(df(G1,r).im-RhoPut)<DerToll)
 @test(abs(-df(H1,T).im-ThetaPut)<DerToll)
 
+@test(abs(df(L,sigma).im-Vega)<DerToll)
+println("Complex Number Test Passed")
 #TEST OF INPUT VALIDATION
+println("Starting Input Validation Test")
 #Negative Spot Price
 @test_throws(ErrorException, blsprice(-spot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(-spot,K,r,T,sigma,d))
@@ -107,5 +113,7 @@ H1(T)=blsprice(spot,K,r,T,sigma,d,false);
 
 #Negative Option Price
 @test_throws(ErrorException, blsimpv(spot,K,r,T,-PriceCall,d))
+println("Input Validation Test Passed")
 
 println("All Test Passed")
+#End of the Test
