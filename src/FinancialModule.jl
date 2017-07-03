@@ -199,7 +199,6 @@ function brentMethod(f::Function, x0::Number, x1::Number,xtol::AbstractFloat=1e-
 end
 
 export blsimpv
-using Optim
 function blsimpv{A <: Real,B <: Real,C <: Real,D <: Real,E <: Real,F <: Real}(S0::A,K::B,r::C,T::D,Price::E,d::F=0.0,flag::Bool=true)
 if (Price< E(0))
 	error("Option Price Cannot Be Negative")
