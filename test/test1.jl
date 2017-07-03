@@ -3,6 +3,7 @@ using FinancialModule
 
 #Test Parameters
 testToll=1e-14;
+println("")
 println("Starting Standard Test")
 spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
 
@@ -113,7 +114,7 @@ println("Starting Input Validation Test")
 
 #Negative Option Price
 @test_throws(ErrorException, blsimpv(spot,K,r,T,-PriceCall,d))
-println("Input Validation Test Passed")
+println("Input Validation Test Passed\n")
 
-println("All Test Passed")
+println("All Test Passed\n")
 #End of the Test
