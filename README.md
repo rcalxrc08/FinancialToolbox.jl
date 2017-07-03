@@ -12,7 +12,7 @@ It currently contain the following functions:
 - blstheta: Black & Scholes Theta sensitivities for European Options.
 - blsvega: Black & Scholes Vega sensitivities for European Options.
 - blsrho: Black & Scholes Rho sensitivities for European Options.
-- blsimpv: Black & Scholes Implied Volatility for European Options (using [Optim.jl](https://github.com/JuliaNLSolvers/Optim.jl) package).
+- blsimpv: Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 
 Currently supports classical numerical input, and other less common like:
 
@@ -20,5 +20,4 @@ Currently supports classical numerical input, and other less common like:
 - [Dual Numbers](https://github.com/JuliaDiff/DualNumbers.jl)
 - [HyperDual Numbers](https://github.com/JuliaDiff/HyperDualNumbers.jl)
 
-The only dependency is the package [Optim.jl](https://github.com/JuliaNLSolvers/Optim.jl) in order to achieve the inversion of the
-Black and Scholes Formula.
+The module is standalone.
