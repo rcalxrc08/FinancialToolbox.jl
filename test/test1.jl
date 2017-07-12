@@ -25,6 +25,7 @@ SigmaPut=blsimpv(spot, K, r, T, PricePut, d,false);
 Gamma=blsgamma(spot,K,r,T,sigma,d);
 Vega=blsvega(spot,K,r,T,sigma,d);
 
+println("")
 println("--- European Call Price and Sensitivities")
 #Standard Test European Call Option
 @test(abs(PriceCall-1.191201316999582)<testToll)
@@ -45,6 +46,7 @@ println("--- European Put Price and Sensitivities")
 @test(abs(Gamma-0.135178479404601)<testToll)
 @test(abs(Vega-5.407139176184034)<testToll)
 println("Standard Test Passed")
+println("")
 ## Complex Test with Complex Step Approximation for European Call
 #Test parameters
 println("Starting Complex Number Test")
@@ -75,6 +77,67 @@ println("--- European Put Sensitivities: Complex Step Approximation")
 
 @test(abs(df(L,sigma).im-Vega)<DerToll)
 println("Complex Number Test Passed")
+println("")
+
+########DUAL NUMBERS
+using DualNumbers;
+println("Starting Dual Numbers Test")
+DerToll=1e-13;
+di=1e-15;
+#Function definition
+sspot=dual(spot,1.0);
+rr=dual(r,1.0);
+TT=dual(T,1.0);
+ssigma=dual(sigma,1.0);
+#TEST
+println("--- European Call Sensitivities: DualNumbers")
+@test(abs(F(sspot).epsilon-DeltaCall)<DerToll)
+@test(abs(G(rr).epsilon-RhoCall)<DerToll)
+@test(abs(-H(TT).epsilon-ThetaCall)<DerToll)
+
+## Complex Test with Complex Step Approximation for European Put
+#TEST
+println("--- European Put Sensitivities: DualNumbers")
+@test(abs(F1(sspot).epsilon-DeltaPut)<DerToll)
+@test(abs(G1(rr).epsilon-RhoPut)<DerToll)
+@test(abs(-H1(TT).epsilon-ThetaPut)<DerToll)
+
+@test(abs(L(ssigma).epsilon-Vega)<DerToll)
+println("Dual Numbers Test Passed")
+println("")
+
+########HYPER DUAL NUMBERS
+pkgs = Pkg.installed();
+if (pkgs["HyperDualNumbers"]<=VersionNumber(1,0,0))
+	Pkg.checkout("HyperDualNumbers")
+end
+using HyperDualNumbers;
+println("Starting Hyper Dual Numbers Test")
+DerToll=1e-13;
+di=1e-15;
+#Function definition
+ssspot=hyper(spot,1.0,1.0,0.0);
+rrr=hyper(r,1.0,1.0,0.0);
+TTT=hyper(T,1.0,1.0,0.0);
+sssigma=hyper(sigma,1.0,1.0,0.0);
+#TEST
+println("--- European Call Sensitivities: HyperDualNumbers")
+@test(abs(F(ssspot).f1-DeltaCall)<DerToll)
+@test(abs(F(ssspot).f12-Gamma)<DerToll)
+@test(abs(G(rrr).f1-RhoCall)<DerToll)
+@test(abs(-H(TTT).f1-ThetaCall)<DerToll)
+
+## Complex Test with Complex Step Approximation for European Put
+#TEST
+println("--- European Put Sensitivities: HyperDualNumbers")
+@test(abs(F1(ssspot).f1-DeltaPut)<DerToll)
+@test(abs(G1(rrr).f1-RhoPut)<DerToll)
+@test(abs(-H1(TTT).f1-ThetaPut)<DerToll)
+
+@test(abs(L(sssigma).f1-Vega)<DerToll)
+println("Hyper Dual Numbers Test Passed")
+
+
 #TEST OF INPUT VALIDATION
 println("Starting Input Validation Test")
 #Negative Spot Price
