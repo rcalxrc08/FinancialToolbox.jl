@@ -21,3 +21,21 @@ Currently supports classical numerical input, and other less common like:
 - [HyperDual Numbers](https://github.com/JuliaDiff/HyperDualNumbers.jl)
 
 The module is standalone.
+
+## How to Install
+To install the package simply type on the Julia REPL the following:
+```Julia
+Pkg.clone("https://github.com/rcalxrc08/FinancialModule.jl.git")
+```
+## Example of Usage
+```Julia
+#Import the Package
+using FinancialModule
+
+#Define input data
+spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
+
+#Call the function
+Price=blsprice(spot,K,r,T,sigma,d)
+#Price=1.1912013169995816
+```
