@@ -200,7 +200,9 @@ end
 
 export blsimpv
 function blsimpv{A <: Real,B <: Real,C <: Real,D <: Real,E <: Real,F <: Real}(S0::A,K::B,r::C,T::D,Price::E,d::F=0.0,flag::Bool=true)
-if (Price< E(0))
+if (isa(S0,Complex))||(isa(K,Complex))||(isa(r,Complex))||(isa(T,Complex))||(isa(Price,Complex))||(isa(d,Complex))
+	error("It is not possible to Evaluate Black Scholes Implied Volatility for Complex Arguments")
+elseif (Price< E(0))
 	error("Option Price Cannot Be Negative")
 end
 blscheck(S0,K,r,T,0.1,d);

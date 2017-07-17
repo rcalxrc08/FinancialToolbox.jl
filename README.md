@@ -6,13 +6,13 @@
 
 It currently contain the following functions:
 
-- blsprice: Black & Scholes Price for European Options.
-- blsdelta: Black & Scholes Delta sensitivities for European Options.
-- blsgamma: Black & Scholes Gamma sensitivities for European Options.
-- blstheta: Black & Scholes Theta sensitivities for European Options.
-- blsvega: Black & Scholes Vega sensitivities for European Options.
-- blsrho: Black & Scholes Rho sensitivities for European Options.
-- blsimpv: Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
+- blsprice : Black & Scholes Price for European Options.
+- blsdelta : Black & Scholes Delta sensitivity for European Options.
+- blsgamma : Black & Scholes Gamma sensitivity for European Options.
+- blstheta : Black & Scholes Theta sensitivity for European Options.
+- blsvega  : Black & Scholes Vega sensitivity for European Options.
+- blsrho   : Black & Scholes Rho sensitivity for European Options.
+- blsimpv  : Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 
 Currently supports classical numerical input, and other less common like:
 
@@ -38,4 +38,8 @@ spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
 #Call the function
 Price=blsprice(spot,K,r,T,sigma,d)
 #Price=1.1912013169995816
+
+#Check the Result
+Volatility=blsimpv(spot,K,r,T,Price,d)
+#Volatility=0.20000000000000007
 ```
