@@ -177,6 +177,13 @@ println("Starting Input Validation Test Real")
 #Negative Option Price
 @test_throws(ErrorException, blsimpv(spot,K,r,T,-PriceCall,d))
 
+#Negative Tollerance
+@test_throws(ErrorException, blsimpv(spot,K,r,T,PriceCall,d,true,-1e-12,1e-12))
+@test_throws(ErrorException, blsimpv(spot,K,r,T,PriceCall,d,true,1e-12,-1e-12))
+
+#Too low tollerance
+@test_throws(ErrorException, blsimpv(spot,K,r,T,PriceCall,d,true,0.0,0.0))
+
 println("Real Input Validation Test Passed\n")
 
 #TEST OF INPUT VALIDATION

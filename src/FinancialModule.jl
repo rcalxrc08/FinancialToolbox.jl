@@ -84,7 +84,7 @@ function blstheta{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F 
 	sigma_sqrtT = sigma .* sqrtT;
 
 	d1 = 1 ./ sigma_sqrtT .* (log(S0 ./ K) + (r - d + sigma.^2 / 2) .* T);
-	
+
 	disc  = exp(-d .* T);
 	shift = -disc .* S0 .* normpdf(d1) .* sigma / 2 ./ sqrtT;
 	t1    = r .* K   .* exp(-r .* T);
@@ -130,7 +130,13 @@ return;
 end
 
 #Brent Method: Scalar Equation Solver.
-function brentMethod(f::Function, x0::Number, x1::Number,xtol::AbstractFloat=1e-14, ytol=2eps(Float64))
+function brentMethod(f::Function, x0::Number, x1::Number,xtol::AbstractFloat=1e-14, ytol::AbstractFloat=1e-15)
+    if xtol<0.0
+      error("x tollerance cannot be negative")
+    end
+	if ytol<0.0
+      error("y tollerance cannot be negative")
+    end
     EPS = eps(Float64)
 	maxiter=80;
     y0 = f(x0)
@@ -195,11 +201,11 @@ function brentMethod(f::Function, x0::Number, x1::Number,xtol::AbstractFloat=1e-
             y0, y1 = y1, y0
         end
     end
-    error("Max iteration exceeded")
+    error("Max iteration exceeded, possible wrong result")
 end
 
 export blsimpv
-function blsimpv{A <: Real,B <: Real,C <: Real,D <: Real,E <: Real,F <: Real}(S0::A,K::B,r::C,T::D,Price::E,d::F=0.0,flag::Bool=true)
+function blsimpv{A <: Real,B <: Real,C <: Real,D <: Real,E <: Real,F <: Real}(S0::A,K::B,r::C,T::D,Price::E,d::F=0.0,flag::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 if (Price< E(0))
 	error("Option Price Cannot Be Negative")
 end
@@ -207,7 +213,7 @@ blscheck(S0,K,r,T,0.1,d);
 f(x)=(blsprice(S0,K,r,T,x,d,flag)-Price);
 ResultsOptimization=0;
 try
-	ResultsOptimization=brentMethod(f,0.001,1.2);
+	ResultsOptimization=brentMethod(f,0.001,1.2,xtol,ytol);
 catch e
 	error("The Inversion of Black Scholes Price Failed with the following error: $e")
 end
