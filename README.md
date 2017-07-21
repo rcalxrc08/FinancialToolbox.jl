@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/rcalxrc08/FinancialModule.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialModule.jl?branch=master)
 ##### This is a Julia package containg some useful Financial function for Pricing and Risk Management for the Black and Scholes Model.
 ###### The syntax is the same of the Matlab Financial Toolbox.
-It currently contain the following functions:
+It currently contains the following functions:
 
 - blsprice : Black & Scholes Price for European Options.
 - blsdelta : Black & Scholes Delta sensitivity for European Options.

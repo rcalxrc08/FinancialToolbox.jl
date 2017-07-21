@@ -33,6 +33,14 @@ println("--- European Call Price and Sensitivities")
 @test(abs(ThetaCall+0.303776337550247)<testToll)
 @test(abs(RhoCall-9.066278382208203)<testToll)
 @test(abs(SigmaCall-0.2)<testToll)
+#Low Xtol
+tol_low=1e-12;
+tol_high=1e-1;
+SigmaLowXTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_low,tol_high);
+@test((abs(blsprice(spot,K,r,T,SigmaLowXTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowXTol-sigma)<tol_low)
+#Low Ytol
+SigmaLowYTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_high,tol_low);
+@test((abs(blsprice(spot,K,r,T,SigmaLowYTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowYTol-sigma)<tol_low)
 
 println("--- European Put Price and Sensitivities")
 #Standard Test European Put Option
