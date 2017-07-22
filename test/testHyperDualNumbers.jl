@@ -1,7 +1,6 @@
 using Base.Test
 using FinancialModule
 
-println("")
 println("Starting Hyper Dual Numbers Test")
 
 #Test Parameters
@@ -27,7 +26,7 @@ Gamma=blsgamma(spot,K,r,T,sigma,d);
 Vega=blsvega(spot,K,r,T,sigma,d);
 
 ########HYPER DUAL NUMBERS
-HyperDualNumbersPkgVersion = Pkg.installed()["HyperDualNumbers"];
+HyperDualNumbersPkgVersion = Pkg.installed("HyperDualNumbers");
 if (HyperDualNumbersPkgVersion<=VersionNumber(1,0,0))
 #i hope that in the next release they will put also the erf function.
 	println("The last release of HyperDualNumbers Module does not support erf function.")
@@ -77,7 +76,7 @@ println("Hyper Dual Numbers Test Passed")
 
 #TEST OF INPUT VALIDATION
 println("Starting Input Validation Test Hyper Dual Numbers")
-println("----Testing Negative  Spot Price ")
+print_with_color(:blue,"----Testing Negative  Spot Price ")
 @test_throws(ErrorException, blsprice(-ssspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(-ssspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(-ssspot,K,r,T,sigma,d))
@@ -85,7 +84,7 @@ println("----Testing Negative  Spot Price ")
 @test_throws(ErrorException, blsrho(-ssspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-ssspot,K,r,T,sigma,d))
 
-println("----Testing Negative  Strike Price ")
+print_with_color(:blue,"----Testing Negative  Strike Price ")
 KK=Dual(K,0);
 @test_throws(ErrorException, blsprice(spot,-KKK,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,-KKK,r,T,sigma,d))
@@ -94,7 +93,7 @@ KK=Dual(K,0);
 @test_throws(ErrorException, blsrho(spot,-KKK,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-KKK,r,T,sigma,d))
 
-println("----Testing Negative  Time to Maturity ")
+print_with_color(:blue,"----Testing Negative  Time to Maturity ")
 @test_throws(ErrorException, blsprice(spot,K,r,-TTT,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,-TTT,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,-TTT,sigma,d))
@@ -102,7 +101,7 @@ println("----Testing Negative  Time to Maturity ")
 @test_throws(ErrorException, blsrho(spot,K,r,-TTT,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-TTT,sigma,d))
 
-println("----Testing Negative  Volatility ")
+print_with_color(:blue,"----Testing Negative  Volatility ")
 @test_throws(ErrorException, blsprice(spot,K,r,T,-sssigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-sssigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-sssigma,d))
@@ -111,3 +110,5 @@ println("----Testing Negative  Volatility ")
 @test_throws(ErrorException, blsvega(spot,K,r,T,-sssigma,d))
 
 println("Hyper Dual Input Validation Test Passed\n")
+
+println("Input Validation Test Passed\n")

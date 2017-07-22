@@ -6,6 +6,6 @@ for my_test in my_tests
     println("  * $(my_test) *")
     include(my_test)
 	if (i<length(my_tests))
-		println("\n\n")
+		println("")
 	end
 end

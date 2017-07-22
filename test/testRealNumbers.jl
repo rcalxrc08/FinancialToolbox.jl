@@ -107,11 +107,4 @@ println("Starting Input Validation Test Real")
 println("Real Input Validation Test Passed\n")
 
 
-
-
-
-
-println("Input Validation Test Passed\n")
-
-println("All Test Passed\n")
 #End of the Test
