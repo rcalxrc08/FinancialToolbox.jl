@@ -117,7 +117,6 @@ return Out;
 end
 
 export blsvega;
-#"Black & Scholes Vega for European Options Vega=blsvega(S0,K,r,T,sigma,d=0.0,FlagIsCall=true)"
 """
 Black & Scholes Vega for European Options
 
