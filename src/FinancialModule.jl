@@ -37,7 +37,7 @@ julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
 1.1023600107733191
 ```
 """
-function blsprice{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
+function blsprice{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   d2=d1-sigma*sqrt(T);
@@ -73,7 +73,7 @@ julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
 0.5452173371920436
 ```
 """
-function blsdelta{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
+function blsdelta{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   Out=0.0;
@@ -108,7 +108,7 @@ julia> blsgamma(10.0,10.0,0.01,2.0,0.2,0.01)
 0.13687881535712826
 ```
 """
-function blsgamma{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
+function blsgamma{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
   #For coherence i left the last boolean input.
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
@@ -139,7 +139,7 @@ julia> blsvega(10.0,10.0,0.01,2.0,0.2,0.01)
 5.475152614285131
 ```
 """
-function blsvega{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
+function blsvega{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
   #For coherence i left the last boolean input.
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
@@ -170,7 +170,7 @@ julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
 8.699626722294234
 ```
 """
-function blsrho{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
+function blsrho{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d2=(log(S0/K)+(r-d-sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   if (flag)
@@ -204,7 +204,7 @@ julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
 -0.26273403060652334
 ```
 """
-function blstheta{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0,flag::Bool=true)
+function blstheta{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
     blscheck(S0,K,r,T,sigma,d);
 	sqrtT       = sqrt(T);
 	sigma_sqrtT = sigma .* sqrtT;
@@ -225,7 +225,7 @@ end
 
 
 "Check input for Black Scholes Formula"
-function blscheck{A <: Number,B <: Number,C <: Number,D <: Number,E <: Number,F <: Number}(S0::A,K::B,r::C,T::D,sigma::E,d::F=0.0)
+function blscheck{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0)
 if isa(S0,Complex)
 	if (S0.re< S0.re*0)
 		error("Spot Price Cannot Be Negative")
@@ -242,13 +242,13 @@ elseif isa(sigma,Complex)
 	if (sigma.re< sigma.re*0)
 		error("Volatility Cannot Be Negative")
 	end
-elseif (S0< A(0))
+elseif (S0< num1(0))
 	error("Spot Price Cannot Be Negative")
-elseif (K< B(0))
+elseif (K< num2(0))
 	error("Strike Price Cannot Be Negative")
-elseif (T< D(0))
+elseif (T< num4(0))
 	error("Time to Maturity Cannot Be Negative")
-elseif (sigma< E(0))
+elseif (sigma< num5(0))
 	error("Volatility Cannot Be Negative")
 end
 return;
@@ -352,8 +352,8 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 0.3433730534290586
 ```
 """
-function blsimpv{A <: Real,B <: Real,C <: Real,D <: Real,E <: Real,F <: Real}(S0::A,K::B,r::C,T::D,Price::E,d::F=0.0,flag::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
-if (Price< E(0))
+function blsimpv{num1 <: Real,num2 <: Real,num3 <: Real,num4 <: Real,num5 <: Real,num6 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,d::num6=0.0,flag::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
+if (Price< num5(0))
 	error("Option Price Cannot Be Negative")
 end
 blscheck(S0,K,r,T,0.1,d);
