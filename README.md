@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/rcalxrc08/FinancialModule.jl.svg?branch=master)](https://travis-ci.org/rcalxrc08/FinancialModule.jl)
 [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/147ulk4et2sim293?svg=true)](https://ci.appveyor.com/project/rcalxrc08/financialmodule-jl)
 [![codecov](https://codecov.io/gh/rcalxrc08/FinancialModule.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialModule.jl?branch=master)
-##### This is a Julia package containg some useful Financial function for Pricing and Risk Management for the Black and Scholes Model.
+##### This is a Julia package containing some useful Financial function for Pricing and Risk Management under the Black and Scholes Model.
 ###### The syntax is the same of the Matlab Financial Toolbox.
 It currently contains the following functions:
 
