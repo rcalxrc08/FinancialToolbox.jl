@@ -1,4 +1,4 @@
-my_tests = ["test1.jl";"testComplexNumbers.jl";"testDualNumbers.jl";"testHyperDualNumbers.jl"]
+my_tests = ["testRealNumbers.jl";"testComplexNumbers.jl";"testDualNumbers.jl";"testHyperDualNumbers.jl"]
 
 println("Running tests:")
 i=1;
