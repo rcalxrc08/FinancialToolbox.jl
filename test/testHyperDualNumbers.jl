@@ -76,7 +76,7 @@ println("Hyper Dual Numbers Test Passed")
 
 #TEST OF INPUT VALIDATION
 println("Starting Input Validation Test Hyper Dual Numbers")
-print_with_color(:blue,"----Testing Negative  Spot Price ")
+print_with_color(:blue,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsprice(-ssspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(-ssspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(-ssspot,K,r,T,sigma,d))
@@ -84,7 +84,7 @@ print_with_color(:blue,"----Testing Negative  Spot Price ")
 @test_throws(ErrorException, blsrho(-ssspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-ssspot,K,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Strike Price ")
+print_with_color(:blue,"----Testing Negative  Strike Price \n")
 KK=Dual(K,0);
 @test_throws(ErrorException, blsprice(spot,-KKK,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,-KKK,r,T,sigma,d))
@@ -93,7 +93,7 @@ KK=Dual(K,0);
 @test_throws(ErrorException, blsrho(spot,-KKK,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-KKK,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Time to Maturity ")
+print_with_color(:blue,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsprice(spot,K,r,-TTT,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,-TTT,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,-TTT,sigma,d))
@@ -101,7 +101,7 @@ print_with_color(:blue,"----Testing Negative  Time to Maturity ")
 @test_throws(ErrorException, blsrho(spot,K,r,-TTT,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-TTT,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Volatility ")
+print_with_color(:blue,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsprice(spot,K,r,T,-sssigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-sssigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-sssigma,d))

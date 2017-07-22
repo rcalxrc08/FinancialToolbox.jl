@@ -63,7 +63,7 @@ println("")
 
 #TEST OF INPUT VALIDATION
 println("Starting Input Validation Test Dual")
-print_with_color(:blue,"----Testing Negative  Spot Price ")
+print_with_color(:blue,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsprice(-sspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(-sspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(-sspot,K,r,T,sigma,d))
@@ -71,7 +71,7 @@ print_with_color(:blue,"----Testing Negative  Spot Price ")
 @test_throws(ErrorException, blsrho(-sspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-sspot,K,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Strike Price ")
+print_with_color(:blue,"----Testing Negative  Strike Price \n")
 KK=Dual(K,0);
 @test_throws(ErrorException, blsprice(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,-KK,r,T,sigma,d))
@@ -80,7 +80,7 @@ KK=Dual(K,0);
 @test_throws(ErrorException, blsrho(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-KK,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Time to Maturity ")
+print_with_color(:blue,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsprice(spot,K,r,-TT,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,-TT,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,-TT,sigma,d))
@@ -88,7 +88,7 @@ print_with_color(:blue,"----Testing Negative  Time to Maturity ")
 @test_throws(ErrorException, blsrho(spot,K,r,-TT,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-TT,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Volatility ")
+print_with_color(:blue,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsprice(spot,K,r,T,-ssigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-ssigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-ssigma,d))
