@@ -223,6 +223,37 @@ function blstheta{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,nu
 	return Out;
 end
 
+export blslambda;
+"""
+Black & Scholes Lambda for European Options
+
+    Lambda=blslambda(S0,K,r,T,sigma,d=0.0,FlagIsCall=true)
+	
+Where:\n
+	S0         = Value of the Underlying.
+	K          = Strike Price of the Option.
+	r          = Zero Rate.
+	T          = Time to Maturity of the Option.
+	sigma      = Implied Volatility.
+	d          = Implied Dividend of the Underlying.
+	FlagIsCall = true for Call Options, false for Put Options.
+
+	Lambda        = lambda of the European Option.
+
+# Example
+```julia-repl
+julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
+4.945909973725978
+```
+"""
+function blslambda{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
+  blscheck(S0,K,r,T,sigma,d);
+  Price=blsprice(S0,K,r,T,sigma,d);
+  tmpOut=blsdelta(S0,K,r,T,sigma,d);
+  Out=tmpOut*S0/Price;
+return Out;
+end
+
 
 "Check input for Black Scholes Formula"
 function blscheck{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0)
@@ -367,5 +398,73 @@ end
 Sigma=ResultsOptimization;
 return Sigma;
 end
+
+##	ADDITIONAL Function
+export blspsi;
+"""
+Black & Scholes Psi for European Options
+
+    Psi=blspsi(S0,K,r,T,sigma,d=0.0,FlagIsCall=true)
+	
+Where:\n
+	S0         = Value of the Underlying.
+	K          = Strike Price of the Option.
+	r          = Zero Rate.
+	T          = Time to Maturity of the Option.
+	sigma      = Implied Volatility.
+	d          = Implied Dividend of the Underlying.
+	FlagIsCall = true for Call Options, false for Put Options.
+
+	Psi        = psi of the European Option.
+
+# Example
+```julia-repl
+julia> blspsi(10.0,10.0,0.01,2.0,0.2,0.01)
+-10.904346743840872
+```
+"""
+function blspsi{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
+  blscheck(S0,K,r,T,sigma,d);
+  d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
+  if (flag)
+	Out=-S0*exp(-d*T)*normcdf(d1)*T;
+  else
+    Out=S0*exp(-d*T)*normcdf(-d1)*T;
+  end
+return Out;
+end
+
+export blsvanna;
+"""
+Black & Scholes Vanna for European Options
+
+    Vanna=blsvanna(S0,K,r,T,sigma,d=0.0,FlagIsCall=true)
+	
+Where:\n
+	S0         = Value of the Underlying.
+	K          = Strike Price of the Option.
+	r          = Zero Rate.
+	T          = Time to Maturity of the Option.
+	sigma      = Implied Volatility.
+	d          = Implied Dividend of the Underlying.
+	FlagIsCall = true for Call Options, false for Put Options.
+
+	Vanna        = vanna of the European Option.
+
+# Example
+```julia-repl
+julia> blsvanna(10.0,10.0,0.01,2.0,0.2,0.01)
+0.2737576307142566
+```
+"""
+function blsvanna{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,flag::Bool=true)
+  blscheck(S0,K,r,T,sigma,d);
+  d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
+  d2=d1-sigma*sqrt(T);
+  Out=-exp(-d*T)*normpdf(d1)*d2/sigma;
+return Out;
+end
+
+
 
 end#End Module
