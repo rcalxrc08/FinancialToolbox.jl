@@ -4,13 +4,13 @@ export normcdf;
 if (VERSION.minor>=6)
 	using SpecialFunctions.erf
 end
-function normcdf(x)
+function normcdf{number <: Number}(x::number)
   return (1.0+erf(x/sqrt(2.0)))/2.0;
 end
 
 export normpdf;
 
-function normpdf(x)
+function normpdf{number <: Number}(x::number)
   return exp(-0.5*x.^2)/sqrt(2*pi);
 end
 
