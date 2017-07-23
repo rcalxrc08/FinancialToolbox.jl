@@ -37,13 +37,15 @@ print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(RhoCall-9.066278382208203)<testToll)
 print_with_color(:blue,"-----Testing Implied Volatility\n");
 @test(abs(SigmaCall-0.2)<testToll)
-#Low Xtol
-tol_low=1e-12;
+#Low Xtol for blsimpv
+tol_low=1e-16;
 tol_high=1e-3;
 SigmaLowXTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_low,tol_high);
+print_with_color(:blue,"-----Testing Implied Volatility Low X tol, High Y tol");
 @test((abs(blsprice(spot,K,r,T,SigmaLowXTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowXTol-sigma)<tol_low)
-#Low Ytol
+#Low Ytol for blsimpv
 SigmaLowYTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_high,tol_low);
+print_with_color(:blue,"-----Testing Implied Volatility Low Y tol, High X tol");
 @test((abs(blsprice(spot,K,r,T,SigmaLowYTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowYTol-sigma)<tol_low)
 
 print_with_color(:yellow,"---  European Put: Price and Sensitivities\n")
