@@ -1,7 +1,7 @@
 using Base.Test
 using FinancialModule
 
-println("Starting Complex Number Test")
+print_with_color(:green,"Starting Complex Number Test\n")
 
 #Test Parameters
 testToll=1e-14;
@@ -37,9 +37,12 @@ Gcall1(r)=blsprice(spot,K,r,T,sigma,d);
 Hcall1(T)=blsprice(spot,K,r,T,sigma,d);
 Lcall1(sigma)=blsprice(spot,K,r,T,sigma,d);
 #TEST
-print_with_color(:green,"--- European Call Sensitivities: Complex Step Approximation\n")
+print_with_color(:yellow,"--- European Call Sensitivities: Complex Step Approximation\n")
+print_with_color(:blue,"-----Testing Delta\n");
 @test(abs(df(Fcall1,spot).im-DeltaCall)<DerToll)
+print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(df(Gcall1,r).im-RhoCall)<DerToll)
+print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(-df(Hcall1,T).im-ThetaCall)<DerToll)
 
 ## Complex Test with Complex Step Approximation for European Put
@@ -48,18 +51,22 @@ Fput1(spot)=blsprice(spot,K,r,T,sigma,d,false);
 Gput1(r)=blsprice(spot,K,r,T,sigma,d,false);
 Hput1(T)=blsprice(spot,K,r,T,sigma,d,false);
 #TEST
-print_with_color(:green,"--- European Put Sensitivities: Complex Step Approximation\n")
+print_with_color(:yellow,"--- European Put Sensitivities: Complex Step Approximation\n")
+print_with_color(:blue,"-----Testing Delta\n");
 @test(abs(df(Fput1,spot).im-DeltaPut)<DerToll)
+print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(df(Gput1,r).im-RhoPut)<DerToll)
+print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(-df(Hput1,T).im-ThetaPut)<DerToll)
 
+print_with_color(:blue,"-----Testing Vega\n");
 @test(abs(df(Lcall1,sigma).im-Vega)<DerToll)
-println("Complex Number Test Passed")
+print_with_color(:green,"Complex Number Test Passed\n")
 println("")
 
 #TEST OF INPUT VALIDATION
-println("Starting Input Validation Test Complex")
-print_with_color(:blue,"----Testing Negative  Spot Price \n")
+print_with_color(:magenta,"Starting Input Validation Test Complex\n")
+print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsprice(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(-spot+1im,K,r,T,sigma,d))
@@ -67,7 +74,7 @@ print_with_color(:blue,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsrho(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-spot+1im,K,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Strike Price \n")
+print_with_color(:cyan,"----Testing Negative  Strike Price \n")
 @test_throws(ErrorException, blsprice(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,-K+1im,r,T,sigma,d))
@@ -75,7 +82,7 @@ print_with_color(:blue,"----Testing Negative  Strike Price \n")
 @test_throws(ErrorException, blsrho(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-K+1im,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Time to Maturity \n")
+print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsprice(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,-T+1im,sigma,d))
@@ -83,7 +90,7 @@ print_with_color(:blue,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsrho(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-T+1im,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Volatility \n")
+print_with_color(:cyan,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsprice(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-sigma+1im,d))
@@ -91,4 +98,4 @@ print_with_color(:blue,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsrho(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-sigma+1im,d))
 
-println("Complex Input Validation Test Passed\n")
+print_with_color(:magenta,"Complex Input Validation Test Passed\n")

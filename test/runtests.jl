@@ -1,11 +1,14 @@
-my_tests = ["testRealNumbers.jl";"testComplexNumbers.jl";"testDualNumbers.jl";"testHyperDualNumbers.jl"]
+test_list = ["testRealNumbers.jl";"testComplexNumbers.jl";"testDualNumbers.jl";"testHyperDualNumbers.jl"]
 
-println("Running tests:")
+println("Running tests:\n")
 i=1;
-for my_test in my_tests
-    println("  * $(my_test) *")
-    include(my_test)
-	if (i<length(my_tests))
+for current_test in test_list
+	println("------------------------------------------------------------")
+    println("  * $(current_test) *")
+    include(current_test)
+	println("------------------------------------------------------------")
+	if (i<length(test_list))
 		println("")
 	end
+	i+=1;
 end

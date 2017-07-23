@@ -1,7 +1,7 @@
 using Base.Test
 using FinancialModule
 
-println("Starting Dual Numbers Test")
+print_with_color(:green,"Starting Dual Numbers Test\n")
 
 #Test Parameters
 testToll=1e-14;
@@ -46,24 +46,31 @@ ssigma=dual(sigma,1.0);
 
 #Automatic Differentiation Test
 #TEST
-println("--- European Call Sensitivities: DualNumbers")
+print_with_color(:yellow,"--- European Call Sensitivities: DualNumbers\n")
+print_with_color(:blue,"-----Testing Delta\n");
 @test(abs(FcallDual(sspot).epsilon-DeltaCall)<DerToll)
+print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(GcallDual(rr).epsilon-RhoCall)<DerToll)
+print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(-HcallDual(TT).epsilon-ThetaCall)<DerToll)
 
 #TEST
-println("--- European Put Sensitivities: DualNumbers")
+print_with_color(:yellow,"--- European Put Sensitivities: DualNumbers\n")
+print_with_color(:blue,"-----Testing Delta\n");
 @test(abs(FputDual(sspot).epsilon-DeltaPut)<DerToll)
+print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(GputDual(rr).epsilon-RhoPut)<DerToll)
+print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(-HputDual(TT).epsilon-ThetaPut)<DerToll)
 
+print_with_color(:blue,"-----Testing Vega\n");
 @test(abs(LcallDual(ssigma).epsilon-Vega)<DerToll)
-println("Dual Numbers Test Passed")
+print_with_color(:green,"Dual Numbers Test Passed\n")
 println("")
 
 #TEST OF INPUT VALIDATION
-println("Starting Input Validation Test Dual")
-print_with_color(:blue,"----Testing Negative  Spot Price \n")
+print_with_color(:magenta,"Starting Input Validation Test Dual\n")
+print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsprice(-sspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(-sspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(-sspot,K,r,T,sigma,d))
@@ -71,7 +78,7 @@ print_with_color(:blue,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsrho(-sspot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-sspot,K,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Strike Price \n")
+print_with_color(:cyan,"----Testing Negative  Strike Price \n")
 KK=Dual(K,0);
 @test_throws(ErrorException, blsprice(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,-KK,r,T,sigma,d))
@@ -80,7 +87,7 @@ KK=Dual(K,0);
 @test_throws(ErrorException, blsrho(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-KK,r,T,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Time to Maturity \n")
+print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsprice(spot,K,r,-TT,sigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,-TT,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,-TT,sigma,d))
@@ -88,7 +95,7 @@ print_with_color(:blue,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsrho(spot,K,r,-TT,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-TT,sigma,d))
 
-print_with_color(:blue,"----Testing Negative  Volatility \n")
+print_with_color(:cyan,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsprice(spot,K,r,T,-ssigma,d))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-ssigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-ssigma,d))
@@ -96,4 +103,4 @@ print_with_color(:blue,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsrho(spot,K,r,T,-ssigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-ssigma,d))
 
-println("Dual Input Validation Test Passed\n")
+print_with_color(:magenta,"Dual Input Validation Test Passed\n")
