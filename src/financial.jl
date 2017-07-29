@@ -438,7 +438,7 @@ Where:\n
 # Example
 ```julia-repl
 julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
-0.3433730534290586
+0.36568658096623635
 ```
 """
 function blkimpv{num1 <: Real,num2 <: Real,num3 <: Real,num4 <: Real,num5 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
