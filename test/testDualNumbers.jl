@@ -14,7 +14,6 @@ ThetaCall=blstheta(spot,K,r,T,sigma,d);
 RhoCall=blsrho(spot,K,r,T,sigma,d);
 LambdaCall=blslambda(spot,K,r,T,sigma,d);
 VannaCall=blsvanna(spot,K,r,T,sigma,d);
-SigmaCall=blsimpv(spot, K, r, T, PriceCall, d);
 
 #EuropeanPut Option
 PricePut=blsprice(spot,K,r,T,sigma,d,false);
@@ -23,7 +22,6 @@ ThetaPut=blstheta(spot,K,r,T,sigma,d,false);
 RhoPut=blsrho(spot,K,r,T,sigma,d,false);
 LambdaPut=blslambda(spot,K,r,T,sigma,d,false);
 VannaPut=blsvanna(spot,K,r,T,sigma,d,false);
-SigmaPut=blsimpv(spot, K, r, T, PricePut, d,false);
 
 #Equals for both Options
 Gamma=blsgamma(spot,K,r,T,sigma,d);
@@ -87,6 +85,7 @@ println("")
 print_with_color(:magenta,"Starting Input Validation Test Dual\n")
 print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsprice(-SpotDual,K,r,T,sigma,d))
+@test_throws(ErrorException, blkprice(-SpotDual,K,r,T,sigma))
 @test_throws(ErrorException, blsdelta(-SpotDual,K,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(-SpotDual,K,r,T,sigma,d))
 @test_throws(ErrorException, blstheta(-SpotDual,K,r,T,sigma,d))
@@ -99,6 +98,7 @@ print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 print_with_color(:cyan,"----Testing Negative  Strike Price \n")
 KK=Dual(K,0);
 @test_throws(ErrorException, blsprice(spot,-KK,r,T,sigma,d))
+@test_throws(ErrorException, blkprice(spot,-KK,r,T,sigma))
 @test_throws(ErrorException, blsdelta(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blstheta(spot,-KK,r,T,sigma,d))
@@ -110,6 +110,7 @@ KK=Dual(K,0);
 
 print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsprice(spot,K,r,-TDual,sigma,d))
+@test_throws(ErrorException, blkprice(spot,K,r,-TDual,sigma))
 @test_throws(ErrorException, blsdelta(spot,K,r,-TDual,sigma,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,-TDual,sigma,d))
 @test_throws(ErrorException, blstheta(spot,K,r,-TDual,sigma,d))
@@ -121,6 +122,7 @@ print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
 
 print_with_color(:cyan,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsprice(spot,K,r,T,-SigmaDual,d))
+@test_throws(ErrorException, blkprice(spot,K,r,T,-SigmaDual))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-SigmaDual,d))
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-SigmaDual,d))
 @test_throws(ErrorException, blstheta(spot,K,r,T,-SigmaDual,d))

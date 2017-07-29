@@ -50,6 +50,34 @@ function blsprice{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,nu
 return Out;
 end
 
+export blkprice;
+"""
+Black Price for European Options
+
+    Price=blkprice(F0,K,r,T,sigma,FlagIsCall=true)
+	
+Where:\n
+	F0         = Value of the Forward.
+	K          = Strike Price of the Option.
+	r          = Zero Rate.
+	T          = Time to Maturity of the Option.
+	sigma      = Implied Volatility.
+	FlagIsCall = true for Call Options, false for Put Options.
+
+	Price      = price of the European Option.
+
+# Example
+```julia-repl
+julia> blkprice(10.0,10.0,0.01,2.0,0.2,0.01)
+1.1023600107733191
+```
+"""
+function blkprice{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number}(F0::num1,K::num2,r::num3,T::num4,sigma::num5,FlagIsCall::Bool=true)
+  blscheck(F0,K,r,T,sigma,r);
+  Out=blsprice(F0,K,r,T,sigma,r,FlagIsCall);
+return Out;
+end
+
 export blsdelta;
 """
 Black & Scholes Delta for European Options
@@ -396,6 +424,33 @@ catch e
 	error("The Inversion of Black Scholes Price Failed with the following error: $e")
 end
 Sigma=ResultsOptimization;
+return Sigma;
+end
+
+export blkimpv
+"""
+Black Implied Volatility for European Options
+
+    Volatility=blkimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15) 
+	
+Where:\n
+	S0         = Value of the Forward.
+	K          = Strike Price of the Option.
+	r          = Zero Rate.
+	T          = Time to Maturity of the Option.
+	Price      = Price of the Option.
+	FlagIsCall = true for Call Options, false for Put Options.
+
+	Volatility = implied volatility of the European Option.
+
+# Example
+```julia-repl
+julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
+0.3433730534290586
+```
+"""
+function blkimpv{num1 <: Real,num2 <: Real,num3 <: Real,num4 <: Real,num5 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
+Sigma=blsimpv(S0,K,r,T,Price,r,FlagIsCall,xtol,ytol)
 return Sigma;
 end
 
