@@ -12,14 +12,20 @@ PriceCall=blsprice(spot,K,r,T,sigma,d);
 DeltaCall=blsdelta(spot,K,r,T,sigma,d);
 ThetaCall=blstheta(spot,K,r,T,sigma,d);
 RhoCall=blsrho(spot,K,r,T,sigma,d);
+VannaCall=blsvanna(spot,K,r,T,sigma,d);
+PsiCall=blspsi(spot,K,r,T,sigma,d);
+LambdaCall=blslambda(spot,K,r,T,sigma,d);
 SigmaCall=blsimpv(spot, K, r, T, PriceCall, d);
 
 #EuropeanPut Option
 PricePut=blsprice(spot,K,r,T,sigma,d,false);
 DeltaPut=blsdelta(spot,K,r,T,sigma,d,false);
 ThetaPut=blstheta(spot,K,r,T,sigma,d,false);
+VannaPut=blsvanna(spot,K,r,T,sigma,d,false);
+PsiPut=blspsi(spot,K,r,T,sigma,d,false);
+LambdaPut=blslambda(spot,K,r,T,sigma,d,false);
 RhoPut=blsrho(spot,K,r,T,sigma,d,false);
-SigmaPut=blsimpv(spot, K, r, T, PricePut, d,false);
+SigmaPut=blsimpv(spot,K,r,T,PricePut,d,false);
 
 #Equals for both Options
 Gamma=blsgamma(spot,K,r,T,sigma,d);
@@ -35,17 +41,19 @@ print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(ThetaCall+0.303776337550247)<testToll)
 print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(RhoCall-9.066278382208203)<testToll)
+print_with_color(:blue,"-----Testing Lambda\n");
+@test(abs(LambdaCall-4.805518955034612)<testToll)
 print_with_color(:blue,"-----Testing Implied Volatility\n");
 @test(abs(SigmaCall-0.2)<testToll)
 #Low Xtol for blsimpv
 tol_low=1e-16;
 tol_high=1e-3;
 SigmaLowXTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_low,tol_high);
-print_with_color(:blue,"-----Testing Implied Volatility Low X tol, High Y tol");
+print_with_color(:blue,"-----Testing Implied Volatility Low X tol, High Y tol\n");
 @test((abs(blsprice(spot,K,r,T,SigmaLowXTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowXTol-sigma)<tol_low)
 #Low Ytol for blsimpv
 SigmaLowYTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_high,tol_low);
-print_with_color(:blue,"-----Testing Implied Volatility Low Y tol, High X tol");
+print_with_color(:blue,"-----Testing Implied Volatility Low Y tol, High X tol\n");
 @test((abs(blsprice(spot,K,r,T,SigmaLowYTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowYTol-sigma)<tol_low)
 
 print_with_color(:yellow,"---  European Put: Price and Sensitivities\n")
@@ -58,6 +66,8 @@ print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(ThetaPut+0.209638317050458)<testToll)
 print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(RhoPut+10.149510400838260)<testToll)
+print_with_color(:blue,"-----Testing Lambda\n");
+@test(abs(LambdaPut+4.089468980160465)<testToll)
 print_with_color(:blue,"-----Testing Implied Volatility\n");
 @test(abs(SigmaPut-0.2)<testToll)
 
@@ -79,7 +89,10 @@ print_with_color(:cyan,"----Testing Negative Spot Price\n")
 @test_throws(ErrorException, blsgamma(-spot,K,r,T,sigma,d))
 @test_throws(ErrorException, blstheta(-spot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsrho(-spot,K,r,T,sigma,d))
-@test_throws(ErrorException, blsvega(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blsvega(-spot,K,r,T,sigma,d));
+@test_throws(ErrorException, blspsi(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blslambda(-spot,K,r,T,sigma,d))
+@test_throws(ErrorException, blsvanna(-spot,K,r,T,sigma,d))
 @test_throws(ErrorException, blsimpv(-spot,K,r,T,PriceCall,d))
 
 print_with_color(:cyan,"----Testing Negative Strike Price\n")
@@ -89,6 +102,9 @@ print_with_color(:cyan,"----Testing Negative Strike Price\n")
 @test_throws(ErrorException, blstheta(spot,-K,r,T,sigma,d))
 @test_throws(ErrorException, blsrho(spot,-K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blspsi(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blslambda(spot,-K,r,T,sigma,d))
+@test_throws(ErrorException, blsvanna(spot,-K,r,T,sigma,d))
 @test_throws(ErrorException, blsimpv(spot,-K,r,T,PriceCall,d))
 
 print_with_color(:cyan,"----Testing Negative Time to Maturity\n")
@@ -98,6 +114,9 @@ print_with_color(:cyan,"----Testing Negative Time to Maturity\n")
 @test_throws(ErrorException, blstheta(spot,K,r,-T,sigma,d))
 @test_throws(ErrorException, blsrho(spot,K,r,-T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blspsi(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blslambda(spot,K,r,-T,sigma,d))
+@test_throws(ErrorException, blsvanna(spot,K,r,-T,sigma,d))
 @test_throws(ErrorException, blsimpv(spot,K,r,-T,PriceCall,d))
 
 print_with_color(:cyan,"----Testing Negative Volatility\n")
@@ -106,6 +125,9 @@ print_with_color(:cyan,"----Testing Negative Volatility\n")
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-sigma,d))
 @test_throws(ErrorException, blstheta(spot,K,r,T,-sigma,d))
 @test_throws(ErrorException, blsrho(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blspsi(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blslambda(spot,K,r,T,-sigma,d))
+@test_throws(ErrorException, blsvanna(spot,K,r,T,-sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-sigma,d))
 print_with_color(:cyan,"----Testing Negative Option Price\n")
 @test_throws(ErrorException, blsimpv(spot,K,r,T,-PriceCall,d))

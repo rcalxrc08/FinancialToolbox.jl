@@ -12,6 +12,7 @@ spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
 PriceCall=blsprice(spot,K,r,T,sigma,d);
 DeltaCall=blsdelta(spot,K,r,T,sigma,d);
 ThetaCall=blstheta(spot,K,r,T,sigma,d);
+LambdaCall=blslambda(spot,K,r,T,sigma,d);
 RhoCall=blsrho(spot,K,r,T,sigma,d);
 SigmaCall=blsimpv(spot, K, r, T, PriceCall, d);
 
@@ -20,6 +21,7 @@ PricePut=blsprice(spot,K,r,T,sigma,d,false);
 DeltaPut=blsdelta(spot,K,r,T,sigma,d,false);
 ThetaPut=blstheta(spot,K,r,T,sigma,d,false);
 RhoPut=blsrho(spot,K,r,T,sigma,d,false);
+LambdaPut=blslambda(spot,K,r,T,sigma,d,false);
 SigmaPut=blsimpv(spot, K, r, T, PricePut, d,false);
 
 #Equals for both Options
@@ -36,6 +38,7 @@ Fcall1(spot)=blsprice(spot,K,r,T,sigma,d);
 Gcall1(r)=blsprice(spot,K,r,T,sigma,d);
 Hcall1(T)=blsprice(spot,K,r,T,sigma,d);
 Lcall1(sigma)=blsprice(spot,K,r,T,sigma,d);
+Pcall1(spot)=blsprice(spot,K,r,T,sigma,d)*spot.re/blsprice(spot.re,K,r,T,sigma,d);
 #TEST
 print_with_color(:yellow,"--- European Call Sensitivities: Complex Step Approximation\n")
 print_with_color(:blue,"-----Testing Delta\n");
@@ -44,12 +47,15 @@ print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(df(Gcall1,r).im-RhoCall)<DerToll)
 print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(-df(Hcall1,T).im-ThetaCall)<DerToll)
+print_with_color(:blue,"-----Testing Lambda\n");
+@test(abs(df(Pcall1,spot).im-LambdaCall)<DerToll)
 
 ## Complex Test with Complex Step Approximation for European Put
 #Function definition
 Fput1(spot)=blsprice(spot,K,r,T,sigma,d,false);
 Gput1(r)=blsprice(spot,K,r,T,sigma,d,false);
 Hput1(T)=blsprice(spot,K,r,T,sigma,d,false);
+Pput1(spot)=blsprice(spot,K,r,T,sigma,d,false)*spot.re/blsprice(spot.re,K,r,T,sigma,d,false);
 #TEST
 print_with_color(:yellow,"--- European Put Sensitivities: Complex Step Approximation\n")
 print_with_color(:blue,"-----Testing Delta\n");
@@ -58,6 +64,8 @@ print_with_color(:blue,"-----Testing Rho\n");
 @test(abs(df(Gput1,r).im-RhoPut)<DerToll)
 print_with_color(:blue,"-----Testing Theta\n");
 @test(abs(-df(Hput1,T).im-ThetaPut)<DerToll)
+print_with_color(:blue,"-----Testing Lambda\n");
+@test(abs(df(Pput1,spot).im-LambdaPut)<DerToll)
 
 print_with_color(:blue,"-----Testing Vega\n");
 @test(abs(df(Lcall1,sigma).im-Vega)<DerToll)
@@ -72,6 +80,9 @@ print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsgamma(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blstheta(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blsrho(-spot+1im,K,r,T,sigma,d))
+@test_throws(ErrorException, blspsi(-spot+1im,K,r,T,sigma,d))
+@test_throws(ErrorException, blslambda(-spot+1im,K,r,T,sigma,d))
+@test_throws(ErrorException, blsvanna(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-spot+1im,K,r,T,sigma,d))
 
 print_with_color(:cyan,"----Testing Negative  Strike Price \n")
@@ -80,6 +91,9 @@ print_with_color(:cyan,"----Testing Negative  Strike Price \n")
 @test_throws(ErrorException, blsgamma(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blstheta(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blsrho(spot,-K+1im,r,T,sigma,d))
+@test_throws(ErrorException, blspsi(spot,-K+1im,r,T,sigma,d))
+@test_throws(ErrorException, blslambda(spot,-K+1im,r,T,sigma,d))
+@test_throws(ErrorException, blsvanna(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-K+1im,r,T,sigma,d))
 
 print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
@@ -88,6 +102,9 @@ print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsgamma(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blstheta(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blsrho(spot,K,r,-T+1im,sigma,d))
+@test_throws(ErrorException, blspsi(spot,K,r,-T+1im,sigma,d))
+@test_throws(ErrorException, blslambda(spot,K,r,-T+1im,sigma,d))
+@test_throws(ErrorException, blsvanna(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-T+1im,sigma,d))
 
 print_with_color(:cyan,"----Testing Negative  Volatility \n")
@@ -96,6 +113,9 @@ print_with_color(:cyan,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsgamma(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blstheta(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blsrho(spot,K,r,T,-sigma+1im,d))
+@test_throws(ErrorException, blspsi(spot,K,r,T,-sigma+1im,d))
+@test_throws(ErrorException, blslambda(spot,K,r,T,-sigma+1im,d))
+@test_throws(ErrorException, blsvanna(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-sigma+1im,d))
 
 print_with_color(:magenta,"Complex Input Validation Test Passed\n")
