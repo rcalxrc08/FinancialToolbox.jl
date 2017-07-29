@@ -7,12 +7,14 @@
 It currently contains the following functions:
 
 - blsprice : Black & Scholes Price for European Options.
+- blkprice : Black Price for European Options.
 - blsdelta : Black & Scholes Delta sensitivity for European Options.
 - blsgamma : Black & Scholes Gamma sensitivity for European Options.
 - blstheta : Black & Scholes Theta sensitivity for European Options.
 - blsvega  : Black & Scholes Vega sensitivity for European Options.
 - blsrho   : Black & Scholes Rho sensitivity for European Options.
 - blsimpv  : Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
+- blkimpv  : Black Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 
 Currently supports classical numerical input, and other less common like:
 
