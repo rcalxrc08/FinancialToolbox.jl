@@ -13,6 +13,9 @@ It currently contains the following functions:
 - blstheta : Black & Scholes Theta sensitivity for European Options.
 - blsvega  : Black & Scholes Vega sensitivity for European Options.
 - blsrho   : Black & Scholes Rho sensitivity for European Options.
+- blslambda: Black & Scholes Lambda sensitivity for European Options.
+- blspsi   : Black & Scholes Psi sensitivity for European Options.
+- blsvanna : Black & Scholes Vanna sensitivity for European Options.
 - blsimpv  : Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 - blkimpv  : Black Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 
