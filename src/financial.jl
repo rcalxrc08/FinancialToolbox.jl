@@ -29,7 +29,7 @@ julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
 1.1023600107733191
 ```
 """
-function blsprice{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsprice{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   d2=d1-sigma*sqrt(T);
@@ -64,7 +64,7 @@ julia> blkprice(10.0,10.0,0.01,2.0,0.2)
 1.1023600107733191
 ```
 """
-function blkprice{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number}(F0::num1,K::num2,r::num3,T::num4,sigma::num5,FlagIsCall::Bool=true)
+function blkprice{num1 ,num2 ,num3 ,num4 ,num5 <: Number}(F0::num1,K::num2,r::num3,T::num4,sigma::num5,FlagIsCall::Bool=true)
   blscheck(F0,K,r,T,sigma,r);
   Out=blsprice(F0,K,r,T,sigma,r,FlagIsCall);
 return Out;
@@ -93,7 +93,7 @@ julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
 0.5452173371920436
 ```
 """
-function blsdelta{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsdelta{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   Out=0.0;
@@ -128,7 +128,7 @@ julia> blsgamma(10.0,10.0,0.01,2.0,0.2,0.01)
 0.13687881535712826
 ```
 """
-function blsgamma{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsgamma{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   #For coherence i left the last boolean input.
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
@@ -159,7 +159,7 @@ julia> blsvega(10.0,10.0,0.01,2.0,0.2,0.01)
 5.475152614285131
 ```
 """
-function blsvega{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsvega{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   #For coherence i left the last boolean input.
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
@@ -190,7 +190,7 @@ julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
 8.699626722294234
 ```
 """
-function blsrho{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsrho{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d2=(log(S0/K)+(r-d-sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   if FlagIsCall
@@ -224,7 +224,7 @@ julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
 -0.26273403060652334
 ```
 """
-function blstheta{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blstheta{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
     blscheck(S0,K,r,T,sigma,d);
 	sqrtT       = sqrt(T);
 	sigma_sqrtT = sigma .* sqrtT;
@@ -266,7 +266,7 @@ julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
 4.945909973725978
 ```
 """
-function blslambda{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blslambda{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   Price=blsprice(S0,K,r,T,sigma,d,FlagIsCall);
   tmpOut=blsdelta(S0,K,r,T,sigma,d,FlagIsCall);
@@ -276,7 +276,7 @@ end
 
 
 "Check input for Black Scholes Formula"
-function blscheck{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0)
+function blscheck{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0)
 if isa(S0,Complex)
 	if (S0.re< S0.re*0)
 		error("Spot Price Cannot Be Negative")
@@ -403,7 +403,7 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 0.3433730534290586
 ```
 """
-function blsimpv{num1 <: Real,num2 <: Real,num3 <: Real,num4 <: Real,num5 <: Real,num6 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,d::num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
+function blsimpv{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,d::num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 if (Price< num5(0))
 	error("Option Price Cannot Be Negative")
 end
@@ -441,7 +441,7 @@ julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
 0.36568658096623635
 ```
 """
-function blkimpv{num1 <: Real,num2 <: Real,num3 <: Real,num4 <: Real,num5 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
+function blkimpv{num1 ,num2 ,num3 ,num4 ,num5 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 Sigma=blsimpv(S0,K,r,T,Price,r,FlagIsCall,xtol,ytol)
 return Sigma;
 end
@@ -470,7 +470,7 @@ julia> blspsi(10.0,10.0,0.01,2.0,0.2,0.01)
 -10.904346743840872
 ```
 """
-function blspsi{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blspsi{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   if FlagIsCall
@@ -504,7 +504,7 @@ julia> blsvanna(10.0,10.0,0.01,2.0,0.2,0.01)
 0.2737576307142566
 ```
 """
-function blsvanna{num1 <: Number,num2 <: Number,num3 <: Number,num4 <: Number,num5 <: Number,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsvanna{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,sigma,d);
   d1=(log(S0/K)+(r-d+sigma*sigma*0.5)*T)/(sigma*sqrt(T));
   d2=d1-sigma*sqrt(T);
