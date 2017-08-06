@@ -54,7 +54,7 @@ Price=blsprice(spot,K,r,T,σ,d)
 
 #Check the Result
 Volatility=blsimpv(spot,K,r,T,Price,d)
-#Volatility=0.20000000000000007
+#Volatility=0.20000000000000002
 ```
 
 ### Contributors
