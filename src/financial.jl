@@ -33,13 +33,13 @@ function blsprice{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
   d2=d1-σ*sqrt(T);
-  Out=0.0;
+  Price=0.0;
   if FlagIsCall
-	Out=S0*exp(-d*T)*normcdf(d1)-K*exp(-r*T)*normcdf(d2);
+	   Price=S0*exp(-d*T)*normcdf(d1)-K*exp(-r*T)*normcdf(d2);
   else
-	Out=-S0*exp(-d*T)*normcdf(-d1)+K*exp(-r*T)*normcdf(-d2);
+	   Price=-S0*exp(-d*T)*normcdf(-d1)+K*exp(-r*T)*normcdf(-d2);
   end
-return Out;
+return Price;
 end
 
 
@@ -66,15 +66,15 @@ julia> blkprice(10.0,10.0,0.01,2.0,0.2)
 """
 function blkprice{num1 ,num2 ,num3 ,num4 ,num5 <: Number}(F0::num1,K::num2,r::num3,T::num4,σ::num5,FlagIsCall::Bool=true)
   blscheck(F0,K,r,T,σ);
-  Out=blsprice(F0,K,r,T,σ,r,FlagIsCall);
-return Out;
+  Price=blsprice(F0,K,r,T,σ,r,FlagIsCall);
+return Price;
 end
 
 
 """
 Black & Scholes Delta for European Options
 
-    Delta=blsdelta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+    Δ=blsdelta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -85,7 +85,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Delta= delta of the European Option.
+	Δ          = delta of the European Option.
 
 # Example
 ```julia-repl
@@ -96,20 +96,20 @@ julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
 function blsdelta{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
-  Out=0.0;
+  Δ=0.0;
   if FlagIsCall
-	Out=exp(-d*T)*normcdf(d1);
+	   Δ=exp(-d*T)*normcdf(d1);
   else
-	Out=-exp(-d*T)*normcdf(-d1);
+	   Δ=-exp(-d*T)*normcdf(-d1);
   end
-return Out;
+return Δ;
 end
 
 
 """
 Black & Scholes Gamma for European Options
 
-    Gamma=blsgamma(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+    Γ=blsgamma(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -120,7 +120,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Gamma      = gamma of the European Option.
+	Γ          = gamma of the European Option.
 
 # Example
 ```julia-repl
@@ -132,15 +132,15 @@ function blsgamma{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2
   #For coherence i left the last boolean input.
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
-  Out=exp(-d*T)*normpdf(d1)/(S0*σ*sqrt(T));
-return Out;
+  Γ=exp(-d*T)*normpdf(d1)/(S0*σ*sqrt(T));
+return Γ;
 end
 
 
 """
 Black & Scholes Vega for European Options
 
-    Vega=blsvega(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+    ν=blsvega(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -151,7 +151,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Vega       = vega of the European Option.
+	ν          = vega of the European Option.
 
 # Example
 ```julia-repl
@@ -163,15 +163,15 @@ function blsvega{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,
   #For coherence i left the last boolean input.
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
-  Out=S0*exp(-d*T)*normpdf(d1)*sqrt(T);
-return Out;
+  ν=S0*exp(-d*T)*normpdf(d1)*sqrt(T);
+return ν;
 end
 
 
 """
 Black & Scholes Rho for European Options
 
-    Rho=blsrho(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+     ρ=blsrho(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -182,7 +182,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Rho        = rho of the European Option.
+	ρ          = rho of the European Option.
 
 # Example
 ```julia-repl
@@ -194,18 +194,18 @@ function blsrho{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r
   blscheck(S0,K,r,T,σ,d);
   d2=(log(S0/K)+(r-d-σ*σ*0.5)*T)/(σ*sqrt(T));
   if FlagIsCall
-	Out=K*exp(-r*T)*normcdf(d2)*T;
+	  ρ=K*exp(-r*T)*normcdf(d2)*T;
   else
-    Out=-K*exp(-r*T)*normcdf(-d2)*T;
+    ρ=-K*exp(-r*T)*normcdf(-d2)*T;
   end
-return Out;
+return ρ;
 end
 
 
 """
 Black & Scholes Theta for European Options
 
-    Theta=blstheta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+      Θ=blstheta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -216,7 +216,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Theta      = theta of the European Option.
+	Θ          = theta of the European Option.
 
 # Example
 ```julia-repl
@@ -234,20 +234,20 @@ function blstheta{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2
 	shift = -exp(-d .* T) .* S0 .* normpdf(d1) .* σ / 2 ./ sqrtT;
 	t1    = r .* K   .* exp(-r .* T);
 	t2    = d .* S0 .* exp(-d .* T);
-	Out=0.0;
+	Θ=0.0;
 	if FlagIsCall
-		Out=shift - t1 .*      normcdf(d1 - σ_sqrtT)  + t2 .*  normcdf(d1)     ;
+		Θ=shift - t1 .*      normcdf(d1 - σ_sqrtT)  + t2 .*  normcdf(d1)     ;
 	else
-		Out=shift + t1 .* (1 - normcdf(d1 - σ_sqrtT)) + t2 .* (normcdf(d1) - 1);
+		Θ=shift + t1 .* (1 - normcdf(d1 - σ_sqrtT)) + t2 .* (normcdf(d1) - 1);
 	end
-	return Out;
+	return Θ;
 end
 
 
 """
 Black & Scholes Lambda for European Options
 
-    Lambda=blslambda(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+      Λ=blslambda(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -258,7 +258,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Lambda        = lambda of the European Option.
+	Λ          = lambda of the European Option.
 
 # Example
 ```julia-repl
@@ -269,9 +269,9 @@ julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
 function blslambda{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,σ,d);
   Price=blsprice(S0,K,r,T,σ,d,FlagIsCall);
-  tmpOut=blsdelta(S0,K,r,T,σ,d,FlagIsCall);
-  Out=tmpOut*S0/Price;
-return Out;
+  Δ=blsdelta(S0,K,r,T,σ,d,FlagIsCall);
+  Λ=Δ*S0/Price;
+return Λ;
 end
 
 
@@ -313,7 +313,7 @@ function brentMethod(f::Function, x0::Number, x1::Number,xtol::AbstractFloat=1e-
 	if ytol<0.0
       error("y tollerance cannot be negative")
     end
-    EPS = eps(Number)
+    EPS = eps(x0)
 	maxiter=80;
     y0 = f(x0)
     y1 = f(x1)
@@ -384,7 +384,7 @@ export blsimpv
 """
 Black & Scholes Implied Volatility for European Options
 
-    Volatility=blsimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15)
+    σ=blsimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -395,7 +395,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Volatility = implied volatility of the European Option.
+	σ          = implied volatility of the European Option.
 
 # Example
 ```julia-repl
@@ -409,13 +409,13 @@ if (Price< num5(0))
 end
 blscheck(S0,K,r,T,0.1,d);
 f(x)=(blsprice(S0,K,r,T,x,d,FlagIsCall)-Price);
-ResultsOptimization=0;
+σ=0;
 try
-	ResultsOptimization=brentMethod(f,0.001,1.2,xtol,ytol);
+	σ=brentMethod(f,0.001,1.2,xtol,ytol);
 catch e
 	error("The Inversion of Black Scholes Price Failed with the following error: $e")
 end
-σ=ResultsOptimization;
+
 return σ;
 end
 
@@ -433,7 +433,7 @@ Where:\n
 	Price      = Price of the Option.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	σ = implied volatility of the European Option.
+	σ          = implied volatility of the European Option.
 
 # Example
 ```julia-repl
@@ -451,7 +451,7 @@ end
 """
 Black & Scholes Psi for European Options
 
-    Psi=blspsi(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+      Ψ=blspsi(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 
 Where:\n
 	S0         = Value of the Underlying.
@@ -462,7 +462,7 @@ Where:\n
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
-	Psi        = psi of the European Option.
+	Ψ          = psi of the European Option.
 
 # Example
 ```julia-repl
@@ -474,11 +474,11 @@ function blspsi{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
   if FlagIsCall
-	Out=-S0*exp(-d*T)*normcdf(d1)*T;
+	  Ψ=-S0*exp(-d*T)*normcdf(d1)*T;
   else
-    Out=S0*exp(-d*T)*normcdf(-d1)*T;
+    Ψ=S0*exp(-d*T)*normcdf(-d1)*T;
   end
-return Out;
+return Ψ;
 end
 
 
@@ -508,6 +508,6 @@ function blsvanna{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
   d2=d1-σ*sqrt(T);
-  Out=-exp(-d*T)*normpdf(d1)*d2/σ;
-return Out;
+  Vanna=-exp(-d*T)*normpdf(d1)*d2/σ;
+return Vanna;
 end
