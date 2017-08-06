@@ -1,7 +1,7 @@
-# FinancialModule
-[![Build Status](https://travis-ci.org/rcalxrc08/FinancialModule.jl.svg?branch=master)](https://travis-ci.org/rcalxrc08/FinancialModule.jl)
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/147ulk4et2sim293?svg=true)](https://ci.appveyor.com/project/rcalxrc08/financialmodule-jl)
-[![codecov](https://codecov.io/gh/rcalxrc08/FinancialModule.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialModule.jl?branch=master)
+# FinancialToolbox
+[![Build Status](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl.svg?branch=master)](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl)
+[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/147ulk4et2sim293?svg=true)](https://ci.appveyor.com/project/rcalxrc08/FinancialToolbox-jl)
+[![codecov](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl?branch=master)
 ##### This is a Julia package containing some useful Financial function for Pricing and Risk Management under the Black and Scholes Model.
 ###### The syntax is the same of the Matlab Financial Toolbox.
 It currently contains the following functions:
@@ -30,12 +30,12 @@ The module is standalone.
 ## How to Install
 To install the package simply type on the Julia REPL the following:
 ```Julia
-Pkg.clone("https://github.com/rcalxrc08/FinancialModule.jl.git")
+Pkg.clone("https://github.com/rcalxrc08/FinancialToolbox.jl.git")
 ```
 ## How to Test
 After the installation, to test the package type on the Julia REPL the following:
 ```Julia
-Pkg.test("FinancialModule")
+Pkg.test("FinancialToolbox")
 ```
 ## Example of Usage
 The following example is the pricing of a European Call Option with underlying varying
@@ -43,7 +43,7 @@ according to the Black Scholes Model, given the implied volatility.
 After that it is possible to check the result computing the inverse of the Black Scholes formula.
 ```Julia
 #Import the Package
-using FinancialModule
+using FinancialToolbox
 
 #Define input data
 spot=10;K=10;r=0.02;T=2.0;σ=0.2;d=0.01;

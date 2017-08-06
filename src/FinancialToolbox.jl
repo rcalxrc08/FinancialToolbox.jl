@@ -1,5 +1,5 @@
 __precompile__()
-module FinancialModule
+module FinancialToolbox
 
 	if (VERSION.major==0&&VERSION.minor>=6)
 		using SpecialFunctions.erf
