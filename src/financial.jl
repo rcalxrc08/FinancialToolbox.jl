@@ -1,8 +1,8 @@
-function normcdf{number <: Number}(x::number)
+function normcdf(x::number) where {number <: Number}
   return (1.0+erf(x/sqrt(2.0)))/2.0;
 end
 
-function normpdf{number <: Number}(x::number)
+function normpdf(x::number) where {number <: Number}
   return exp(-0.5*x.^2)/sqrt(2*pi);
 end
 
@@ -29,7 +29,7 @@ julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
 1.1023600107733191
 ```
 """
-function blsprice{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsprice(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blsprice";
   try
     blscheck(S0,K,r,T,σ,d);
@@ -69,7 +69,7 @@ julia> blkprice(10.0,10.0,0.01,2.0,0.2)
 1.1023600107733191
 ```
 """
-function blkprice{num1 ,num2 ,num3 ,num4 ,num5 <: Number}(F0::num1,K::num2,r::num3,T::num4,σ::num5,FlagIsCall::Bool=true)
+function blkprice(F0::num1,K::num2,r::num3,T::num4,σ::num5,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 <: Number}
   funcname="blkprice";
   try
     blscheck(F0,K,r,T,σ);
@@ -103,7 +103,7 @@ julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
 0.5452173371920436
 ```
 """
-function blsdelta{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsdelta(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blsdelta";
   try
     blscheck(S0,K,r,T,σ,d);
@@ -143,7 +143,7 @@ julia> blsgamma(10.0,10.0,0.01,2.0,0.2,0.01)
 0.13687881535712826
 ```
 """
-function blsgamma{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsgamma(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blsgamma";
   #For coherence i left the last boolean input.
   try
@@ -179,7 +179,7 @@ julia> blsvega(10.0,10.0,0.01,2.0,0.2,0.01)
 5.475152614285131
 ```
 """
-function blsvega{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsvega(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   #For coherence i left the last boolean input.
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
@@ -210,7 +210,7 @@ julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
 8.699626722294234
 ```
 """
-function blsrho{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsrho(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blsrho";
   try
     blscheck(S0,K,r,T,σ,d);
@@ -249,7 +249,7 @@ julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
 -0.26273403060652334
 ```
 """
-function blstheta{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blstheta(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blstheta";
     try
     blscheck(S0,K,r,T,σ,d);
@@ -296,7 +296,7 @@ julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
 4.945909973725978
 ```
 """
-function blslambda{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blslambda(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blslambda";
   try
     blscheck(S0,K,r,T,σ,d);
@@ -311,7 +311,7 @@ end
 
 
 "Check input for Black Scholes Formula"
-function blscheck{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0)
+function blscheck(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
 if isa(S0,Complex)
 	if (S0.re< S0.re*0)
 		error("Spot Price Cannot Be Negative")
@@ -438,7 +438,7 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 0.3433730534290586
 ```
 """
-function blsimpv{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Real}(S0::num1,K::num2,r::num3,T::num4,Price::num5,d::num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
+function blsimpv(S0::num1,K::num2,r::num3,T::num4,Price::num5,d::num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Real}
   funcname="blsimpv";
 if (Price< num5(0))
 	error("Option Price Cannot Be Negative")
@@ -481,7 +481,7 @@ julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
 0.36568658096623635
 ```
 """
-function blkimpv{num1 ,num2 ,num3 ,num4 ,num5 <: Real}(F0::num1,K::num2,r::num3,T::num4,Price::num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
+function blkimpv(F0::num1,K::num2,r::num3,T::num4,Price::num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15) where {num1 ,num2 ,num3 ,num4 ,num5 <: Real}
   funcname="blkimpv";
   try
     blscheck(F0,K,r,T,0.1);
@@ -516,7 +516,7 @@ julia> blspsi(10.0,10.0,0.01,2.0,0.2,0.01)
 -10.904346743840872
 ```
 """
-function blspsi{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blspsi(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blspsi";
   try
     blscheck(S0,K,r,T,σ,d);
@@ -555,7 +555,7 @@ julia> blsvanna(10.0,10.0,0.01,2.0,0.2,0.01)
 0.2737576307142566
 ```
 """
-function blsvanna{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsvanna(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
   funcname="blsvanna";
   try
     blscheck(S0,K,r,T,σ,d);
