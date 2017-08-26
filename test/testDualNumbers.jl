@@ -1,7 +1,7 @@
 using Base.Test
 using FinancialToolbox
 if (VERSION.major==0&&VERSION.minor<7)
-#DualNumbers.jl currently do not supports julia 0.7
+#DualNumbers.jl currently do not supports julia 0.7.0-dev
 	print_with_color(:green,"Starting Dual Numbers Test\n")
 
 	#Test Parameters
