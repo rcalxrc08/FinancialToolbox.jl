@@ -1,5 +1,5 @@
 using Base.Test
-using FinancialModule
+using FinancialToolbox
 
 #Test Parameters
 testToll=1e-14;

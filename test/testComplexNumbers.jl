@@ -1,5 +1,5 @@
 using Base.Test
-using FinancialModule
+using FinancialToolbox
 
 print_with_color(:green,"Starting Complex Number Test\n")
 
