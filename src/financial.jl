@@ -6,7 +6,6 @@ function normpdf(x::number) where {number <: Number}
 	return exp(-0.5*x.^2)/sqrt(2*pi);
 end
 
-
 """
 Black & Scholes Price for European Options
 
