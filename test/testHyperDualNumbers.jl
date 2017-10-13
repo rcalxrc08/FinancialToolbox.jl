@@ -1,7 +1,7 @@
 using Base.Test
 using FinancialToolbox
 if (VERSION.major==0&&VERSION.minor<7)
-#DualNumbers.jl currently do not supports julia 0.7.0-dev
+#HyperDualNumbers.jl currently do not supports julia 0.7.0-dev
 	print_with_color(:green,"Starting Dual Numbers Test\n")
 	print_with_color(:green,"Starting Hyper Dual Numbers Test\n")
 
@@ -30,13 +30,6 @@ if (VERSION.major==0&&VERSION.minor<7)
 	Vega=blsvega(spot,K,r,T,sigma,d);
 
 	########HYPER DUAL NUMBERS
-	HyperDualNumbersPkgVersion = Pkg.installed("HyperDualNumbers");
-	if (HyperDualNumbersPkgVersion<=VersionNumber(1,0,0))
-	#i hope that in the next release they will put also the erf function.
-		println("The last release of HyperDualNumbers Module does not support erf function.")
-		println("Downloading the master branch ...")
-		Pkg.checkout("HyperDualNumbers")
-	end
 	using HyperDualNumbers;
 	DerToll=1e-13;
 	di=1e-15;
