@@ -30,7 +30,7 @@ The module is standalone.
 ## How to Install
 To install the package simply type on the Julia REPL the following:
 ```Julia
-Pkg.clone("https://github.com/rcalxrc08/FinancialToolbox.jl.git")
+Pkg.add("FinancialToolbox")
 ```
 ## How to Test
 After the installation, to test the package type on the Julia REPL the following:
