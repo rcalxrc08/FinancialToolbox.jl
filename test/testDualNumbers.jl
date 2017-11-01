@@ -3,7 +3,6 @@ using FinancialToolbox
 if (VERSION.major==0&&VERSION.minor<7)
 	#DualNumbers currently do not supports julia 0.7.0-dev
 	print_with_color(:green,"Starting Dual Numbers Test\n")
-	print_with_color(:green,"Starting Dual Numbers Test\n")
 
 	#Test Parameters
 	testToll=1e-14;

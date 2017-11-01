@@ -1,7 +1,6 @@
 using Base.Test
 using FinancialToolbox
 
-print_with_color(:green,"Starting Dual Numbers Test\n")
 print_with_color(:green,"Starting Hyper Dual Numbers Test\n")
 
 #Test Parameters
@@ -114,7 +113,6 @@ print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsvega(-SpotHyper,K,r,T,sigma,d))
 
 print_with_color(:cyan,"----Testing Negative  Strike Price \n")
-KK=Dual(K,0);
 @test_throws(ErrorException, blsprice(spot,-KHyper,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(spot,-KHyper,r,T,sigma))
 @test_throws(ErrorException, blsdelta(spot,-KHyper,r,T,sigma,d))
