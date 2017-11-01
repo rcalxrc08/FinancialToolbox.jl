@@ -10,14 +10,14 @@ end
 """
 Black & Scholes Price for European Options
 
-    Price=blsprice(S0,K,r,T,sigma,d=0.0,FlagIsCall=true)
+    Price=blsprice(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
 	S0         = Value of the Underlying.
 	K          = Strike Price of the Option.
 	r          = Zero Rate.
 	T          = Time to Maturity of the Option.
-	sigma      = Implied Volatility.
+	σ      = Implied Volatility.
 	d          = Implied Dividend of the Underlying.
 	FlagIsCall = true for Call Options, false for Put Options.
 
@@ -29,7 +29,7 @@ julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
 1.1023600107733191
 ```
 """
-function blsprice{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,sigma::num5,d::num6=0.0,FlagIsCall::Bool=true)
+function blsprice{num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0,FlagIsCall::Bool=true)
   blscheck(S0,K,r,T,σ,d);
   d1=(log(S0/K)+(r-d+σ*σ*0.5)*T)/(σ*sqrt(T));
   d2=d1-σ*sqrt(T);
