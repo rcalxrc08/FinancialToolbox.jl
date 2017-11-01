@@ -3,7 +3,7 @@
 [![FinancialToolbox](http://pkg.julialang.org/badges/FinancialToolbox_0.5.svg)](http://pkg.julialang.org/detail/FinancialToolbox)
 [![FinancialToolbox](http://pkg.julialang.org/badges/FinancialToolbox_0.6.svg)](http://pkg.julialang.org/detail/FinancialToolbox)
 [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/147ulk4et2sim293?svg=true)](https://ci.appveyor.com/project/rcalxrc08/FinancialToolbox-jl)
-[![codecov](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl?branch=master)
+[![codecov](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/julia-0.5/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/julia-0.5)
 ##### This is a Julia package containing some useful Financial function for Pricing and Risk Management under the Black and Scholes Model.
 ###### The syntax is the same of the Matlab Financial Toolbox.
 It currently contains the following functions:
