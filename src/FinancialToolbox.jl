@@ -4,9 +4,9 @@ module FinancialToolbox
 	if (VERSION.major==0&&VERSION.minor>=6)
 		using SpecialFunctions.erf
 	end
-
+	include("dates.jl");
 	include("financial.jl")
-	export 
+	export
 	    normcdf,
 		normpdf,
 		blsprice,
