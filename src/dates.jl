@@ -33,7 +33,13 @@ yearFrac=0.0;
 tmpDate=1;
 if (convention==0)#(ACT/ACT)
 	Nday=daysact(startDate,endDate);
-	yearFrac=(Nday)/ daysact(startDate,Date(Dates.year(startDate)+1,Dates.month(startDate),Dates.day(startDate)));
+	EndOFYear=Date();
+	if(isLastOfFebruary(startDate)&&(Dates.day(startDate)==29))
+		EndOFYear=Date(Dates.year(startDate)+1,3,1);
+	else
+		EndOFYear=Date(Dates.year(startDate)+1,Dates.month(startDate),Dates.day(startDate));
+	end
+	yearFrac=(Nday)/ daysact(startDate,EndOFYear);
 elseif(convention==1)  	#(30/360 SIA)
 	y1=Dates.year(startDate);
 	m1=Dates.month(startDate);

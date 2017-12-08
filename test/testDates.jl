@@ -25,6 +25,12 @@ MatlabResults3=[33.2301369863014;33.2055555555556;33.6916666666667;33.2301369863
 TestToll=1e-13;
 yearFractionTester(StartDate,EndDate3,MatlabResults3,TestToll);
 
+
+StartDate2=Date(1992,2,29);
+EndDate4=Date(1996,2,29);
+MatlabResults4=[3.99180327868852;4;4.05833333333333;4.00273972602740;3.99722222222222;4;4]
+yearFractionTester(StartDate2,EndDate4,MatlabResults4);
+
 @test_throws(ErrorException,yearfrac(StartDate,EndDate3,FinancialToolbox.currMaxImplemented+1));
 
 @test(daysact(Date(1992,12,14),Date(1992,12,13))==-1)
