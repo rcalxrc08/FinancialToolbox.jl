@@ -1,4 +1,4 @@
-test_list = ["testRealNumbers.jl";"testComplexNumbers.jl";"testForwardDiff.jl";"testHyperDualNumbers.jl"]
+test_list = ["testRealNumbers.jl";"testComplexNumbers.jl";"testDualNumbers.jl";"testHyperDualNumbers.jl";"testDates.jl"]
 
 println("Running tests:\n")
 i=1;

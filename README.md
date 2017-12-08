@@ -21,6 +21,10 @@ It currently contains the following functions:
 - blsimpv  : Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 - blkimpv  : Black Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 
+It also contains some functions that could be useful for the Dates Management:
+
+- yearfrac : fraction of years between two Dates (currently only the first seven convention of Matlab are supported).
+- daysact  : number of days between two Dates.
 Currently supports classical numerical input, and other less common like:
 
 - Complex Numbers
