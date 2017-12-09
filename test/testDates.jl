@@ -44,7 +44,11 @@ MatlabResults6=[4.75342465753425;4.75;4.81944444444445;4.75342465753425;4.75;4.7
 yearFractionTester(StartDate4,EndDate6,MatlabResults6);
 
 @test_throws(ErrorException,yearfrac(StartDate,EndDate3,FinancialToolbox.currMaxImplemented+1));
+@test_throws(ErrorException,yearfrac(StartDate,EndDate3,-1));
 
 @test(daysact(Date(1992,12,14),Date(1992,12,13))==-1)
+
+##Excel test
+@test(fromExcelNumberToDate(33952)==Date(1992,12,14))
 
 println("Test Dates Passed")

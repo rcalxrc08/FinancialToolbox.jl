@@ -10,18 +10,18 @@ end
 """
 Black & Scholes Price for European Options
 
-    Price=blsprice(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		Price=blsprice(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Price      = price of the European Option.
+		Price      = price of the European Option.
 
 # Example
 ```julia-repl
@@ -46,17 +46,17 @@ end
 """
 Black Price for European Options
 
-    Price=blkprice(F0,K,r,T,σ,FlagIsCall=true)
+		Price=blkprice(F0,K,r,T,σ,FlagIsCall=true)
 	
 Where:\n
-	F0         = Value of the Forward.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	FlagIsCall = true for Call Options, false for Put Options.
+		F0         = Value of the Forward.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Price      = price of the European Option.
+		Price      = price of the European Option.
 
 # Example
 ```julia-repl
@@ -74,18 +74,18 @@ end
 """
 Black & Scholes Delta for European Options
 
-    Δ=blsdelta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		Δ=blsdelta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Δ= delta of the European Option.
+		Δ= delta of the European Option.
 
 # Example
 ```julia-repl
@@ -109,18 +109,18 @@ end
 """
 Black & Scholes Gamma for European Options
 
-    Γ=blsgamma(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		Γ=blsgamma(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Γ      = gamma of the European Option.
+		Γ      = gamma of the European Option.
 
 # Example
 ```julia-repl
@@ -140,18 +140,18 @@ end
 """
 Black & Scholes Vega for European Options
 
-    ν=blsvega(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		ν=blsvega(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	ν       = vega of the European Option.
+		ν       = vega of the European Option.
 
 # Example
 ```julia-repl
@@ -171,18 +171,18 @@ end
 """
 Black & Scholes Rho for European Options
 
-    ρ=blsrho(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		ρ=blsrho(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	ρ        = rho of the European Option.
+		ρ        = rho of the European Option.
 
 # Example
 ```julia-repl
@@ -206,18 +206,18 @@ end
 """
 Black & Scholes Theta for European Options
 
-    Θ=blstheta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		Θ=blstheta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Θ      = theta of the European Option.
+		Θ      = theta of the European Option.
 
 # Example
 ```julia-repl
@@ -248,18 +248,18 @@ end
 """
 Black & Scholes Lambda for European Options
 
-    Λ=blslambda(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		Λ=blslambda(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Λ        = lambda of the European Option.
+		Λ        = lambda of the European Option.
 
 # Example
 ```julia-repl
@@ -385,18 +385,18 @@ export blsimpv
 """
 Black & Scholes Implied Volatility for European Options
 
-    σ=blsimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15) 
+		σ=blsimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15) 
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	Price      = Price of the Option.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		Price      = Price of the Option.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	σ = implied volatility of the European Option.
+		σ = implied volatility of the European Option.
 
 # Example
 ```julia-repl
@@ -424,17 +424,17 @@ export blkimpv
 """
 Black Implied Volatility for European Options
 
-    σ=blkimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15) 
+		σ=blkimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15) 
 	
 Where:\n
-	S0         = Value of the Forward.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	Price      = Price of the Option.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Forward.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		Price      = Price of the Option.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	σ = implied volatility of the European Option.
+		σ = implied volatility of the European Option.
 
 # Example
 ```julia-repl
@@ -452,18 +452,18 @@ end
 """
 Black & Scholes Psi for European Options
 
-    Ψ=blspsi(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		Ψ=blspsi(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Ψ        = psi of the European Option.
+		Ψ        = psi of the European Option.
 
 # Example
 ```julia-repl
@@ -487,18 +487,18 @@ end
 """
 Black & Scholes Vanna for European Options
 
-    Vanna=blsvanna(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+		Vanna=blsvanna(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
 	
 Where:\n
-	S0         = Value of the Underlying.
-	K          = Strike Price of the Option.
-	r          = Zero Rate.
-	T          = Time to Maturity of the Option.
-	σ      = Implied Volatility.
-	d          = Implied Dividend of the Underlying.
-	FlagIsCall = true for Call Options, false for Put Options.
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ      = Implied Volatility.
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
 
-	Vanna        = vanna of the European Option.
+		Vanna        = vanna of the European Option.
 
 # Example
 ```julia-repl

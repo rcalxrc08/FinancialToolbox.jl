@@ -21,7 +21,11 @@ module FinancialToolbox
 		blkimpv,
 		##	ADDITIONAL Function
 		blspsi,
-		blsvanna
+		blsvanna,
+		#Dates
+		fromExcelNumberToDate,
+		daysact,
+		yearfrac
 
 
 

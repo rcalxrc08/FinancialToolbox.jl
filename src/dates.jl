@@ -1,31 +1,87 @@
 #import Base.==,Base.-,Base.+;
 function dayNumber(inDate::Date)
-	y=Dates.year(inDate);
-	m=Dates.month(inDate);
-	d=Dates.day(inDate);
-	m = (m + 9) % 12;
-	y = y - div(m,10);
-	return (365*y + div(y,4) - div(y,100) + div(y,400) + div((m*306 + 5),10) + ( d - 1 ));
+	return Dates.date2epochdays(inDate);
 end
 
+excelcostant=693959;
 
-currMaxImplemented=6;
+"""
+From Excel Number Format to Date
 
-export daysact
-function daysact(Data1::Date,Data2::Date)
-	D1= dayNumber(Data1);
-	D2= dayNumber(Data2);
+		Date1=fromExcelNumberToDate(ExcelNumber)
+
+Where:\n
+		ExcelNumber = Integer representing a date in the excel format.
+
+		Date1      = Date representing the input in the Julia object format.
+
+# Example
+```julia-repl
+julia> fromExcelNumberToDate(45000)
+2023-03-15
+```
+"""
+function fromExcelNumberToDate(num::Integer)
+	return Dates.Dates.epochdays2date(excelcostant+num);
+end
+
+"""
+Actual Number of days between two dates
+
+		Date1=daysact(Date1,Date2)
+
+Where:\n
+		ExcelNumber = Integer representing a date in the excel format.
+
+		Date1      = Date representing the input in the Julia object format.
+
+# Example
+```julia-repl
+julia> daysact(Date(1996,10,12),Date(1998,1,10))
+455
+```
+"""
+function daysact(Date1::Date,Date2::Date)
+	D1= dayNumber(Date1);
+	D2= dayNumber(Date2);
 	dayCount=D2-D1;
 	return dayCount;
 end
 
-export isLastOfFebruary
 function isLastOfFebruary(inDate::Date)
 	return (Dates.isleapyear(Dates.year(inDate))&&(Dates.day(inDate)==29)&&(Dates.month(inDate)==2))||((!Dates.isleapyear(Dates.year(inDate)))&&(Dates.day(inDate)==28)&&(Dates.month(inDate)==2));
 end
 
-export yearfrac
+currMaxImplemented=6;
+
+"""
+Fraction of year between two Dates according the following convention
+
+		yfr=yearfrac(Date1,Date2,basis)
+
+Where:\n
+		Date1 = Start date.
+		Date2 = End date.
+		basis = Integer representing the following conventions:
+				- 0 = (ACT/ACT)
+				- 1 = (30/360 SIA)
+				- 2 = (ACT/360)
+				- 3 = (ACT/365)
+				- 4 = (30/360 PSA)
+				- 5 = (30/360 ISDA)
+				- 6 = (30E/360)
+
+		yfr      = fraction of year between start and end date according to basis.
+
+# Example
+```julia-repl
+julia> yearfrac(Date(1996,10,12),Date(1998,1,10),1)
+1.2444444444444445
+```
+"""
 function yearfrac(startDate::Date,endDate::Date,convention::Integer)
+if (convention<0)
+	error("Negative basis are not defined, check the help")
 if(convention>currMaxImplemented)
 	error("Convention not implemented yet")
 end
