@@ -82,6 +82,7 @@ julia> yearfrac(Date(1996,10,12),Date(1998,1,10),1)
 function yearfrac(startDate::Date,endDate::Date,convention::Integer)
 if (convention<0)
 	error("Negative basis are not defined, check the help")
+end
 if(convention>currMaxImplemented)
 	error("Convention not implemented yet")
 end
