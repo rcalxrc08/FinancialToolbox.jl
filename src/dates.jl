@@ -28,7 +28,7 @@ end
 """
 Actual Number of days between two dates
 
-		Date1=daysact(ExcelNumber)
+		Date1=daysact(Date1,Date2)
 
 Where:\n
 		ExcelNumber = Integer representing a date in the excel format.
@@ -41,9 +41,9 @@ julia> daysact(Date(1996,10,12),Date(1998,1,10))
 455
 ```
 """
-function daysact(Data1::Date,Data2::Date)
-	D1= dayNumber(Data1);
-	D2= dayNumber(Data2);
+function daysact(Date1::Date,Date2::Date)
+	D1= dayNumber(Date1);
+	D2= dayNumber(Date2);
 	dayCount=D2-D1;
 	return dayCount;
 end
@@ -80,6 +80,8 @@ julia> yearfrac(Date(1996,10,12),Date(1998,1,10),1)
 ```
 """
 function yearfrac(startDate::Date,endDate::Date,convention::Integer)
+if (convention<0)
+	error("Negative basis are not defined, check the help")
 if(convention>currMaxImplemented)
 	error("Convention not implemented yet")
 end
