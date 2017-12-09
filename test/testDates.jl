@@ -47,4 +47,7 @@ yearFractionTester(StartDate4,EndDate6,MatlabResults6);
 
 @test(daysact(Date(1992,12,14),Date(1992,12,13))==-1)
 
+##Excel test
+@test(fromExcelNumberToDate(33952)==Date(1992,12,14))
+
 println("Test Dates Passed")
