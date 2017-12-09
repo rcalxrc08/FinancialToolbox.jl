@@ -21,16 +21,16 @@ It currently contains the following functions:
 - blsimpv  : Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 - blkimpv  : Black Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 
-It also contains some functions that could be useful for the Dates Management:
-
-- yearfrac : fraction of years between two Dates (currently only the first seven convention of Matlab are supported).
-- daysact  : number of days between two Dates.
-
 Currently supports classical numerical input, and other less common like:
 
 - Complex Numbers
 - [Dual Numbers](https://github.com/JuliaDiff/DualNumbers.jl)
 - [HyperDual Numbers](https://github.com/JuliaDiff/HyperDualNumbers.jl)
+
+It also contains some functions that could be useful for the Dates Management:
+
+- yearfrac : fraction of years between two Dates (currently only the first seven convention of Matlab are supported).
+- daysact  : number of days between two Dates.
 
 The module is standalone.
 
@@ -53,15 +53,15 @@ After that it is possible to check the result computing the inverse of the Black
 using FinancialToolbox
 
 #Define input data
-spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
+spot=10;K=10;r=0.02;T=2.0;σ=0.2;d=0.01;
 
 #Call the function
-Price=blsprice(spot,K,r,T,sigma,d)
+Price=blsprice(spot,K,r,T,σ,d)
 #Price=1.1912013169995816
 
 #Check the Result
 Volatility=blsimpv(spot,K,r,T,Price,d)
-#Volatility=0.20000000000000007
+#Volatility=0.20000000000000002
 ```
 
 ### Contributors
