@@ -52,7 +52,7 @@ function isLastOfFebruary(inDate::Date)
 	return (Dates.isleapyear(Dates.year(inDate))&&(Dates.day(inDate)==29)&&(Dates.month(inDate)==2))||((!Dates.isleapyear(Dates.year(inDate)))&&(Dates.day(inDate)==28)&&(Dates.month(inDate)==2));
 end
 
-currMaxImplemented=7;
+currMaxImplemented=6;
 
 """
 Fraction of year between two Dates according the following convention
@@ -70,7 +70,6 @@ Where:\n
 				- 4 = (30/360 PSA)
 				- 5 = (30/360 ISDA)
 				- 6 = (30E/360)
-				- 7 = (ACT/365 JPN)
 
 		yfr      = fraction of year between start and end date according to basis.
 
@@ -87,18 +86,8 @@ end
 if(convention>currMaxImplemented)
 	error("Convention not implemented yet")
 end
-if(startDate>endDate)
-	return -yearfrac(endDate,startDate,convention);
-elseif(startDate==endDate)
-	return 0;
-end
 yearFrac=0.0;
-y1=Dates.year(startDate);
-m1=Dates.month(startDate);
-y2=Dates.year(endDate);
-m2=Dates.month(endDate);
-d1=Dates.day(startDate);
-d2=Dates.day(endDate);
+tmpDate=1;
 if (convention==0)#(ACT/ACT)
 	Nday=daysact(startDate,endDate);
 	EndOFYear=Date();
@@ -109,6 +98,12 @@ if (convention==0)#(ACT/ACT)
 	end
 	yearFrac=(Nday)/ daysact(startDate,EndOFYear);
 elseif(convention==1)  	#(30/360 SIA)
+	y1=Dates.year(startDate);
+	m1=Dates.month(startDate);
+	y2=Dates.year(endDate);
+	m2=Dates.month(endDate);
+	d1=Dates.day(startDate);
+	d2=Dates.day(endDate);
 	if(isLastOfFebruary(startDate)&&isLastOfFebruary(endDate))
 		d2=30;
 	end
@@ -129,6 +124,12 @@ elseif(convention==3)		# (ACT/365)
 	Nday=daysact(startDate,endDate);
 	yearFrac=( Nday)/365.0;
 elseif(convention==4)		# (30/360 PSA)
+	y1=Dates.year(startDate);
+	m1=Dates.month(startDate);
+	y2=Dates.year(endDate);
+	m2=Dates.month(endDate);
+	d1=Dates.day(startDate);
+	d2=Dates.day(endDate);
 	if((Dates.day(startDate)==31)||isLastOfFebruary(startDate))
 		d1=30;
 	end
@@ -140,6 +141,7 @@ elseif(convention==4)		# (30/360 PSA)
 	dd=d2-d1;
 	yearFrac=(360.0*dy+30.0*dm+dd)/360.0;
 
+	#########
 elseif(convention==5)		#(30/360 ISDA)
 	y1=Dates.year(startDate);
 	m1=Dates.month(startDate);
@@ -150,7 +152,7 @@ elseif(convention==5)		#(30/360 ISDA)
 	else
 		d1=30;
 	end
-	if ((Dates.day(endDate)==31)&&(d1>29))
+	if ((Dates.day(endDate)==31)&(d1>29))
 		d2=30;
 	else
 		d2=Dates.day(endDate);
@@ -158,6 +160,12 @@ elseif(convention==5)		#(30/360 ISDA)
 	yearFrac=(360.0*((y2-y1))+30.0*((m2-m1))+(d2-d1))/360.0;
 
 elseif(convention==6)		#(30E/360)
+	y1=Dates.year(startDate);
+	m1=Dates.month(startDate);
+	y2=Dates.year(endDate);
+	m2=Dates.month(endDate);
+	d1=Dates.day(startDate);
+	d2=Dates.day(endDate);
 	if(d1==31)
 		d1=30;
 	end
@@ -168,14 +176,9 @@ elseif(convention==6)		#(30E/360)
 	dm=m2-m1;
 	dd=d2-d1;
 	yearFrac=(360.0*dy+30.0*dm+dd)/360.0;
-elseif(convention==7)		#(ACT/365 JPN)
-	daydistance = [0;31;59;90;120;151;181;212;243;273;304;334];
-	dy=y2-y1;
-	dd=d2-d1;
-	dayCount=(365.0*dy+daydistance[m2]-daydistance[m1]+dd)
-	yearFrac = dayCount/365.0;
-end
 
+	############
+end
 return yearFrac;
 
 end
