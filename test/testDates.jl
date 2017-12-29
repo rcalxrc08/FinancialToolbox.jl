@@ -12,7 +12,7 @@ end
 StartDate=Date(1992,12,14);
 EndDate=Date(1996,2,28);
 @test(-yearfrac(StartDate,StartDate,0)==0)
-@test(-yearfrac.(StartDate,EndDate,0)==yearfrac.(EndDate,StartDate,0))
+@test(-yearfrac(StartDate,EndDate,0)==yearfrac(EndDate,StartDate,0))
 MatlabResults=[3.20821917808219;3.20555555555556;3.25277777777778;3.20821917808219;3.20555555555556;3.20555555555556;3.20555555555556;3.20821917808219;3.20821917808219;3.25277777777778;3.20821917808219;3.20555555555556;3.20765027322409];
 yearFractionTester(StartDate,EndDate,MatlabResults);
 
