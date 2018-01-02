@@ -8,12 +8,12 @@ excelcostant=693959;
 """
 From Excel Number Format to Date
 
-		Date1=fromExcelNumberToDate(ExcelNumber)
+		Date=fromExcelNumberToDate(ExcelNumber)
 
 Where:\n
 		ExcelNumber = Integer representing a date in the excel format.
 
-		Date1      = Date representing the input in the Julia object format.
+		Date      = Date representing the input in the Julia object format.
 
 # Example
 ```julia-repl
@@ -28,12 +28,13 @@ end
 """
 Actual Number of days between two dates
 
-		Date1=daysact(Date1,Date2)
+		ndays=daysact(Date1,Date2)
 
 Where:\n
-		ExcelNumber = Integer representing a date in the excel format.
+		Date1 = Start date.
+		Date2 = End date.
 
-		Date1      = Date representing the input in the Julia object format.
+		ndays      = Actual Number of days between Start Date and End Date.
 
 # Example
 ```julia-repl
