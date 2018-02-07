@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl.svg?branch=master)](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl)
 [![FinancialToolbox](http://pkg.julialang.org/badges/FinancialToolbox_0.5.svg)](http://pkg.julialang.org/detail/FinancialToolbox)
 [![FinancialToolbox](http://pkg.julialang.org/badges/FinancialToolbox_0.6.svg)](http://pkg.julialang.org/detail/FinancialToolbox)
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/147ulk4et2sim293?svg=true)](https://ci.appveyor.com/project/rcalxrc08/FinancialToolbox-jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/3udcsjb9si6plt3h/branch/master?svg=true)](https://ci.appveyor.com/project/rcalxrc08/financialtoolbox-jl/branch/master)
 [![codecov](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl?branch=master)
 ##### This is a Julia package containing some useful Financial function for Pricing and Risk Management under the Black and Scholes Model.
 ###### The syntax is the same of the Matlab Financial Toolbox.
@@ -21,7 +21,7 @@ It currently contains the following functions:
 - blsimpv  : Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 - blkimpv  : Black Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
 
-Currently supports classical numerical input, and other less common like:
+Currently supports classical numerical input and other less common like:
 
 - Complex Numbers
 - [Dual Numbers](https://github.com/JuliaDiff/DualNumbers.jl)
