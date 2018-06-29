@@ -316,30 +316,14 @@ end
 
 "Check input for Black Scholes Formula"
 function blscheck(S0::num1,K::num2,r::num3,T::num4,σ::num5,d::num6=0.0) where {num1 ,num2 ,num3 ,num4 ,num5 ,num6 <: Number}
-if isa(S0,Complex)
-	if (S0.re< S0.re*0)
-		throw(ErrorException("Spot Price Cannot Be Negative"));
-	end
-elseif isa(K,Complex)
-	if (K.re< K.re*0)
-		throw(ErrorException("Strike Price Cannot Be Negative"));
-	end
-elseif isa(T,Complex)
-	if (T.re< T.re*0)
-		throw(ErrorException("Time to Maturity Cannot Be Negative"));
-	end
-elseif isa(σ,Complex)
-	if (σ.re< σ.re*0)
-		throw(ErrorException("Volatility Cannot Be Negative"));
-	end
-elseif (S0< num1(0))
-	throw(ErrorException("Spot Price Cannot Be Negative"));
-elseif (K< num2(0))
-	throw(ErrorException("Strike Price Cannot Be Negative"));
-elseif (T< num4(0))
-	throw(ErrorException("Time to Maturity Cannot Be Negative"));
-elseif (σ< num5(0))
-	throw(ErrorException("Volatility Cannot Be Negative"));
+if (real(S0) <=real(zero(num1)))
+	error("Spot Price Cannot Be Negative")
+elseif (real(K)<= real(zero(num2)))
+	error("Strike Price Cannot Be Negative")
+elseif (real(T)<= real(zero(num4)))
+	error("Time to Maturity Cannot Be Negative")
+elseif (real(σ)<= real(zero(num5)))
+	error("Volatility Cannot Be Negative")
 end
 return;
 end

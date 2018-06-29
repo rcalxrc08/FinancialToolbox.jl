@@ -1,6 +1,6 @@
 #import Base.==,Base.-,Base.+;
 function dayNumber(inDate::Date)
-	return Dates.date2epochdays(inDate);
+	return Dates.date2epochdays(inDate)::Integer;
 end
 
 excelcostant=693959;
@@ -21,7 +21,7 @@ julia> fromExcelNumberToDate(45000)
 2023-03-15
 ```
 """
-function fromExcelNumberToDate(num::Integer)
+function fromExcelNumberToDate(num::Integer)::Date
 	return Dates.Dates.epochdays2date(excelcostant+num);
 end
 
@@ -42,14 +42,14 @@ julia> daysact(Date(1996,10,12),Date(1998,1,10))
 455
 ```
 """
-function daysact(Date1::Date,Date2::Date)
+function daysact(Date1::Date,Date2::Date)::Integer
 	D1= dayNumber(Date1);
 	D2= dayNumber(Date2);
 	dayCount=D2-D1;
 	return dayCount;
 end
 
-function isLastOfFebruary(inDate::Date)
+function isLastOfFebruary(inDate::Date)::Bool
 	return (Dates.isleapyear(Dates.year(inDate))&&(Dates.day(inDate)==29)&&(Dates.month(inDate)==2))||((!Dates.isleapyear(Dates.year(inDate)))&&(Dates.day(inDate)==28)&&(Dates.month(inDate)==2));
 end
 
@@ -81,7 +81,7 @@ julia> yearfrac(Date(1996,10,12),Date(1998,1,10),1)
 1.2444444444444445
 ```
 """
-function yearfrac(startDate::Date,endDate::Date,convention::Integer)
+function yearfrac(startDate::Date,endDate::Date,convention::Integer)::Real
 if (convention<0)
 	error("Negative basis are not defined, check the help")
 end
@@ -91,7 +91,7 @@ end
 if(startDate>endDate)
 	return -yearfrac(endDate,startDate,convention);
 elseif(startDate==endDate)
-	return 0;
+	return 0.0;
 end
 yearFrac=0.0;
 y1=Dates.year(startDate);
