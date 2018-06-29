@@ -57,11 +57,11 @@ printstyled("-----Testing Implied Volatility Black\n",color=:blue);
 tol_low=1e-16;
 tol_high=1e-3;
 SigmaLowXTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_low,tol_high);
-printstyled( High Y tol\n",color=:blue,"-----Testing Implied Volatility Low X tol);
+printstyled("-----Testing Implied Volatility Low X tol, High Y tol\n",color=:blue);
 @test((abs(blsprice(spot,K,r,T,SigmaLowXTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowXTol-sigma)<tol_low)
 #Low Ytol for blsimpv
 SigmaLowYTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_high,tol_low);
-printstyled( High X tol\n",color=:blue,"-----Testing Implied Volatility Low Y tol);
+printstyled("-----Testing Implied Volatility Low Y tol, High X tol\n",color=:blue);
 @test((abs(blsprice(spot,K,r,T,SigmaLowYTol,d,true)-PriceCall)<tol_low)||abs(SigmaLowYTol-sigma)<tol_high)
 
 printstyled("---  European Put: Price and Sensitivities\n",color=:yellow)
