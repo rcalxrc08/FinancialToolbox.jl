@@ -1,6 +1,6 @@
 using Base.Test
 using FinancialToolbox
-print_with_color(:green,"Starting Forward Diff Dual Numbers Test\n")
+printstyled("Starting Forward Diff Dual Numbers Test\n",color=:green)
 
 #Test Parameters
 testToll=1e-14;
@@ -51,38 +51,38 @@ SigmaDual=Dual(sigma,1.0);
 
 #Automatic Differentiation Test
 #TEST
-print_with_color(:yellow,"--- European Call Sensitivities: DualNumbers\n")
-print_with_color(:blue,"-----Testing Delta\n");
+printstyled("--- European Call Sensitivities: DualNumbers\n",color=:yellow)
+printstyled("-----Testing Delta\n",color=:blue);
 @test(abs(FcallDual(SpotDual).partials[1]-DeltaCall)<DerToll)
-print_with_color(:blue,"-----Testing Rho\n");
+printstyled("-----Testing Rho\n",color=:blue);
 @test(abs(GcallDual(rDual).partials[1]-RhoCall)<DerToll)
-print_with_color(:blue,"-----Testing Theta\n");
+printstyled("-----Testing Theta\n",color=:blue);
 @test(abs(-HcallDual(TDual).partials[1]-ThetaCall)<DerToll)
-print_with_color(:blue,"-----Testing Lambda\n");
+printstyled("-----Testing Lambda\n",color=:blue);
 @test(abs(PcallDual(SpotDual).partials[1]-LambdaCall)<DerToll)
-print_with_color(:blue,"-----Testing Vanna\n");
+printstyled("-----Testing Vanna\n",color=:blue);
 @test(abs(VcallDual(SigmaDual).partials[1]-VannaCall)<DerToll)
 #TEST
-print_with_color(:yellow,"--- European Put Sensitivities: DualNumbers\n")
-print_with_color(:blue,"-----Testing Delta\n");
+printstyled("--- European Put Sensitivities: DualNumbers\n",color=:yellow)
+printstyled("-----Testing Delta\n",color=:blue);
 @test(abs(FputDual(SpotDual).partials[1]-DeltaPut)<DerToll)
-print_with_color(:blue,"-----Testing Rho\n");
+printstyled("-----Testing Rho\n",color=:blue);
 @test(abs(GputDual(rDual).partials[1]-RhoPut)<DerToll)
-print_with_color(:blue,"-----Testing Theta\n");
+printstyled("-----Testing Theta\n",color=:blue);
 @test(abs(-HputDual(TDual).partials[1]-ThetaPut)<DerToll)
-print_with_color(:blue,"-----Testing Lambda\n");
+printstyled("-----Testing Lambda\n",color=:blue);
 @test(abs(PputDual(SpotDual).partials[1]-LambdaPut)<DerToll)
-print_with_color(:blue,"-----Testing Vanna\n");
+printstyled("-----Testing Vanna\n",color=:blue);
 @test(abs(VPutDual(SigmaDual).partials[1]-VannaPut)<DerToll)
 
-print_with_color(:blue,"-----Testing Vega\n");
+printstyled("-----Testing Vega\n",color=:blue);
 @test(abs(LcallDual(SigmaDual).partials[1]-Vega)<DerToll)
-print_with_color(:green,"Dual Numbers Test Passed\n")
+printstyled("Dual Numbers Test Passed\n",color=:green)
 println("")
 
 #TEST OF INPUT VALIDATION
-print_with_color(:magenta,"Starting Input Validation Test Dual\n")
-print_with_color(:cyan,"----Testing Negative  Spot Price \n")
+printstyled("Starting Input Validation Test Dual\n",color=:magenta)
+printstyled("----Testing Negative  Spot Price \n",color=:cyan)
 @test_throws(ErrorException, blsprice(-SpotDual,K,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(-SpotDual,K,r,T,sigma))
 @test_throws(ErrorException, blsdelta(-SpotDual,K,r,T,sigma,d))
@@ -94,7 +94,7 @@ print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsvanna(-SpotDual,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-SpotDual,K,r,T,sigma,d))
 
-print_with_color(:cyan,"----Testing Negative  Strike Price \n")
+printstyled("----Testing Negative  Strike Price \n",color=:cyan)
 KK=Dual(K,0);
 @test_throws(ErrorException, blsprice(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(spot,-KK,r,T,sigma))
@@ -107,7 +107,7 @@ KK=Dual(K,0);
 @test_throws(ErrorException, blsvanna(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-KK,r,T,sigma,d))
 
-print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
+printstyled("----Testing Negative  Time to Maturity \n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,-TDual,sigma,d))
 @test_throws(ErrorException, blkprice(spot,K,r,-TDual,sigma))
 @test_throws(ErrorException, blsdelta(spot,K,r,-TDual,sigma,d))
@@ -119,7 +119,7 @@ print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsvanna(spot,K,r,-TDual,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-TDual,sigma,d))
 
-print_with_color(:cyan,"----Testing Negative  Volatility \n")
+printstyled("----Testing Negative  Volatility \n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,T,-SigmaDual,d))
 @test_throws(ErrorException, blkprice(spot,K,r,T,-SigmaDual))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-SigmaDual,d))
@@ -131,4 +131,4 @@ print_with_color(:cyan,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsvanna(spot,K,r,T,-SigmaDual,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-SigmaDual,d))
 
-print_with_color(:magenta,"Dual Input Validation Test Passed\n")
+printstyled("Dual Input Validation Test Passed\n",color=:magenta)

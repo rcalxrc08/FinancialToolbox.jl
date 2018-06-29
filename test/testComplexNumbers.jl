@@ -1,7 +1,7 @@
 using Base.Test
 using FinancialToolbox
 
-print_with_color(:green,"Starting Complex Number Test\n")
+printstyled("Starting Complex Number Test\n",color=:green)
 
 #Test Parameters
 testToll=1e-14;
@@ -38,14 +38,14 @@ Hcall1(T)=blsprice(spot,K,r,T,sigma,d);
 Lcall1(sigma)=blsprice(spot,K,r,T,sigma,d);
 Pcall1(spot)=blsprice(spot,K,r,T,sigma,d)*spot.re/blsprice(spot.re,K,r,T,sigma,d);
 #TEST
-print_with_color(:yellow,"--- European Call Sensitivities: Complex Step Approximation\n")
-print_with_color(:blue,"-----Testing Delta\n");
+printstyled("--- European Call Sensitivities: Complex Step Approximation\n",color=:yellow)
+printstyled("-----Testing Delta\n",color=:blue);
 @test(abs(df(Fcall1,spot).im-DeltaCall)<DerToll)
-print_with_color(:blue,"-----Testing Rho\n");
+printstyled("-----Testing Rho\n",color=:blue);
 @test(abs(df(Gcall1,r).im-RhoCall)<DerToll)
-print_with_color(:blue,"-----Testing Theta\n");
+printstyled("-----Testing Theta\n",color=:blue);
 @test(abs(-df(Hcall1,T).im-ThetaCall)<DerToll)
-print_with_color(:blue,"-----Testing Lambda\n");
+printstyled("-----Testing Lambda\n",color=:blue);
 @test(abs(df(Pcall1,spot).im-LambdaCall)<DerToll)
 
 ## Complex Test with Complex Step Approximation for European Put
@@ -55,24 +55,24 @@ Gput1(r)=blsprice(spot,K,r,T,sigma,d,false);
 Hput1(T)=blsprice(spot,K,r,T,sigma,d,false);
 Pput1(spot)=blsprice(spot,K,r,T,sigma,d,false)*spot.re/blsprice(spot.re,K,r,T,sigma,d,false);
 #TEST
-print_with_color(:yellow,"--- European Put Sensitivities: Complex Step Approximation\n")
-print_with_color(:blue,"-----Testing Delta\n");
+printstyled("--- European Put Sensitivities: Complex Step Approximation\n",color=:yellow)
+printstyled("-----Testing Delta\n",color=:blue);
 @test(abs(df(Fput1,spot).im-DeltaPut)<DerToll)
-print_with_color(:blue,"-----Testing Rho\n");
+printstyled("-----Testing Rho\n",color=:blue);
 @test(abs(df(Gput1,r).im-RhoPut)<DerToll)
-print_with_color(:blue,"-----Testing Theta\n");
+printstyled("-----Testing Theta\n",color=:blue);
 @test(abs(-df(Hput1,T).im-ThetaPut)<DerToll)
-print_with_color(:blue,"-----Testing Lambda\n");
+printstyled("-----Testing Lambda\n",color=:blue);
 @test(abs(df(Pput1,spot).im-LambdaPut)<DerToll)
 
-print_with_color(:blue,"-----Testing Vega\n");
+printstyled("-----Testing Vega\n",color=:blue);
 @test(abs(df(Lcall1,sigma).im-Vega)<DerToll)
-print_with_color(:green,"Complex Number Test Passed\n")
+printstyled("Complex Number Test Passed\n",color=:green)
 println("")
 
 #TEST OF INPUT VALIDATION
-print_with_color(:magenta,"Starting Input Validation Test Complex\n")
-print_with_color(:cyan,"----Testing Negative  Spot Price \n")
+printstyled("Starting Input Validation Test Complex\n",color=:magenta)
+printstyled("----Testing Negative  Spot Price \n",color=:cyan)
 @test_throws(ErrorException, blsprice(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(-spot+1im,K,r,T,sigma))
 @test_throws(ErrorException, blsdelta(-spot+1im,K,r,T,sigma,d))
@@ -84,7 +84,7 @@ print_with_color(:cyan,"----Testing Negative  Spot Price \n")
 @test_throws(ErrorException, blsvanna(-spot+1im,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-spot+1im,K,r,T,sigma,d))
 
-print_with_color(:cyan,"----Testing Negative  Strike Price \n")
+printstyled("----Testing Negative  Strike Price \n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(spot,-K+1im,r,T,sigma))
 @test_throws(ErrorException, blsdelta(spot,-K+1im,r,T,sigma,d))
@@ -96,7 +96,7 @@ print_with_color(:cyan,"----Testing Negative  Strike Price \n")
 @test_throws(ErrorException, blsvanna(spot,-K+1im,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-K+1im,r,T,sigma,d))
 
-print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
+printstyled("----Testing Negative  Time to Maturity \n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blkprice(spot,K,r,-T+1im,sigma))
 @test_throws(ErrorException, blsdelta(spot,K,r,-T+1im,sigma,d))
@@ -108,7 +108,7 @@ print_with_color(:cyan,"----Testing Negative  Time to Maturity \n")
 @test_throws(ErrorException, blsvanna(spot,K,r,-T+1im,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-T+1im,sigma,d))
 
-print_with_color(:cyan,"----Testing Negative  Volatility \n")
+printstyled("----Testing Negative  Volatility \n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blkprice(spot,K,r,T,-sigma+1im))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-sigma+1im,d))
@@ -120,4 +120,4 @@ print_with_color(:cyan,"----Testing Negative  Volatility \n")
 @test_throws(ErrorException, blsvanna(spot,K,r,T,-sigma+1im,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-sigma+1im,d))
 
-print_with_color(:magenta,"Complex Input Validation Test Passed\n")
+printstyled("Complex Input Validation Test Passed\n",color=:magenta)

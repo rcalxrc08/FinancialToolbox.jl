@@ -4,7 +4,7 @@ using FinancialToolbox
 #Test Parameters
 testToll=1e-14;
 
-print_with_color(:green,"Starting Standard Test\n")
+printstyled("Starting Standard Test\n",color=:green)
 spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
 
 #EuropeanCall Option
@@ -35,67 +35,67 @@ SigmaPutBlack=blkimpv(spot,K,r,T,PricePutBlack,false);
 Gamma=blsgamma(spot,K,r,T,sigma,d);
 Vega=blsvega(spot,K,r,T,sigma,d);
 
-print_with_color(:yellow,"---  European Call: Price and Sensitivities\n")
+printstyled("---  European Call: Price and Sensitivities\n",color=:yellow)
 #Standard Test European Call Option
-print_with_color(:blue,"-----Testing Price\n");
+printstyled("-----Testing Price\n",color=:blue);
 @test(abs(PriceCall-1.191201316999582)<testToll)
-print_with_color(:blue,"-----Testing Black Price\n");
+printstyled("-----Testing Black Price\n",color=:blue);
 @test(abs(PriceCallBlack-1.080531820066428)<testToll)
-print_with_color(:blue,"-----Testing Delta\n");
+printstyled("-----Testing Delta\n",color=:blue);
 @test(abs(DeltaCall-0.572434050810368)<testToll)
-print_with_color(:blue,"-----Testing Theta\n");
+printstyled("-----Testing Theta\n",color=:blue);
 @test(abs(ThetaCall+0.303776337550247)<testToll)
-print_with_color(:blue,"-----Testing Rho\n");
+printstyled("-----Testing Rho\n",color=:blue);
 @test(abs(RhoCall-9.066278382208203)<testToll)
-print_with_color(:blue,"-----Testing Lambda\n");
+printstyled("-----Testing Lambda\n",color=:blue);
 @test(abs(LambdaCall-4.805518955034612)<testToll)
-print_with_color(:blue,"-----Testing Implied Volatility\n");
+printstyled("-----Testing Implied Volatility\n",color=:blue);
 @test(abs(SigmaCall-0.2)<testToll)
-print_with_color(:blue,"-----Testing Implied Volatility Black\n");
+printstyled("-----Testing Implied Volatility Black\n",color=:blue);
 @test(abs(SigmaCallBlack-0.2)<testToll)
 #Low Xtol for blsimpv
 tol_low=1e-16;
 tol_high=1e-3;
 SigmaLowXTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_low,tol_high);
-print_with_color(:blue,"-----Testing Implied Volatility Low X tol, High Y tol\n");
+printstyled( High Y tol\n",color=:blue,"-----Testing Implied Volatility Low X tol);
 @test((abs(blsprice(spot,K,r,T,SigmaLowXTol,d,true)-PriceCall)<tol_high)||abs(SigmaLowXTol-sigma)<tol_low)
 #Low Ytol for blsimpv
 SigmaLowYTol=blsimpv(spot, K, r, T, PriceCall, d,true,tol_high,tol_low);
-print_with_color(:blue,"-----Testing Implied Volatility Low Y tol, High X tol\n");
+printstyled( High X tol\n",color=:blue,"-----Testing Implied Volatility Low Y tol);
 @test((abs(blsprice(spot,K,r,T,SigmaLowYTol,d,true)-PriceCall)<tol_low)||abs(SigmaLowYTol-sigma)<tol_high)
 
-print_with_color(:yellow,"---  European Put: Price and Sensitivities\n")
+printstyled("---  European Put: Price and Sensitivities\n",color=:yellow)
 #Standard Test European Put Option
-print_with_color(:blue,"-----Testing Price\n");
+printstyled("-----Testing Price\n",color=:blue);
 @test(abs(PricePut-0.997108975455260)<testToll)
-print_with_color(:blue,"-----Testing Price Black\n");
+printstyled("-----Testing Price Black\n",color=:blue);
 @test(abs(PricePutBlack-1.080531820066428)<testToll)
-print_with_color(:blue,"-----Testing Delta\n");
+printstyled("-----Testing Delta\n",color=:blue);
 @test(abs(DeltaPut+0.407764622496387)<testToll)
-print_with_color(:blue,"-----Testing Theta\n");
+printstyled("-----Testing Theta\n",color=:blue);
 @test(abs(ThetaPut+0.209638317050458)<testToll)
-print_with_color(:blue,"-----Testing Rho\n");
+printstyled("-----Testing Rho\n",color=:blue);
 @test(abs(RhoPut+10.149510400838260)<testToll)
-print_with_color(:blue,"-----Testing Lambda\n");
+printstyled("-----Testing Lambda\n",color=:blue);
 @test(abs(LambdaPut+4.089468980160465)<testToll)
-print_with_color(:blue,"-----Testing Implied Volatility\n");
+printstyled("-----Testing Implied Volatility\n",color=:blue);
 @test(abs(SigmaPut-0.2)<testToll)
-print_with_color(:blue,"-----Testing Implied Volatility Black\n");
+printstyled("-----Testing Implied Volatility Black\n",color=:blue);
 @test(abs(SigmaPutBlack-0.2)<testToll)
 
 #Standard Test for Common Sensitivities
-print_with_color(:blue,"-----Testing Gamma\n");
+printstyled("-----Testing Gamma\n",color=:blue);
 @test(abs(Gamma-0.135178479404601)<testToll)
-print_with_color(:blue,"-----Testing Vega\n");
+printstyled("-----Testing Vega\n",color=:blue);
 @test(abs(Vega-5.407139176184034)<testToll)
-print_with_color(:green,"Standard Test Passed\n")
+printstyled("Standard Test Passed\n",color=:green)
 println("")
 
 
 
 #TEST OF INPUT VALIDATION
-print_with_color(:magenta,"Starting Input Validation Test Real\n")
-print_with_color(:cyan,"----Testing Negative Spot Price\n")
+printstyled("Starting Input Validation Test Real\n",color=:magenta)
+printstyled("----Testing Negative Spot Price\n",color=:cyan)
 @test_throws(ErrorException, blsprice(-spot,K,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(-spot,K,r,T,sigma))
 @test_throws(ErrorException, blsdelta(-spot,K,r,T,sigma,d))
@@ -109,7 +109,7 @@ print_with_color(:cyan,"----Testing Negative Spot Price\n")
 @test_throws(ErrorException, blsimpv(-spot,K,r,T,PriceCall,d))
 @test_throws(ErrorException, blkimpv(-spot,K,r,T,PriceCall))
 
-print_with_color(:cyan,"----Testing Negative Strike Price\n")
+printstyled("----Testing Negative Strike Price\n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,-K,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(spot,-K,r,T,sigma))
 @test_throws(ErrorException, blsdelta(spot,-K,r,T,sigma,d))
@@ -123,7 +123,7 @@ print_with_color(:cyan,"----Testing Negative Strike Price\n")
 @test_throws(ErrorException, blsimpv(spot,-K,r,T,PriceCall,d))
 @test_throws(ErrorException, blkimpv(spot,-K,r,T,PriceCall))
 
-print_with_color(:cyan,"----Testing Negative Time to Maturity\n")
+printstyled("----Testing Negative Time to Maturity\n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,-T,sigma,d))
 @test_throws(ErrorException, blkprice(spot,K,r,-T,sigma))
 @test_throws(ErrorException, blsdelta(spot,K,r,-T,sigma,d))
@@ -137,7 +137,7 @@ print_with_color(:cyan,"----Testing Negative Time to Maturity\n")
 @test_throws(ErrorException, blsimpv(spot,K,r,-T,PriceCall,d))
 @test_throws(ErrorException, blkimpv(spot,K,r,-T,PriceCall))
 
-print_with_color(:cyan,"----Testing Negative Volatility\n")
+printstyled("----Testing Negative Volatility\n",color=:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,T,-sigma,d))
 @test_throws(ErrorException, blkprice(spot,K,r,T,-sigma))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-sigma,d))
@@ -148,11 +148,11 @@ print_with_color(:cyan,"----Testing Negative Volatility\n")
 @test_throws(ErrorException, blslambda(spot,K,r,T,-sigma,d))
 @test_throws(ErrorException, blsvanna(spot,K,r,T,-sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-sigma,d))
-print_with_color(:cyan,"----Testing Negative Option Price\n")
+printstyled("----Testing Negative Option Price\n",color=:cyan)
 @test_throws(ErrorException, blsimpv(spot,K,r,T,-PriceCall,d))
 @test_throws(ErrorException, blkimpv(spot,K,r,T,-PriceCall))
 
-print_with_color(:cyan,"----Testing Negative Tollerance\n")
+printstyled("----Testing Negative Tollerance\n",color=:cyan)
 @test_throws(ErrorException, blsimpv(spot,K,r,T,PriceCall,d,true,-1e-12,1e-12))
 @test_throws(ErrorException, blkimpv(spot,K,r,T,PriceCall,true,-1e-12,1e-12))
 @test_throws(ErrorException, blsimpv(spot,K,r,T,PriceCall,d,true,1e-12,-1e-12))
@@ -162,7 +162,7 @@ print_with_color(:cyan,"----Testing Negative Tollerance\n")
 @test_throws(ErrorException, blsimpv(spot,K,r,T,PriceCall,d,true,0.0,0.0))
 @test_throws(ErrorException, blkimpv(spot,K,r,T,PriceCall,true,0.0,0.0))
 
-print_with_color(:magenta,"Real Input Validation Test Passed\n")
+printstyled("Real Input Validation Test Passed\n",color=:magenta)
 
 
 #End of the Test

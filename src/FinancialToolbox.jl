@@ -1,10 +1,10 @@
 __precompile__()
 module FinancialToolbox
 
-	if (VERSION.major==0&&VERSION.minor>=6)
+	if (VERSION.major==0&&VERSION.minor==6)
 		using SpecialFunctions.erf
-	end
-	if (VERSION.major==0&&VERSION.minor>6)
+	elseif (VERSION.major==0&&VERSION.minor>6)
+		using SpecialFunctions: erf
 		using Dates
 	end
 	include("dates.jl");

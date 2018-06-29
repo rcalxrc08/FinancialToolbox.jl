@@ -1,6 +1,9 @@
 using FinancialToolbox
-using Base.Test
-
+if (VERSION.major==0&&VERSION.minor>6)
+	using Test,Dates
+else
+	using Base.Test
+end
 function yearFractionTester(StartDate,EndDate,MatlabResults,TestToll=1e-14)
 for i=0:FinancialToolbox.currMaxImplemented
 	@test(abs(MatlabResults[i+1]-yearfrac(StartDate,EndDate,i))<TestToll)
