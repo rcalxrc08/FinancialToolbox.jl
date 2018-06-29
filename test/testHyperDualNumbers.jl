@@ -5,7 +5,7 @@ else
 end
 using FinancialToolbox
 
-printstyled("Starting Hyper Dual Numbers Test\n",color=:green)
+print_colored("Starting Hyper Dual Numbers Test\n",:green)
 
 #Test Parameters
 testToll=1e-14;
@@ -63,48 +63,48 @@ V1(sigma)=blsdelta(spot,K,r,T,sigma,d,false);
 V11(spot,sigma)=blsprice(spot,K,r,T,sigma,d,false);
 
 #TEST
-printstyled("--- European Call Sensitivities: HyperDualNumbers\n",color=:yellow)
-printstyled("-----Testing Delta\n",color=:blue);
+print_colored("--- European Call Sensitivities: HyperDualNumbers\n",:yellow)
+print_colored("-----Testing Delta\n",:blue);
 @test(abs(F(SpotHyper).f1-DeltaCall)<DerToll)
-printstyled("-----Testing Gamma\n",color=:blue);
+print_colored("-----Testing Gamma\n",:blue);
 @test(abs(FF1(SpotHyper).f1-Gamma)<DerToll)
-printstyled("-----Testing Gamma  2\n",color=:blue);
+print_colored("-----Testing Gamma  2\n",:blue);
 @test(abs(F(SpotHyper).f12-Gamma)<DerToll)
-printstyled("-----Testing Rho\n",color=:blue);
+print_colored("-----Testing Rho\n",:blue);
 @test(abs(G(rHyper).f1-RhoCall)<DerToll)
-printstyled("-----Testing Theta\n",color=:blue);
+print_colored("-----Testing Theta\n",:blue);
 @test(abs(-H(THyper).f1-ThetaCall)<DerToll)
-printstyled("-----Testing Lambda\n",color=:blue);
+print_colored("-----Testing Lambda\n",:blue);
 @test(abs(P(SpotHyper).f1-LambdaCall)<DerToll)
-printstyled("-----Testing Vanna\n",color=:blue);
+print_colored("-----Testing Vanna\n",:blue);
 @test(abs(V(SigmaHyper).f1-VannaCall)<DerToll)
-printstyled("-----Testing Vanna  2\n",color=:blue);
+print_colored("-----Testing Vanna  2\n",:blue);
 @test(abs(VV(hyper(spot,1,0,0),hyper(sigma,0,1,0)).f12-VannaCall)<DerToll)
 
 ## Complex Test with Complex Step Approximation for European Put
 #TEST
-printstyled("--- European Put Sensitivities: HyperDualNumbers\n",color=:yellow)
-printstyled("-----Testing Delta\n",color=:blue);
+print_colored("--- European Put Sensitivities: HyperDualNumbers\n",:yellow)
+print_colored("-----Testing Delta\n",:blue);
 @test(abs(F1(SpotHyper).f1-DeltaPut)<DerToll)
-printstyled("-----Testing Rho\n",color=:blue);
+print_colored("-----Testing Rho\n",:blue);
 @test(abs(G1(rHyper).f1-RhoPut)<DerToll)
-printstyled("-----Testing Theta\n",color=:blue);
+print_colored("-----Testing Theta\n",:blue);
 @test(abs(-H1(THyper).f1-ThetaPut)<DerToll)
-printstyled("-----Testing Lambda\n",color=:blue);
+print_colored("-----Testing Lambda\n",:blue);
 @test(abs(P1(SpotHyper).f1-LambdaPut)<DerToll)
-printstyled("-----Testing Vanna\n",color=:blue);
+print_colored("-----Testing Vanna\n",:blue);
 @test(abs(V1(SigmaHyper).f1-VannaPut)<DerToll)
-printstyled("-----Testing Vanna  2\n",color=:blue);
+print_colored("-----Testing Vanna  2\n",:blue);
 @test(abs(V11(hyper(spot,1,0,0),hyper(sigma,0,1,0)).f12-VannaPut)<DerToll)
-printstyled("-----Testing Vega\n",color=:blue);
+print_colored("-----Testing Vega\n",:blue);
 @test(abs(L(SigmaHyper).f1-Vega)<DerToll)
-printstyled("Hyper Dual Numbers Test Passed\n\n",color=:green)
+print_colored("Hyper Dual Numbers Test Passed\n\n",:green)
 
 
 
 #TEST OF INPUT VALIDATION
-printstyled("Starting Input Validation Test Hyper Dual Numbers\n",color=:magenta)
-printstyled("----Testing Negative  Spot Price \n",color=:cyan)
+print_colored("Starting Input Validation Test Hyper Dual Numbers\n",:magenta)
+print_colored("----Testing Negative  Spot Price \n",:cyan)
 @test_throws(ErrorException, blsprice(-SpotHyper,K,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(-SpotHyper,K,r,T,sigma))
 @test_throws(ErrorException, blsdelta(-SpotHyper,K,r,T,sigma,d))
@@ -116,7 +116,7 @@ printstyled("----Testing Negative  Spot Price \n",color=:cyan)
 @test_throws(ErrorException, blsvanna(-SpotHyper,K,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(-SpotHyper,K,r,T,sigma,d))
 
-printstyled("----Testing Negative  Strike Price \n",color=:cyan)
+print_colored("----Testing Negative  Strike Price \n",:cyan)
 @test_throws(ErrorException, blsprice(spot,-KHyper,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(spot,-KHyper,r,T,sigma))
 @test_throws(ErrorException, blsdelta(spot,-KHyper,r,T,sigma,d))
@@ -128,7 +128,7 @@ printstyled("----Testing Negative  Strike Price \n",color=:cyan)
 @test_throws(ErrorException, blsvanna(spot,-KHyper,r,T,sigma,d))
 @test_throws(ErrorException, blsvega(spot,-KHyper,r,T,sigma,d))
 
-printstyled("----Testing Negative  Time to Maturity \n",color=:cyan)
+print_colored("----Testing Negative  Time to Maturity \n",:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,-THyper,sigma,d))
 @test_throws(ErrorException, blkprice(spot,K,r,-THyper,sigma))
 @test_throws(ErrorException, blsdelta(spot,K,r,-THyper,sigma,d))
@@ -140,7 +140,7 @@ printstyled("----Testing Negative  Time to Maturity \n",color=:cyan)
 @test_throws(ErrorException, blsvanna(spot,K,r,-THyper,sigma,d))
 @test_throws(ErrorException, blsvega(spot,K,r,-THyper,sigma,d))
 
-printstyled("----Testing Negative  Volatility \n",color=:cyan)
+print_colored("----Testing Negative  Volatility \n",:cyan)
 @test_throws(ErrorException, blsprice(spot,K,r,T,-SigmaHyper,d))
 @test_throws(ErrorException, blkprice(spot,K,r,T,-SigmaHyper))
 @test_throws(ErrorException, blsdelta(spot,K,r,T,-SigmaHyper,d))
@@ -152,4 +152,4 @@ printstyled("----Testing Negative  Volatility \n",color=:cyan)
 @test_throws(ErrorException, blsvanna(spot,K,r,T,-SigmaHyper,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-SigmaHyper,d))
 
-printstyled("Hyper Dual Input Validation Test Passed\n",color=:magenta)
+print_colored("Hyper Dual Input Validation Test Passed\n",:magenta)
