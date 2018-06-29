@@ -1,4 +1,10 @@
-using Base.Test
+if (VERSION.major==0&&VERSION.minor>6)
+	using Test
+	using ForwardDiff: Dual;
+else
+	using Base.Test
+	using ForwardDiff.Dual;
+end
 using FinancialToolbox
 printstyled("Starting Forward Diff Dual Numbers Test\n",color=:green)
 
@@ -27,7 +33,6 @@ Gamma=blsgamma(spot,K,r,T,sigma,d);
 Vega=blsvega(spot,K,r,T,sigma,d);
 
 ########DUAL NUMBERS
-using ForwardDiff.Dual;
 DerToll=1e-13;
 #Function definition
 #Call

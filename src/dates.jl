@@ -102,7 +102,7 @@ d1=Dates.day(startDate);
 d2=Dates.day(endDate);
 if (convention==0)#(ACT/ACT)
 	Nday=daysact(startDate,endDate);
-	EndOFYear=Date();
+	EndOFYear=Date(1);
 	if(isLastOfFebruary(startDate)&&(Dates.day(startDate)==29))
 		EndOFYear=Date(Dates.year(startDate)+1,3,1);
 	else

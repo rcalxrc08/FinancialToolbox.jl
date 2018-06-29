@@ -1,4 +1,8 @@
-using Base.Test
+if (VERSION.major==0&&VERSION.minor>6)
+	using Test
+else
+	using Base.Test
+end
 using FinancialToolbox
 
 printstyled("Starting Complex Number Test\n",color=:green)
