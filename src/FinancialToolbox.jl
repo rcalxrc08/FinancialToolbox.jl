@@ -1,12 +1,8 @@
 __precompile__()
 module FinancialToolbox
 
-	if (VERSION.major==0&&VERSION.minor==6)
-		using SpecialFunctions.erf
-	elseif (VERSION.major==0&&VERSION.minor>6)
-		using SpecialFunctions: erf
-		using Dates
-	end
+	using SpecialFunctions: erf
+	using Dates
 	include("dates.jl");
 	include("financial.jl")
 	export
