@@ -11,8 +11,7 @@ end
 test_list = ["testRealNumbers.jl";"testComplexNumbers.jl";"testForwardDiff.jl";"testHyperDualNumbers.jl";"testDates.jl"]
 
 println("Running tests:\n")
-i=1;
-for current_test in test_list
+for (current_test,i) in zip(test_list,1:length(test_list))
 	println("------------------------------------------------------------")
     println("  * $(current_test) *")
     include(current_test)
@@ -20,5 +19,4 @@ for current_test in test_list
 	if (i<length(test_list))
 		println("")
 	end
-	i+=1;
 end
