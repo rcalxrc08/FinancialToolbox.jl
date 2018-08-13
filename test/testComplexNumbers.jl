@@ -1,4 +1,4 @@
-if (VERSION.major==0&&VERSION.minor>6)
+if !(VERSION.major==0&&VERSION.minor<=6)
 	using Test
 else
 	using Base.Test

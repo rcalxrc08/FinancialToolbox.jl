@@ -1,5 +1,5 @@
 using FinancialToolbox
-if (VERSION.major==0&&VERSION.minor>6)
+if !(VERSION.major==0&&VERSION.minor<=6)
 	using Test,Dates
 else
 	using Base.Test
