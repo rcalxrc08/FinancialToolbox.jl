@@ -1,8 +1,8 @@
 function print_colored(in::String,color1)
-	if (VERSION.major==0&&VERSION.minor>6)
-		return printstyled(in,color=color1)
-	else
+	if (VERSION.major==0&&VERSION.minor<=6)
 		return print_with_color(color1,in) 
+	else
+		return printstyled(in,color=color1)
 	end
 end
 
