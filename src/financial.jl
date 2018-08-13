@@ -1,7 +1,39 @@
+"""
+Cumulative Distribution Function of a Standard Gaussian Random Variable
+
+		y=normcdf(x)
+
+Where:\n
+		x         = point of evaluation.
+
+		y      = probability that a standard gaussian random variable is below x.
+
+# Example
+```julia-repl
+julia> normcdf(0.0)
+0.5
+```
+"""
 function normcdf(x::number) where {number <: Number}
 	return (1.0+erf(x/sqrt(2.0)))/2.0;
 end
 
+"""
+Probability Distribution Function of a Standard Gaussian Random Variable
+
+		y=normpdf(x)
+
+Where:\n
+		x         = point of evaluation.
+
+		y      = value.
+
+# Example
+```julia-repl
+julia> normpdf(0.0)
+0.3989422804014327
+```
+"""
 function normpdf(x::number) where {number <: Number}
 	return exp(-0.5*x.^2)/sqrt(2*pi);
 end
