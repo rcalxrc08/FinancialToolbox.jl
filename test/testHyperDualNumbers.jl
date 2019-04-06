@@ -50,7 +50,7 @@ FF(spot)=blsdelta(spot,K,r,T,sigma,d);
 G(r)=blsprice(spot,K,r,T,sigma,d);
 H(T)=blsprice(spot,K,r,T,sigma,d);
 L(sigma)=blsprice(spot,K,r,T,sigma,d);
-P(spot)=blsprice(spot,K,r,T,sigma,d)*spot.f0/blsprice(spot.f0,K,r,T,sigma,d);
+P(spot)=blsprice(spot,K,r,T,sigma,d)*spot.value/blsprice(spot.value,K,r,T,sigma,d);
 V(sigma)=blsdelta(spot,K,r,T,sigma,d);
 VV(spot,sigma)=blsprice(spot,K,r,T,sigma,d);
 #Put
@@ -58,46 +58,46 @@ F1(spot)=blsprice(spot,K,r,T,sigma,d,false);
 FF1(spot)=blsdelta(spot,K,r,T,sigma,d,false);
 G1(r)=blsprice(spot,K,r,T,sigma,d,false);
 H1(T)=blsprice(spot,K,r,T,sigma,d,false);
-P1(spot)=blsprice(spot,K,r,T,sigma,d,false)*spot.f0/blsprice(spot.f0,K,r,T,sigma,d,false);
+P1(spot)=blsprice(spot,K,r,T,sigma,d,false)*spot.value/blsprice(spot.value,K,r,T,sigma,d,false);
 V1(sigma)=blsdelta(spot,K,r,T,sigma,d,false);
 V11(spot,sigma)=blsprice(spot,K,r,T,sigma,d,false);
 
 #TEST
 print_colored("--- European Call Sensitivities: HyperDualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(F(SpotHyper).f1-DeltaCall)<DerToll)
+@test(abs(F(SpotHyper).epsilon1-DeltaCall)<DerToll)
 print_colored("-----Testing Gamma\n",:blue);
-@test(abs(FF1(SpotHyper).f1-Gamma)<DerToll)
+@test(abs(FF1(SpotHyper).epsilon1-Gamma)<DerToll)
 print_colored("-----Testing Gamma  2\n",:blue);
-@test(abs(F(SpotHyper).f12-Gamma)<DerToll)
+@test(abs(F(SpotHyper).epsilon12-Gamma)<DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(G(rHyper).f1-RhoCall)<DerToll)
+@test(abs(G(rHyper).epsilon1-RhoCall)<DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-H(THyper).f1-ThetaCall)<DerToll)
+@test(abs(-H(THyper).epsilon1-ThetaCall)<DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(P(SpotHyper).f1-LambdaCall)<DerToll)
+@test(abs(P(SpotHyper).epsilon1-LambdaCall)<DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(V(SigmaHyper).f1-VannaCall)<DerToll)
+@test(abs(V(SigmaHyper).epsilon1-VannaCall)<DerToll)
 print_colored("-----Testing Vanna  2\n",:blue);
-@test(abs(VV(hyper(spot,1,0,0),hyper(sigma,0,1,0)).f12-VannaCall)<DerToll)
+@test(abs(VV(hyper(spot,1,0,0),hyper(sigma,0,1,0)).epsilon12-VannaCall)<DerToll)
 
 ## Complex Test with Complex Step Approximation for European Put
 #TEST
 print_colored("--- European Put Sensitivities: HyperDualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(F1(SpotHyper).f1-DeltaPut)<DerToll)
+@test(abs(F1(SpotHyper).epsilon1-DeltaPut)<DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(G1(rHyper).f1-RhoPut)<DerToll)
+@test(abs(G1(rHyper).epsilon1-RhoPut)<DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-H1(THyper).f1-ThetaPut)<DerToll)
+@test(abs(-H1(THyper).epsilon1-ThetaPut)<DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(P1(SpotHyper).f1-LambdaPut)<DerToll)
+@test(abs(P1(SpotHyper).epsilon1-LambdaPut)<DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(V1(SigmaHyper).f1-VannaPut)<DerToll)
+@test(abs(V1(SigmaHyper).epsilon1-VannaPut)<DerToll)
 print_colored("-----Testing Vanna  2\n",:blue);
-@test(abs(V11(hyper(spot,1,0,0),hyper(sigma,0,1,0)).f12-VannaPut)<DerToll)
+@test(abs(V11(hyper(spot,1,0,0),hyper(sigma,0,1,0)).epsilon12-VannaPut)<DerToll)
 print_colored("-----Testing Vega\n",:blue);
-@test(abs(L(SigmaHyper).f1-Vega)<DerToll)
+@test(abs(L(SigmaHyper).epsilon1-Vega)<DerToll)
 print_colored("Hyper Dual Numbers Test Passed\n\n",:green)
 
 
