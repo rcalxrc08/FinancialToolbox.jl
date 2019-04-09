@@ -432,7 +432,7 @@ export blkimpv
 """
 Black Implied Volatility for European Options
 
-		σ=blkimpv(F0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15)
+		σ=blkimpv(F0,K,r,T,Price,FlagIsCall=true,xtol=1e-14,ytol=1e-15)
 
 Where:\n
 		F0         = Value of the Forward.

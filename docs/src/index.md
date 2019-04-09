@@ -6,6 +6,8 @@
 ## Functions
 
 ```@docs
+normcdf
+normpdf
 blsprice
 blkprice
 blsdelta
@@ -18,6 +20,9 @@ blspsi
 blsvanna
 blsimpv
 blkimpv
+fromExcelNumberToDate
+daysact
+yearfrac
 ```
 
 ## Index
