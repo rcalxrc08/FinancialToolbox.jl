@@ -9,7 +9,8 @@ f(x)=(blsprice(value(S0),value(K),value(r),value(T),x,value(d),FlagIsCall)-value
 σ=brentMethod(f,0.001,1.2,xtol,ytol);
 
 #der_=(blsvega(S0,K,r,T,σ,d)/blsprice(S0,K,r,T,σ,d))^-1
-der_=blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value(S0),value(K),value(r),value(T),σ,value(d),FlagIsCall)
+#der_=blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value(S0),value(K),value(r),value(T),σ,value(d),FlagIsCall)
+der_=value__(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value(S0),value(K),value(r),value(T),σ,value(d),FlagIsCall))
 
 return dual(σ,der_);
 

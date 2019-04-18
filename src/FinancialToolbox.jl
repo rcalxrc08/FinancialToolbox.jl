@@ -2,7 +2,7 @@ __precompile__()
 module FinancialToolbox
 
 	using SpecialFunctions: erf
-	using Dates
+	using Dates,Requires
 	include("dates.jl");
 	function __init__()
 		@require DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74" include("financial_dual.jl")
