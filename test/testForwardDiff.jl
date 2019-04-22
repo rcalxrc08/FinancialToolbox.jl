@@ -1,11 +1,7 @@
-if !(VERSION.major==0&&VERSION.minor<=6)
-	using Test
-	using ForwardDiff: Dual;
-else
-	using Base.Test
-	using ForwardDiff.Dual;
-end
+using Test
+using ForwardDiff;
 using FinancialToolbox
+Dual_=ForwardDiff.Dual
 print_colored("Starting Forward Diff Dual Numbers Test\n",:green)
 
 #Test Parameters
@@ -49,10 +45,10 @@ HputDual(T)=blsprice(spot,K,r,T,sigma,d,false);
 PputDual(spot)=blsprice(spot,K,r,T,sigma,d,false)*spot.value/blsprice(spot.value,K,r,T,sigma,d,false);
 VPutDual(sigma)=blsdelta(spot,K,r,T,sigma,d,false);
 #Input
-SpotDual=Dual(spot,1.0);
-rDual=Dual(r,1.0);
-TDual=Dual(T,1.0);
-SigmaDual=Dual(sigma,1.0);
+SpotDual=Dual_(spot,1.0);
+rDual=Dual_(r,1.0);
+TDual=Dual_(T,1.0);
+SigmaDual=Dual_(sigma,1.0);
 
 #Automatic Differentiation Test
 #TEST
@@ -100,7 +96,7 @@ print_colored("----Testing Negative  Spot Price \n",:cyan)
 @test_throws(ErrorException, blsvega(-SpotDual,K,r,T,sigma,d))
 
 print_colored("----Testing Negative  Strike Price \n",:cyan)
-KK=Dual(K,0);
+KK=Dual_(K,0);
 @test_throws(ErrorException, blsprice(spot,-KK,r,T,sigma,d))
 @test_throws(ErrorException, blkprice(spot,-KK,r,T,sigma))
 @test_throws(ErrorException, blsdelta(spot,-KK,r,T,sigma,d))
