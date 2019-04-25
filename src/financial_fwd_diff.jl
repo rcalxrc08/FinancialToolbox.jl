@@ -1,7 +1,7 @@
 using .ForwardDiff
 Dual_=ForwardDiff.Dual
 
-macro blkimpv_dual(num1,num2,num3,num4,num5)
+function blkimpv_fwd(num1,num2,num3,num4,num5)
 	@eval function blkimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 
 		blscheck(S0,K,r,T,0.1,r);
@@ -15,10 +15,10 @@ type_blkimpv_dual_fwd_=[Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dua
 type_blkimpv_dual_fwd=copy(type_blkimpv_dual_fwd_)
 for i=1:5
 	type_blkimpv_dual_fwd=circshift(type_blkimpv_dual_fwd_,i-1)
-	@blkimpv_dual(type_blkimpv_dual_fwd[1],type_blkimpv_dual_fwd[2],type_blkimpv_dual_fwd[3],type_blkimpv_dual_fwd[4],type_blkimpv_dual_fwd[5])
+	blkimpv_fwd(type_blkimpv_dual_fwd[1],type_blkimpv_dual_fwd[2],type_blkimpv_dual_fwd[3],type_blkimpv_dual_fwd[4],type_blkimpv_dual_fwd[5])
 end
 
-macro blsimpv_dual(num1,num2,num3,num4,num5,num6)
+function blsimpv_fwd(num1,num2,num3,num4,num5,num6)
 	@eval function blsimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,d::$num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 	if (Price< $num5(0))
 		throw(ErrorException("Option Price Cannot Be Negative"));
@@ -40,5 +40,5 @@ type_blsimpv_dual_fwd_=[Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dua
 type_blsimpv_dual_fwd=copy(type_blsimpv_dual_fwd_)
 for i=1:6
 	type_blsimpv_dual_fwd=circshift(type_blsimpv_dual_fwd_,i-1)
-	@blsimpv_dual(type_blsimpv_dual_fwd[1],type_blsimpv_dual_fwd[2],type_blsimpv_dual_fwd[3],type_blsimpv_dual_fwd[4],type_blsimpv_dual_fwd[5],type_blsimpv_dual_fwd[6])
+	blsimpv_fwd(type_blsimpv_dual_fwd[1],type_blsimpv_dual_fwd[2],type_blsimpv_dual_fwd[3],type_blsimpv_dual_fwd[4],type_blsimpv_dual_fwd[5],type_blsimpv_dual_fwd[6])
 end

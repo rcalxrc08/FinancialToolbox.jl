@@ -1,6 +1,6 @@
 using .DualNumbers
 
-macro blkimpv_dual(num1,num2,num3,num4,num5)
+function blkimpv_dual(num1,num2,num3,num4,num5)
 	@eval function blkimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 
 		blscheck(S0,K,r,T,0.1,r);
@@ -14,10 +14,10 @@ type_blkimpv_dual_=[Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Unio
 type_blkimpv_dual=copy(type_blkimpv_dual_)
 for i=1:5
 	type_blkimpv_dual=circshift(type_blkimpv_dual_,i-1)
-	@blkimpv_dual(type_blkimpv_dual[1],type_blkimpv_dual[2],type_blkimpv_dual[3],type_blkimpv_dual[4],type_blkimpv_dual[5])
+	blkimpv_dual(type_blkimpv_dual[1],type_blkimpv_dual[2],type_blkimpv_dual[3],type_blkimpv_dual[4],type_blkimpv_dual[5])
 end
 
-macro blsimpv_dual(num1,num2,num3,num4,num5,num6)
+function blsimpv_dual(num1,num2,num3,num4,num5,num6)
 	@eval function blsimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,d::$num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 	if (Price< $num5(0))
 		throw(ErrorException("Option Price Cannot Be Negative"));
@@ -39,5 +39,5 @@ type_blsimpv_dual_=[Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Unio
 type_blsimpv_dual=copy(type_blsimpv_dual_)
 for i=1:6
 	type_blsimpv_dual=circshift(type_blsimpv_dual_,i-1)
-	@blsimpv_dual(type_blsimpv_dual[1],type_blsimpv_dual[2],type_blsimpv_dual[3],type_blsimpv_dual[4],type_blsimpv_dual[5],type_blsimpv_dual[6])
+	blsimpv_dual(type_blsimpv_dual[1],type_blsimpv_dual[2],type_blsimpv_dual[3],type_blsimpv_dual[4],type_blsimpv_dual[5],type_blsimpv_dual[6])
 end

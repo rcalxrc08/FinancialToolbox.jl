@@ -1,6 +1,6 @@
 using .HyperDualNumbers
 
-macro blkimpv_hyper(num1,num2,num3,num4,num5)
+function blkimpv_hyper(num1,num2,num3,num4,num5)
 	@eval function blkimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 
 		blscheck(S0,K,r,T,0.1,r);
@@ -14,10 +14,10 @@ type_blkimpv_hyper_=[Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}
 type_blkimpv_hyper=copy(type_blkimpv_hyper_)
 for i=1:5
 	type_blkimpv_hyper=circshift(type_blkimpv_hyper_,i-1)
-	@blkimpv_hyper(type_blkimpv_hyper[1],type_blkimpv_hyper[2],type_blkimpv_hyper[3],type_blkimpv_hyper[4],type_blkimpv_hyper[5])
+	blkimpv_hyper(type_blkimpv_hyper[1],type_blkimpv_hyper[2],type_blkimpv_hyper[3],type_blkimpv_hyper[4],type_blkimpv_hyper[5])
 end
 
-macro blsimpv_hyper(num1,num2,num3,num4,num5,num6)
+function blsimpv_hyper(num1,num2,num3,num4,num5,num6)
 	@eval function blsimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,d::$num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
 	if (Price< $num5(0))
 		throw(ErrorException("Option Price Cannot Be Negative"));
@@ -40,5 +40,5 @@ type_blsimpv_hyper_=[Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}
 type_blsimpv_hyper=copy(type_blsimpv_hyper_)
 for i=1:6
 	type_blsimpv_hyper=circshift(type_blsimpv_hyper_,i-1)
-	@blsimpv_hyper(type_blsimpv_hyper[1],type_blsimpv_hyper[2],type_blsimpv_hyper[3],type_blsimpv_hyper[4],type_blsimpv_hyper[5],type_blsimpv_hyper[6])
+	blsimpv_hyper(type_blsimpv_hyper[1],type_blsimpv_hyper[2],type_blsimpv_hyper[3],type_blsimpv_hyper[4],type_blsimpv_hyper[5],type_blsimpv_hyper[6])
 end
