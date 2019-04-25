@@ -19,7 +19,7 @@ end
 
 function blsimpv_hyper(num1,num2,num3,num4,num5,num6)
 	@eval function blsimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,d::$num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
-	if (Price< $num5(0))
+	if (Price < 0)
 		throw(ErrorException("Option Price Cannot Be Negative"));
 	end
 	FinancialToolbox.blscheck(S0,K,r,T,0.1,d);
@@ -27,8 +27,17 @@ function blsimpv_hyper(num1,num2,num3,num4,num5,num6)
 	value__(x::Real)=x;
 	f(x)=(blsprice(value__(S0),value__(K),value__(r),value__(T),x,value__(d),FlagIsCall)-value__(Price));
 	σ=FinancialToolbox.brentMethod(f,0.001,1.2,xtol,ytol);
-	der_=-(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)).epsilon
-	der_2=-(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)).epsilon
+	out=hyper(0.0)
+	if(!ishyper(Price))
+		der_=-(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)).epsilon1
+		#der_2=-(blsprice(S0,K,r,T,hyper(σ,1.0,1.0,0.0),d,FlagIsCall).epsilon12)/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^3)
+		der_2=-((blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon12*blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall))-blsvega(S0,K,r,T,σ,d,FlagIsCall).epsilon1*blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon1)/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^3)
+		out=hyper(σ,der_,der_,der_2);
+	else
+		der_=1/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)
+		der_2=-(blsprice(S0,K,r,T,hyper(σ,1.0,1.0,0.0),d,FlagIsCall).epsilon12)/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^3)
+		out=hyper(σ,der_,der_,der_2);
+	end
 	out=hyper(σ,der_,der_,der_2);
 
 	return out;
