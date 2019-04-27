@@ -1,8 +1,5 @@
 # Black and Scholes related functions
 
-```@contents
-```
-
 ## Functions
 
 ```@docs

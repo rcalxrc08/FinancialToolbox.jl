@@ -1,8 +1,5 @@
 # Dates related functions
 
-```@contents
-```
-
 ## Functions
 
 ```@docs
