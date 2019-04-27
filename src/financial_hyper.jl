@@ -32,20 +32,13 @@ function blsimpv_hyper(num1,num2,num3,num4,num5,num6)
 	out=hyper(0.0)
 	if(!ishyper(Price))
 		der_=-(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)).epsilon1
-		#der_2=-(blsprice(S0,K,r,T,hyper(σ,1.0,1.0,0.0),d,FlagIsCall).epsilon12)/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^3)
-		#der_2=-((blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon12*blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall))-blsvega(S0,K,r,T,σ,d,FlagIsCall).epsilon1*blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon1)/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^3)
-		#der_2=-((blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon12*blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall))-blsvega(S0,K,r,T,σ,d,FlagIsCall).epsilon1*blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon1)/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^3)
-		#der_2=-blsvega(S0,K,r,T,σ,d,FlagIsCall).epsilon1*blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon1/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^2)+blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon12/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall))
-		#der_2=((blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon12+blsdelta(value__(S0),value__(K),value__(r),value__(T),hyper(σ,1.0,1.0,0.0),value__(d),FlagIsCall).epsilon1*der_)*blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)-blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon1*(blsvega(S0,K,r,T,σ,d,FlagIsCall).epsilon1+blsvega(value__(S0),value__(K),value__(r),value__(T),hyper(σ,1.0,1.0,0.0),value__(d),FlagIsCall).epsilon1*der_))/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^2)
 		der_2=((blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon12+blsvega(S0,K,r,T,σ,d,FlagIsCall).epsilon1*der_)*blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)-blsprice(S0,K,r,T,σ,d,FlagIsCall).epsilon1*(blsvega(S0,K,r,T,σ,d,FlagIsCall).epsilon1+blsvega(value__(S0),value__(K),value__(r),value__(T),hyper(σ,1.0,1.0,0.0),value__(d),FlagIsCall).epsilon1*der_))/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^2)
-		#der_2=-(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)).epsilon1
 		out=hyper(σ,der_,der_,-der_2);
 	else
 		der_=1/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)
 		der_2=-(blsprice(S0,K,r,T,hyper(σ,1.0,1.0,0.0),d,FlagIsCall).epsilon12)/(blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)^3)
 		out=hyper(σ,der_,der_,der_2);
 	end
-	out=hyper(σ,der_,der_,-der_2);
 
 	return out;
 
