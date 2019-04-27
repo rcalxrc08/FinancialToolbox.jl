@@ -1,5 +1,5 @@
 using .ForwardDiff
-Dual_=ForwardDiff.Dual
+Dual=ForwardDiff.Dual_
 
 function blkimpv_fwd(num1,num2,num3,num4,num5)
 	@eval function blkimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
@@ -11,12 +11,13 @@ function blkimpv_fwd(num1,num2,num3,num4,num5)
 	end
 end
 
-type_blkimpv_dual_fwd_=[Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
-type_blkimpv_dual_fwd=copy(type_blkimpv_dual_fwd_)
-for i=1:5
-	type_blkimpv_dual_fwd=circshift(type_blkimpv_dual_fwd_,i-1)
-	blkimpv_fwd(type_blkimpv_dual_fwd[1],type_blkimpv_dual_fwd[2],type_blkimpv_dual_fwd[3],type_blkimpv_dual_fwd[4],type_blkimpv_dual_fwd[5])
-end
+
+type_blkimpv_dual_fwd_1=[Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
+type_blkimpv_dual_fwd_2=[Real,Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
+type_blkimpv_dual_fwd_3=[Real,Real,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
+blsimpv_fwd(type_blkimpv_dual_fwd_1[1],type_blkimpv_dual_fwd_1[2],type_blkimpv_dual_fwd_1[3],type_blkimpv_dual_fwd_1[4],type_blkimpv_dual_fwd_1[5])
+blsimpv_fwd(type_blkimpv_dual_fwd_2[1],type_blkimpv_dual_fwd_2[2],type_blkimpv_dual_fwd_2[3],type_blkimpv_dual_fwd_2[4],type_blkimpv_dual_fwd_2[5])
+blsimpv_fwd(type_blkimpv_dual_fwd_3[1],type_blkimpv_dual_fwd_3[2],type_blkimpv_dual_fwd_3[3],type_blkimpv_dual_fwd_3[4],type_blkimpv_dual_fwd_3[5])
 
 function blsimpv_fwd(num1,num2,num3,num4,num5,num6)
 	@eval function blsimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,d::$num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
@@ -36,9 +37,17 @@ function blsimpv_fwd(num1,num2,num3,num4,num5,num6)
 	end
 end
 
-type_blsimpv_dual_fwd_=[Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
-type_blsimpv_dual_fwd=copy(type_blsimpv_dual_fwd_)
+type_blsimpv_dual_fwd_fwd_=[Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
+type_blsimpv_dual_fwd_fwd=copy(type_blsimpv_dual_fwd_fwd_)
 for i=1:6
-	type_blsimpv_dual_fwd=circshift(type_blsimpv_dual_fwd_,i-1)
-	blsimpv_fwd(type_blsimpv_dual_fwd[1],type_blsimpv_dual_fwd[2],type_blsimpv_dual_fwd[3],type_blsimpv_dual_fwd[4],type_blsimpv_dual_fwd[5],type_blsimpv_dual_fwd[6])
+	type_blsimpv_dual_fwd_fwd=circshift(type_blsimpv_dual_fwd_fwd_,i-1)
+	blsimpv_fwd(type_blsimpv_dual_fwd_fwd[1],type_blsimpv_dual_fwd_fwd[2],type_blsimpv_dual_fwd_fwd[3],type_blsimpv_dual_fwd_fwd[4],type_blsimpv_dual_fwd_fwd[5],type_blsimpv_dual_fwd_fwd[6])
 end
+
+
+type_blsimpv_dual_fwd_1=[Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
+type_blsimpv_dual_fwd_2=[Real,Dual_,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
+type_blsimpv_dual_fwd_3=[Real,Real,Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_},Union{Real,Dual_}]
+blsimpv_dual(type_blsimpv_dual_fwd_1[1],type_blsimpv_dual_fwd_1[2],type_blsimpv_dual_fwd_1[3],type_blsimpv_dual_fwd_1[4],type_blsimpv_dual_fwd_1[5],type_blsimpv_dual_fwd_1[6])
+blsimpv_dual(type_blsimpv_dual_fwd_2[1],type_blsimpv_dual_fwd_2[2],type_blsimpv_dual_fwd_2[3],type_blsimpv_dual_fwd_2[4],type_blsimpv_dual_fwd_2[5],type_blsimpv_dual_fwd_2[6])
+blsimpv_dual(type_blsimpv_dual_fwd_3[1],type_blsimpv_dual_fwd_3[2],type_blsimpv_dual_fwd_3[3],type_blsimpv_dual_fwd_3[4],type_blsimpv_dual_fwd_3[5],type_blsimpv_dual_fwd_3[6])

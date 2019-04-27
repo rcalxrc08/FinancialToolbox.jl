@@ -10,12 +10,12 @@ function blkimpv_dual(num1,num2,num3,num4,num5)
 	end
 end
 
-type_blkimpv_dual_=[Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
-type_blkimpv_dual=copy(type_blkimpv_dual_)
-for i=1:5
-	type_blkimpv_dual=circshift(type_blkimpv_dual_,i-1)
-	blkimpv_dual(type_blkimpv_dual[1],type_blkimpv_dual[2],type_blkimpv_dual[3],type_blkimpv_dual[4],type_blkimpv_dual[5])
-end
+type_blkimpv_dual_1=[Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
+type_blkimpv_dual_2=[Real,Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
+type_blkimpv_dual_3=[Real,Real,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
+blkimpv_dual(type_blkimpv_dual_1[1],type_blkimpv_dual_1[2],type_blkimpv_dual_1[3],type_blkimpv_dual_1[4],type_blkimpv_dual_1[5])
+blkimpv_dual(type_blkimpv_dual_2[1],type_blkimpv_dual_2[2],type_blkimpv_dual_2[3],type_blkimpv_dual_2[4],type_blkimpv_dual_2[5])
+blkimpv_dual(type_blkimpv_dual_3[1],type_blkimpv_dual_3[2],type_blkimpv_dual_3[3],type_blkimpv_dual_3[4],type_blkimpv_dual_3[5])
 
 function blsimpv_dual(num1,num2,num3,num4,num5,num6)
 	@eval function blsimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,d::$num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
@@ -35,9 +35,9 @@ function blsimpv_dual(num1,num2,num3,num4,num5,num6)
 	end
 end
 
-type_blsimpv_dual_=[Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
-type_blsimpv_dual=copy(type_blsimpv_dual_)
-for i=1:6
-	type_blsimpv_dual=circshift(type_blsimpv_dual_,i-1)
-	blsimpv_dual(type_blsimpv_dual[1],type_blsimpv_dual[2],type_blsimpv_dual[3],type_blsimpv_dual[4],type_blsimpv_dual[5],type_blsimpv_dual[6])
-end
+type_blsimpv_dual_1=[Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
+type_blsimpv_dual_2=[Real,Dual,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
+type_blsimpv_dual_3=[Real,Real,Union{Real,Dual},Union{Real,Dual},Union{Real,Dual},Union{Real,Dual}]
+blsimpv_dual(type_blsimpv_dual_1[1],type_blsimpv_dual_1[2],type_blsimpv_dual_1[3],type_blsimpv_dual_1[4],type_blsimpv_dual_1[5],type_blsimpv_dual_1[6])
+blsimpv_dual(type_blsimpv_dual_2[1],type_blsimpv_dual_2[2],type_blsimpv_dual_2[3],type_blsimpv_dual_2[4],type_blsimpv_dual_2[5],type_blsimpv_dual_2[6])
+blsimpv_dual(type_blsimpv_dual_3[1],type_blsimpv_dual_3[2],type_blsimpv_dual_3[3],type_blsimpv_dual_3[4],type_blsimpv_dual_3[5],type_blsimpv_dual_3[6])

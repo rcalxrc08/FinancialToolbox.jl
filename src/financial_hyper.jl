@@ -10,12 +10,14 @@ function blkimpv_hyper(num1,num2,num3,num4,num5)
 	end
 end
 
-type_blkimpv_hyper_=[Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
-type_blkimpv_hyper=copy(type_blkimpv_hyper_)
-for i=1:5
-	type_blkimpv_hyper=circshift(type_blkimpv_hyper_,i-1)
-	blkimpv_hyper(type_blkimpv_hyper[1],type_blkimpv_hyper[2],type_blkimpv_hyper[3],type_blkimpv_hyper[4],type_blkimpv_hyper[5])
-end
+
+type_blkimpv_hyper_1=[Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
+type_blkimpv_hyper_2=[Real,Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
+type_blkimpv_hyper_3=[Real,Real,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
+blkimpv_hyper(type_blkimpv_hyper_1[1],type_blkimpv_hyper_1[2],type_blkimpv_hyper_1[3],type_blkimpv_hyper_1[4],type_blkimpv_hyper_1[5])
+blkimpv_hyper(type_blkimpv_hyper_2[1],type_blkimpv_hyper_2[2],type_blkimpv_hyper_2[3],type_blkimpv_hyper_2[4],type_blkimpv_hyper_2[5])
+blkimpv_hyper(type_blkimpv_hyper_3[1],type_blkimpv_hyper_3[2],type_blkimpv_hyper_3[3],type_blkimpv_hyper_3[4],type_blkimpv_hyper_3[5])
+
 
 function blsimpv_hyper(num1,num2,num3,num4,num5,num6)
 	@eval function blsimpv(S0::$num1,K::$num2,r::$num3,T::$num4,Price::$num5,d::$num6=0.0,FlagIsCall::Bool=true,xtol::Real=1e-14,ytol::Real=1e-15)
@@ -50,9 +52,10 @@ function blsimpv_hyper(num1,num2,num3,num4,num5,num6)
 	end
 end
 
-type_blsimpv_hyper_=[Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
-type_blsimpv_hyper=copy(type_blsimpv_hyper_)
-for i=1:6
-	type_blsimpv_hyper=circshift(type_blsimpv_hyper_,i-1)
-	blsimpv_hyper(type_blsimpv_hyper[1],type_blsimpv_hyper[2],type_blsimpv_hyper[3],type_blsimpv_hyper[4],type_blsimpv_hyper[5],type_blsimpv_hyper[6])
-end
+
+type_blsimpv_hyper_1=[Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
+type_blsimpv_hyper_2=[Real,Hyper,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
+type_blsimpv_hyper_3=[Real,Real,Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper},Union{Real,Hyper}]
+blsimpv_hyper(type_blsimpv_hyper_1[1],type_blsimpv_hyper_1[2],type_blsimpv_hyper_1[3],type_blsimpv_hyper_1[4],type_blsimpv_hyper_1[5],type_blsimpv_hyper_1[6])
+blsimpv_hyper(type_blsimpv_hyper_2[1],type_blsimpv_hyper_2[2],type_blsimpv_hyper_2[3],type_blsimpv_hyper_2[4],type_blsimpv_hyper_2[5],type_blsimpv_hyper_2[6])
+blsimpv_hyper(type_blsimpv_hyper_3[1],type_blsimpv_hyper_3[2],type_blsimpv_hyper_3[3],type_blsimpv_hyper_3[4],type_blsimpv_hyper_3[5],type_blsimpv_hyper_3[6])
