@@ -1,4 +1,4 @@
-# FinancialToolbox <img src="etc/logo.png" width="40">  
+# FinancialToolbox
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://rcalxrc08.github.io/FinancialToolbox.jl/dev)
 [![Build Status](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl.svg?branch=master)](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/3udcsjb9si6plt3h/branch/master?svg=true)](https://ci.appveyor.com/project/rcalxrc08/financialtoolbox-jl/branch/master)
