@@ -27,8 +27,15 @@ function blsimpv_dual(num1,num2,num3,num4,num5,num6)
 	value__(x::Real)=x;
 	f(x)=(blsprice(value__(S0),value__(K),value__(r),value__(T),x,value__(d),FlagIsCall)-value__(Price));
 	σ=FinancialToolbox.brentMethod(f,0.001,1.2,xtol,ytol);
-	der_=-(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)).epsilon
-	out=dual(σ,der_);
+	out=dual(0.0,0.0);
+
+	if(!isdual(Price))
+		der_=-(blsprice(S0,K,r,T,σ,d,FlagIsCall)/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)).epsilon
+		out=dual(σ,der_);
+	else
+		der_=1/blsvega(value__(S0),value__(K),value__(r),value__(T),σ,value__(d),FlagIsCall)
+		out=dual(σ,der_);
+	end
 
 	return out;
 
