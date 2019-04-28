@@ -162,5 +162,6 @@ print_colored("----Testing Negative  Volatility \n",:cyan)
 @test_throws(ErrorException, blslambda(spot,K,r,T,-SigmaDual,d))
 @test_throws(ErrorException, blsvanna(spot,K,r,T,-SigmaDual,d))
 @test_throws(ErrorException, blsvega(spot,K,r,T,-SigmaDual,d))
+@test_throws(ErrorException, blsimpv(spotDual,K,r,T,-0.2,d))
 
 print_colored("Dual Input Validation Test Passed\n",:magenta)
