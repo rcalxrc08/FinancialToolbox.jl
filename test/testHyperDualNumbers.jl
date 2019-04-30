@@ -10,7 +10,7 @@ print_colored("Starting Hyper Dual Numbers Test\n",:green)
 #Test Parameters
 testToll=1e-14;
 spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
-
+assert_(value,toll)=@test abs(value)<toll
 #EuropeanCall Option
 PriceCall=blsprice(spot,K,r,T,sigma,d);
 DeltaCall=blsdelta(spot,K,r,T,sigma,d);
@@ -65,39 +65,39 @@ V11(spot,sigma)=blsprice(spot,K,r,T,sigma,d,false);
 #TEST
 print_colored("--- European Call Sensitivities: HyperDualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(F(SpotHyper).epsilon1-DeltaCall)<DerToll)
+assert_(F(SpotHyper).epsilon1-DeltaCall,DerToll)
 print_colored("-----Testing Gamma\n",:blue);
-@test(abs(FF1(SpotHyper).epsilon1-Gamma)<DerToll)
+assert_(FF1(SpotHyper).epsilon1-Gamma,DerToll)
 print_colored("-----Testing Gamma  2\n",:blue);
-@test(abs(F(SpotHyper).epsilon12-Gamma)<DerToll)
+assert_(F(SpotHyper).epsilon12-Gamma,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(G(rHyper).epsilon1-RhoCall)<DerToll)
+assert_(G(rHyper).epsilon1-RhoCall,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-H(THyper).epsilon1-ThetaCall)<DerToll)
+assert_(-H(THyper).epsilon1-ThetaCall,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(P(SpotHyper).epsilon1-LambdaCall)<DerToll)
+assert_(P(SpotHyper).epsilon1-LambdaCall,DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(V(SigmaHyper).epsilon1-VannaCall)<DerToll)
+assert_(V(SigmaHyper).epsilon1-VannaCall,DerToll)
 print_colored("-----Testing Vanna  2\n",:blue);
-@test(abs(VV(hyper(spot,1,0,0),hyper(sigma,0,1,0)).epsilon12-VannaCall)<DerToll)
+assert_(VV(hyper(spot,1,0,0),hyper(sigma,0,1,0)).epsilon12-VannaCall,DerToll)
 
 ## Complex Test with Complex Step Approximation for European Put
 #TEST
 print_colored("--- European Put Sensitivities: HyperDualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(F1(SpotHyper).epsilon1-DeltaPut)<DerToll)
+assert_(F1(SpotHyper).epsilon1-DeltaPut,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(G1(rHyper).epsilon1-RhoPut)<DerToll)
+assert_(G1(rHyper).epsilon1-RhoPut,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-H1(THyper).epsilon1-ThetaPut)<DerToll)
+assert_(-H1(THyper).epsilon1-ThetaPut,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(P1(SpotHyper).epsilon1-LambdaPut)<DerToll)
+assert_(P1(SpotHyper).epsilon1-LambdaPut,DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(V1(SigmaHyper).epsilon1-VannaPut)<DerToll)
+assert_(V1(SigmaHyper).epsilon1-VannaPut,DerToll)
 print_colored("-----Testing Vanna  2\n",:blue);
-@test(abs(V11(hyper(spot,1,0,0),hyper(sigma,0,1,0)).epsilon12-VannaPut)<DerToll)
+assert_(V11(hyper(spot,1,0,0),hyper(sigma,0,1,0)).epsilon12-VannaPut,DerToll)
 print_colored("-----Testing Vega\n",:blue);
-@test(abs(L(SigmaHyper).epsilon1-Vega)<DerToll)
+assert_(L(SigmaHyper).epsilon1-Vega,DerToll)
 print_colored("Hyper Dual Numbers Test Passed\n\n",:green)
 
 

@@ -16,7 +16,7 @@ PriceCallBlack=blkprice(spot,K,r,T,sigma);
 
 df(f,x,dx)=(f(x+dx)-f(x))/dx
 dx=1e-8;
-assert_(value,toll)=@assert abs(value)<toll
+assert_(value,toll)=@test abs(value)<toll
 
 sigma1=blsimpv(spot, K, r, T, PriceCall, d);
 ResDual=blsimpv(spotDual, K, r, T, PriceCall, d);
@@ -85,30 +85,30 @@ SigmaDual=Dual(sigma,1.0);
 #TEST
 print_colored("--- European Call Sensitivities: DualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(FcallDual(SpotDual).epsilon-DeltaCall)<DerToll)
+assert_(FcallDual(SpotDual).epsilon-DeltaCall,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(GcallDual(rDual).epsilon-RhoCall)<DerToll)
+assert_(GcallDual(rDual).epsilon-RhoCall,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-HcallDual(TDual).epsilon-ThetaCall)<DerToll)
+assert_(-HcallDual(TDual).epsilon-ThetaCall,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(PcallDual(SpotDual).epsilon-LambdaCall)<DerToll)
+assert_(PcallDual(SpotDual).epsilon-LambdaCall,DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(VcallDual(SigmaDual).epsilon-VannaCall)<DerToll)
+assert_(VcallDual(SigmaDual).epsilon-VannaCall,DerToll)
 #TEST
 print_colored("--- European Put Sensitivities: DualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(FputDual(SpotDual).epsilon-DeltaPut)<DerToll)
+assert_(FputDual(SpotDual).epsilon-DeltaPut,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(GputDual(rDual).epsilon-RhoPut)<DerToll)
+assert_(GputDual(rDual).epsilon-RhoPut,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-HputDual(TDual).epsilon-ThetaPut)<DerToll)
+assert_(-HputDual(TDual).epsilon-ThetaPut,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(PputDual(SpotDual).epsilon-LambdaPut)<DerToll)
+assert_(PputDual(SpotDual).epsilon-LambdaPut,DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(VPutDual(SigmaDual).epsilon-VannaPut)<DerToll)
+assert_(VPutDual(SigmaDual).epsilon-VannaPut,DerToll)
 
 print_colored("-----Testing Vega\n",:blue);
-@test(abs(LcallDual(SigmaDual).epsilon-Vega)<DerToll)
+assert_(LcallDual(SigmaDual).epsilon-Vega,DerToll)
 print_colored("Dual Numbers Test Passed\n",:green)
 println("")
 

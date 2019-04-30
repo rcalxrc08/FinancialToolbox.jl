@@ -8,7 +8,7 @@ end
 
 
 
-test_list = ["testRealNumbers.jl";"testComplexNumbers.jl";"testForwardDiff.jl";"testHyperDualNumbers.jl";"testDates.jl";"testDual_.jl"]
+test_list = ["testRealNumbers.jl";"testComplexNumbers.jl";"testForwardDiff.jl";"testDual_.jl";"testHyperDualNumbers.jl";"testDates.jl"]
 
 println("Running tests:\n")
 for (current_test,i) in zip(test_list,1:length(test_list))

@@ -7,7 +7,7 @@ print_colored("Starting Forward Diff Dual Numbers Test\n",:green)
 #Test Parameters
 testToll=1e-14;
 spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
-
+assert_(value,toll)=@test abs(value)<toll
 #EuropeanCall Option
 PriceCall=blsprice(spot,K,r,T,sigma,d);
 DeltaCall=blsdelta(spot,K,r,T,sigma,d);
@@ -54,30 +54,30 @@ SigmaDual=Dual_(sigma,1.0);
 #TEST
 print_colored("--- European Call Sensitivities: DualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(FcallDual(SpotDual).partials[1]-DeltaCall)<DerToll)
+assert_(FcallDual(SpotDual).partials[1]-DeltaCall,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(GcallDual(rDual).partials[1]-RhoCall)<DerToll)
+assert_(GcallDual(rDual).partials[1]-RhoCall,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-HcallDual(TDual).partials[1]-ThetaCall)<DerToll)
+assert_(-HcallDual(TDual).partials[1]-ThetaCall,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(PcallDual(SpotDual).partials[1]-LambdaCall)<DerToll)
+assert_(PcallDual(SpotDual).partials[1]-LambdaCall,DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(VcallDual(SigmaDual).partials[1]-VannaCall)<DerToll)
+assert_(VcallDual(SigmaDual).partials[1]-VannaCall,DerToll)
 #TEST
 print_colored("--- European Put Sensitivities: DualNumbers\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(FputDual(SpotDual).partials[1]-DeltaPut)<DerToll)
+assert_(FputDual(SpotDual).partials[1]-DeltaPut,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(GputDual(rDual).partials[1]-RhoPut)<DerToll)
+assert_(GputDual(rDual).partials[1]-RhoPut,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-HputDual(TDual).partials[1]-ThetaPut)<DerToll)
+assert_(-HputDual(TDual).partials[1]-ThetaPut,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(PputDual(SpotDual).partials[1]-LambdaPut)<DerToll)
+assert_(PputDual(SpotDual).partials[1]-LambdaPut,DerToll)
 print_colored("-----Testing Vanna\n",:blue);
-@test(abs(VPutDual(SigmaDual).partials[1]-VannaPut)<DerToll)
+assert_(VPutDual(SigmaDual).partials[1]-VannaPut,DerToll)
 
 print_colored("-----Testing Vega\n",:blue);
-@test(abs(LcallDual(SigmaDual).partials[1]-Vega)<DerToll)
+assert_(LcallDual(SigmaDual).partials[1]-Vega,DerToll)
 print_colored("Dual Numbers Test Passed\n",:green)
 println("")
 

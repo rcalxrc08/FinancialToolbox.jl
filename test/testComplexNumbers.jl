@@ -10,7 +10,7 @@ print_colored("Starting Complex Number Test\n",:green)
 #Test Parameters
 testToll=1e-14;
 spot=10;K=10;r=0.02;T=2.0;sigma=0.2;d=0.01;
-
+assert_(value,toll)=@test abs(value)<toll
 
 #EuropeanCall Option
 PriceCall=blsprice(spot,K,r,T,sigma,d);
@@ -44,13 +44,13 @@ Pcall1(spot)=blsprice(spot,K,r,T,sigma,d)*spot.re/blsprice(spot.re,K,r,T,sigma,d
 #TEST
 print_colored("--- European Call Sensitivities: Complex Step Approximation\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(df(Fcall1,spot).im-DeltaCall)<DerToll)
+assert_(df(Fcall1,spot).im-DeltaCall,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(df(Gcall1,r).im-RhoCall)<DerToll)
+assert_(df(Gcall1,r).im-RhoCall,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-df(Hcall1,T).im-ThetaCall)<DerToll)
+assert_(-df(Hcall1,T).im-ThetaCall,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(df(Pcall1,spot).im-LambdaCall)<DerToll)
+assert_(df(Pcall1,spot).im-LambdaCall,DerToll)
 
 ## Complex Test with Complex Step Approximation for European Put
 #Function definition
@@ -61,16 +61,16 @@ Pput1(spot)=blsprice(spot,K,r,T,sigma,d,false)*spot.re/blsprice(spot.re,K,r,T,si
 #TEST
 print_colored("--- European Put Sensitivities: Complex Step Approximation\n",:yellow)
 print_colored("-----Testing Delta\n",:blue);
-@test(abs(df(Fput1,spot).im-DeltaPut)<DerToll)
+assert_(df(Fput1,spot).im-DeltaPut,DerToll)
 print_colored("-----Testing Rho\n",:blue);
-@test(abs(df(Gput1,r).im-RhoPut)<DerToll)
+assert_(df(Gput1,r).im-RhoPut,DerToll)
 print_colored("-----Testing Theta\n",:blue);
-@test(abs(-df(Hput1,T).im-ThetaPut)<DerToll)
+assert_(-df(Hput1,T).im-ThetaPut,DerToll)
 print_colored("-----Testing Lambda\n",:blue);
-@test(abs(df(Pput1,spot).im-LambdaPut)<DerToll)
+assert_(df(Pput1,spot).im-LambdaPut,DerToll)
 
 print_colored("-----Testing Vega\n",:blue);
-@test(abs(df(Lcall1,sigma).im-Vega)<DerToll)
+assert_(df(Lcall1,sigma).im-Vega,DerToll)
 print_colored("Complex Number Test Passed\n",:green)
 println("")
 
