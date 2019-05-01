@@ -1,0 +1,21 @@
+name = "FinancialToolbox"
+uuid = "2edd74a5-e968-5e45-af77-76d29aa6a478"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[compat]
+HyperDualNumbers = "≥ 1.1.0"
+julia = "≥ 0.7.0"
+
+[extras]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+HyperDualNumbers = "50ceba7f-c3ee-5a84-a6e8-3ad40456ec97"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Dates", "ForwardDiff", "Test", "HyperDualNumbers", "DualNumbers"]
