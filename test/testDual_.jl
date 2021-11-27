@@ -13,7 +13,7 @@ sigma = 0.2;
 d = 0.01;
 spotDual = dual(spot, 1.0);
 
-toll = 1e-8
+toll = 1e-6
 
 #EuropeanCall Option
 PriceCall = blsprice(spot, K, r, T, sigma, d);

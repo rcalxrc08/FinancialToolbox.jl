@@ -252,18 +252,18 @@ julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
 function blstheta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0.0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     blscheck(S0, K, r, T, σ, d)
     sqrtT = sqrt(T)
-    σ_sqrtT = σ .* sqrtT
+    σ_sqrtT = σ * sqrtT
 
-    d1 = (log(S0 ./ K) + (r - d + σ .^ 2 / 2) .* T) ./ σ_sqrtT
+    d1 = (log(S0 / K) + (r - d + σ .^ 2 / 2) * T) / σ_sqrtT
 
-    shift = -exp(-d .* T) .* S0 .* normpdf(d1) .* σ / 2 ./ sqrtT
-    t1 = r .* K .* exp(-r .* T)
-    t2 = d .* S0 .* exp(-d .* T)
+    shift = -exp(-d * T) * S0 * normpdf(d1) * σ / 2 / sqrtT
+    t1 = r * K * exp(-r * T)
+    t2 = d * S0 * exp(-d * T)
     Θ = 0.0
     if FlagIsCall
-        Θ = shift - t1 .* normcdf(d1 - σ_sqrtT) + t2 .* normcdf(d1)
+        Θ = shift - t1 * normcdf(d1 - σ_sqrtT) + t2 * normcdf(d1)
     else
-        Θ = shift + t1 .* (1 - normcdf(d1 - σ_sqrtT)) + t2 .* (normcdf(d1) - 1)
+        Θ = shift + t1 * (1 - normcdf(d1 - σ_sqrtT)) + t2 * (normcdf(d1) - 1)
     end
     return Θ
 end
