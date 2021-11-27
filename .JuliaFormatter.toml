@@ -1,0 +1,4 @@
+remove_extra_newlines = true
+whitespace_typedefs=true
+trailing_comma=false
+margin=1200
