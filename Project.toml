@@ -2,7 +2,7 @@ name = "FinancialToolbox"
 uuid = "2edd74a5-e968-5e45-af77-76d29aa6a478"
 license = "MIT"
 author = ["rcalxrc08"]
-version = "0.3.1"
+version = "0.3.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -10,7 +10,9 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-julia = "= 1"
+julia = "1"
+Requires = "1"
+SpecialFunctions = "<=2.0"
 
 [extras]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
