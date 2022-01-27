@@ -2,7 +2,7 @@ using Documenter, FinancialToolbox
 
 makedocs(format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
-		assets = ["assets/favicon.ico","assets/logo.png"]    ),
+		assets = [joinpath(@__DIR__,"assets/favicon.ico"),joinpath(@__DIR__,"assets/logo.png")]    ),
 	sitename="FinancialToolbox.jl",
 	modules = [FinancialToolbox],
 		pages = [
