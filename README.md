@@ -1,7 +1,6 @@
 # FinancialToolbox
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://rcalxrc08.github.io/FinancialToolbox.jl/dev)
-[![Build Status](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl.svg?branch=master)](https://travis-ci.org/rcalxrc08/FinancialToolbox.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/3udcsjb9si6plt3h/branch/master?svg=true)](https://ci.appveyor.com/project/rcalxrc08/financialtoolbox-jl/branch/master)
+[![CI](https://github.com/rcalxrc08/FinancialToolbox.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/rcalxrc08/FinancialToolbox.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl?branch=master)
 ##### This is a Julia package containing some useful Financial functions for Pricing and Risk Management under the Black and Scholes Model.
 ###### The syntax is the same of the Matlab Financial Toolbox.
