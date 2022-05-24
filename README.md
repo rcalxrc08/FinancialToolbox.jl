@@ -7,6 +7,7 @@
 It currently contains the following functions:
 
 - blsprice : Black & Scholes Price for European Options.
+- blsbin   : Black & Scholes Price for Binary European Options.
 - blkprice : Black Price for European Options.
 - blsdelta : Black & Scholes Delta sensitivity for European Options.
 - blsgamma : Black & Scholes Gamma sensitivity for European Options.

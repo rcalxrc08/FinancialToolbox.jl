@@ -6,6 +6,7 @@
 normcdf
 normpdf
 blsprice
+blsbin
 blkprice
 blsdelta
 blsgamma
