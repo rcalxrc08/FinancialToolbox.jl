@@ -10,7 +10,7 @@ r = 0.02;
 T = 2.0;
 sigma = 0.2;
 d = 0.01;
-spotDual=taylor_expand(identity,spot,order=1)
+spotDual=taylor_expand(identity,spot,order=22)
 
 toll = 1e-6
 
