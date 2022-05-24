@@ -18,7 +18,7 @@ function FinancialToolbox.normcdf(x::Taylor1)
 	end
 	return out;
 end
-Base.isless(x::Taylor1,y::Taylor1)=x[0]<y[0]
+!hasmethod(isless,(Taylor1,Taylor1)) ? (Base.isless(x::Taylor1,y::Taylor1)=x[0]<y[0]) : nothing
 # function FinancialToolbox.normcdf(x::Taylor1)
 	# ders_t=FinancialToolbox.normpdf(x);
 	# x_der=derivative(x,1);
