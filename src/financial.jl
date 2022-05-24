@@ -127,7 +127,7 @@ function blsbin(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0.0, Fl
 	blscheck(S0, K, r, T, σ, d)
     d1 = (log(S0 / K) + (r - d + σ * σ * 0.5) * T) / (σ * sqrt(T))
     d2 = d1 - σ * sqrt(T)
-    isCall ? (return(exp(-r * T) * FinancialToolbox.normcdf(d2));) : (return(exp(-r * T)*(1.0- FinancialToolbox.normcdf(d2))));
+    FlagIsCall ? (return(exp(-r * T) * FinancialToolbox.normcdf(d2));) : (return(exp(-r * T)*(1.0- FinancialToolbox.normcdf(d2))));
 end
 
 """
