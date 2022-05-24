@@ -18,6 +18,7 @@ d = 0.01;
 assert_(value, toll) = @test abs(value) < toll
 #EuropeanCall Option
 PriceCall = blsprice(spot, K, r, T, sigma, d);
+PriceBinaryCall = blsbin(spot, K, r, T, sigma, d);
 PriceCallBlack = blkprice(spot, K, r, T, sigma);
 DeltaCall = blsdelta(spot, K, r, T, sigma, d);
 ThetaCall = blstheta(spot, K, r, T, sigma, d);
@@ -30,6 +31,7 @@ SigmaCallBlack = blkimpv(spot, K, r, T, PriceCallBlack);
 
 #EuropeanPut Option
 PricePut = blsprice(spot, K, r, T, sigma, d, false);
+PriceBinaryPut = blsbin(spot, K, r, T, sigma, d, false);
 PricePutBlack = blkprice(spot, K, r, T, sigma, false);
 DeltaPut = blsdelta(spot, K, r, T, sigma, d, false);
 ThetaPut = blstheta(spot, K, r, T, sigma, d, false);
@@ -48,6 +50,8 @@ print_colored("---  European Call: Price and Sensitivities\n", :yellow)
 #Standard Test European Call Option
 print_colored("-----Testing Price\n", :blue);
 assert_(PriceCall - 1.191201316999582, testToll)
+print_colored("-----Testing Price Binary\n", :blue);
+assert_(PriceBinaryCall - 0.4533139191104102, testToll)
 print_colored("-----Testing Black Price\n", :blue);
 assert_(PriceCallBlack - 1.080531820066428, testToll)
 print_colored("-----Testing Delta\n", :blue);
@@ -77,6 +81,8 @@ print_colored("---  European Put: Price and Sensitivities\n", :yellow)
 #Standard Test European Put Option
 print_colored("-----Testing Price\n", :blue);
 assert_(PricePut - 0.997108975455260, testToll)
+print_colored("-----Testing Binary Price\n", :blue);
+assert_(PriceBinaryPut - 0.507475520041913, testToll)
 print_colored("-----Testing Price Black\n", :blue);
 assert_(PricePutBlack - 1.080531820066428, testToll)
 print_colored("-----Testing Delta\n", :blue);

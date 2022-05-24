@@ -103,6 +103,34 @@ function blkprice(F0::num1, K::num2, r::num3, T::num4, σ::num5, FlagIsCall::Boo
 end
 
 """
+Black Price for Binary European Options
+
+		Price=blsbin(S0,K,r,T,σ,FlagIsCall=true)
+
+Where:\n
+		F0         = Value of the Forward.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ          = Implied Volatility.
+		FlagIsCall = true for Call Options, false for Put Options.
+
+		Price      = price of the Binary European Option.
+
+# Example
+```julia-repl
+julia> blsbin(10.0,10.0,0.01,2.0,0.2)
+0.4624714677292208
+```
+"""
+function blsbin(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0.0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+	blscheck(S0, K, r, T, σ, d)
+    d1 = (log(S0 / K) + (r - d + σ * σ * 0.5) * T) / (σ * sqrt(T))
+    d2 = d1 - σ * sqrt(T)
+    isCall ? (return(exp(-r * T) * FinancialToolbox.normcdf(d2));) : (return(exp(-r * T)*(1.0- FinancialToolbox.normcdf(d2))));
+end
+
+"""
 Black & Scholes Delta for European Options
 
 		Δ=blsdelta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
