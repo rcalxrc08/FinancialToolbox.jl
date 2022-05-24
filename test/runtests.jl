@@ -6,7 +6,7 @@ function print_colored(in::String, color1)
     end
 end
 
-test_list = ["testRealNumbers.jl"; "testComplexNumbers.jl"; "testForwardDiff.jl"; "testDual_.jl"; "testHyperDualNumbers.jl"; "testDates.jl"]
+test_list = ["testRealNumbers.jl"; "testComplexNumbers.jl"; "testForwardDiff.jl"; "testDual_.jl"; "testHyperDualNumbers.jl"; "testDates.jl"; "testTaylor.jl"]
 
 println("Running tests:\n")
 for (current_test, i) in zip(test_list, 1:length(test_list))
