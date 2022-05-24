@@ -1,3 +1,4 @@
+using .TaylorSeries
 function FinancialToolbox.normcdf(x::Taylor1)
 	out=zero(x)
 	@inbounds @views out[0] = FinancialToolbox.normcdf(x[0])
