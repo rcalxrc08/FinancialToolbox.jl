@@ -18,3 +18,9 @@ toll = 1e-6
 PriceCall = blsprice(spotDual, K, r, T, sigma, d);
 @test(abs(1.1912013169995816-PriceCall[0])<toll)
 @test(abs(0.5724340508103682-PriceCall[1])<toll)
+
+
+dS0, dr, dsigma = set_variables("dS0 dr dsigma", order=4)
+PriceCall2 = blsprice(spot+dS0, K, r+dr, T, sigma+dsigma, d);
+@test(abs(1.1912013169995816-PriceCall2[0])<toll)
+@test(abs(0.5724340508103682-PriceCall2[1])<toll)

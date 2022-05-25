@@ -18,7 +18,18 @@ function FinancialToolbox.normcdf(x::Taylor1)
 	end
 	return out;
 end
+# TODO: move to proper implementation: https://github.com/JuliaDiff/TaylorSeries.jl/issues/285
+function FinancialToolbox.normcdf(x::TaylorN)
+	Nmax=20000
+	xmin=-5.0
+	x_=range(xmin,length=Nmax,stop=x)
+	dx=(x-xmin)/(Nmax-1);
+	return sum(FinancialToolbox.normpdf.(x_))*dx;
+end
+
+
 !hasmethod(isless,(Taylor1,Taylor1)) ? (Base.isless(x::Taylor1,y::Taylor1)=x[0]<y[0]) : nothing
+!hasmethod(isless,(TaylorN,TaylorN)) ? (Base.isless(x::TaylorN,y::TaylorN)=x[0][1]<y[0][1]) : nothing
 # function FinancialToolbox.normcdf(x::Taylor1)
 	# ders_t=FinancialToolbox.normpdf(x);
 	# x_der=derivative(x,1);
