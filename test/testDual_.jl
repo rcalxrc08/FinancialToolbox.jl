@@ -174,3 +174,9 @@ print_colored("----Testing Negative  Volatility \n", :cyan)
 @test_throws(ErrorException, blsimpv(spotDual, K, r, T, -0.2, d))
 
 print_colored("Dual Input Validation Test Passed\n", :magenta)
+
+
+price_dual=blsprice(SpotDual, K, r, T, sigma, d)
+sigma_h1=blsimpv(SpotDual, K, r, T, price_dual, d)
+@test sigma_h1>0.0
+@test blsimpv(spot, K, r, T, price_dual, d)>0.0

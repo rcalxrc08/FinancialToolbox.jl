@@ -155,3 +155,11 @@ print_colored("----Testing Negative  Volatility \n", :cyan)
 @test_throws(ErrorException, blsvega(spot, K, r, T, -SigmaHyper, d))
 
 print_colored("Hyper Dual Input Validation Test Passed\n", :magenta)
+
+
+price_hyper=blsprice(SpotHyper, K, r, T, sigma, d)
+sigma_h1=blsimpv(SpotHyper, K, r, T, price_hyper, d)
+@test sigma_h1>0.0
+@test blsimpv(spot, K, r, T, price_hyper, d)>0.0
+
+
