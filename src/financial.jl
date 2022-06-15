@@ -413,6 +413,12 @@ function brentMethod(f::Function, x0::Number, x1::Number, xtol::AbstractFloat = 
     throw(ErrorException("Max iteration exceeded, possible wrong result"))
 end
 
+function blsimpv_impl(zero_typed::AbstractFloat,S0, K, r, T, price_d,d,FlagIsCall,xtol, ytol)
+    f(x) = blsprice(S0, K, r, T, x, d, FlagIsCall) - price_d
+    σ = brentMethod(f, 0.001, 1.2, xtol, ytol)
+    return σ
+end
+
 export blsimpv
 """
 Black & Scholes Implied Volatility for European Options
@@ -436,15 +442,14 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 0.3433730534290586
 ```
 """
-function blsimpv(S0::num1, K::num2, r::num3, T::num4, Price::num5, d::num6 = 0.0, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Real, num2 <: Real, num3 <: Real, num4 <: Real, num5 <: Real, num6 <: Real}
+function blsimpv(S0::num1, K::num2, r::num3, T::num4, Price::num5, d::num6 = 0.0, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     if (Price < num5(0))
         throw(ErrorException("Option Price Cannot Be Negative"))
     end
     blscheck(S0, K, r, T, 0.1, d)
-    f(x) = (blsprice(S0, K, r, T, x, d, FlagIsCall) - Price)
-    σ = brentMethod(f, 0.001, 1.2, xtol, ytol)
-
-    return σ
+	zero_typed=0*S0*K*r*T*d*Price
+	σ = blsimpv_impl(zero_typed,S0, K, r, T, Price,d,FlagIsCall,xtol, ytol)
+	return σ
 end
 
 export blkimpv
@@ -469,7 +474,7 @@ julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
 0.36568658096623635
 ```
 """
-function blkimpv(F0::num1, K::num2, r::num3, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Real, num2 <: Real, num3 <: Real, num4 <: Real, num5 <: Real}
+function blkimpv(F0::num1, K::num2, r::num3, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number}
     blscheck(F0, K, r, T, 0.1)
     σ = blsimpv(F0, K, r, T, Price, r, FlagIsCall, xtol, ytol)
     return σ
