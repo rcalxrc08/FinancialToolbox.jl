@@ -18,6 +18,9 @@ d = 0.01;
 assert_(value, toll) = @test abs(value) < toll
 #EuropeanCall Option
 PriceCall = blsprice(spot, K, r, T, sigma, d);
+PriceCallBig = blsprice(big([spot, K, r, T, sigma, d])...);
+PriceCall32 = blsprice(Float32([spot, K, r, T, sigma, d])...);
+PriceCall16 = blsprice(Float16([spot, K, r, T, sigma, d])...);
 PriceBinaryCall = blsbin(spot, K, r, T, sigma, d);
 PriceCallBlack = blkprice(spot, K, r, T, sigma);
 DeltaCall = blsdelta(spot, K, r, T, sigma, d);
@@ -49,6 +52,8 @@ Vega = blsvega(spot, K, r, T, sigma, d);
 print_colored("---  European Call: Price and Sensitivities\n", :yellow)
 #Standard Test European Call Option
 print_colored("-----Testing Price\n", :blue);
+assert_(PriceCall - 1.191201316999582, testToll)
+assert_(PriceCall - 1.191201316999582, testToll)
 assert_(PriceCall - 1.191201316999582, testToll)
 print_colored("-----Testing Price Binary\n", :blue);
 assert_(PriceBinaryCall - 0.4533139191104102, testToll)
