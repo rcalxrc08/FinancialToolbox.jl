@@ -18,9 +18,9 @@ d = 0.01;
 assert_(value, toll) = @test abs(value) < toll
 #EuropeanCall Option
 PriceCall = blsprice(spot, K, r, T, sigma, d);
-PriceCallBig = blsprice(big([spot, K, r, T, sigma, d])...);
-PriceCall32 = blsprice(Float32([spot, K, r, T, sigma, d])...);
-PriceCall16 = blsprice(Float16([spot, K, r, T, sigma, d])...);
+PriceCallBig = blsprice(big.([spot, K, r, T, sigma, d])...);
+PriceCall32 = blsprice(Float32.([spot, K, r, T, sigma, d])...);
+PriceCall16 = blsprice(Float16.([spot, K, r, T, sigma, d])...);
 PriceBinaryCall = blsbin(spot, K, r, T, sigma, d);
 PriceCallBlack = blkprice(spot, K, r, T, sigma);
 DeltaCall = blsdelta(spot, K, r, T, sigma, d);
