@@ -12,6 +12,7 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
+ChainRulesCore = "1
 Requires = "1"
 SpecialFunctions = "0.8, 0.9, 0.10, 1.0, 2"
 julia = "1"
