@@ -1,5 +1,5 @@
 ## Bench pricer function
-using FinancialToolbox, BenchmarkTools, ForwardDiff, ReverseDiff, Zygote, Yota
+using FinancialToolbox, BenchmarkTools, ForwardDiff, ReverseDiff, Zygote
 S0=100.0; K=100.0; r=0.01;T=1.0;sigma=0.2;d=0.01;
 const inputs=[S0, K, r, T, sigma, d];
 suite = BenchmarkGroup()

@@ -1,5 +1,5 @@
 ## Bench pricer function
-using FinancialToolbox, BenchmarkTools, ForwardDiff, ReverseDiff, Zygote, Yota
+using FinancialToolbox, BenchmarkTools, ForwardDiff, ReverseDiff, Zygote
 
 S0 = 100.0;
 K = 100.0;
