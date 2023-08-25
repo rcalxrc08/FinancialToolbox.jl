@@ -33,41 +33,32 @@ end
 !hasmethod(isless, (Taylor1, Taylor1)) ? (Base.isless(x::Taylor1, y::Taylor1) = x[0] < y[0]) : nothing
 !hasmethod(isless, (TaylorN, TaylorN)) ? (Base.isless(x::TaylorN, y::TaylorN) = x[0][1] < y[0][1]) : nothing
 
+value__d(x::Taylor1) = x[0]
+value__d(x::TaylorN) = x[0][1]
+value__d(x) = x
+
 function blsimpv_impl(zero_typed::Taylor1, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
-    f_order(x, order) = getcoeff(price_d - blsprice(S0, K, r, T, x, d, FlagIsCall), order)
-    zero_type = S0 * K * r * T * d * price_d * 0
-    max_order = get_order(zero_type)
-    σ_coeffs = Float64[]
-    σ = FinancialToolbox.brentMethod(x -> f_order(Taylor1([x]), 0), 0.001, 1.2, 1e-6, 1e-6)
-    append!(σ_coeffs, σ)
-    for i = 1:max_order
-        σ_der = FinancialToolbox.brentMethod(x -> f_order(Taylor1([σ_coeffs..., x]), i), -6000.0, 600.2, 1e-15, 1e-15)
-        append!(σ_coeffs, σ_der)
-    end
-    return Taylor1(σ_coeffs)
+    S0_r=value__d(S0)
+	K_r=value__d(K)
+	r_r=value__d(r)
+	T_r=value__d(T)
+	p_r=value__d(price_d)
+	d_r=value__d(d)
+	sigma = blsimpv(S0_r, K_r, r_r, T_r, p_r, d_r, FlagIsCall, xtol, ytol)
+	der_ = (price_d-blsprice(S0, K, r, T, sigma, d, FlagIsCall)) / blsvega(S0_r, K_r, r_r, T_r, sigma, d_r)
+	out = sigma+der_
+	return out;
 end
 
 function blsimpv_impl(zero_typed::TaylorN, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
-    f_order(x, order, order2) = (price_d-blsprice(S0, K, r, T, x, d, FlagIsCall))[order][order2]
-    zero_type = S0 * K * r * T * d * price_d * 0
-    max_order = get_order(zero_type)
-    σ_coeffs = Array{Array{Float64}}(undef, 0)
-    σ = FinancialToolbox.brentMethod(x -> f_order(TaylorN(HomogeneousPolynomial(x, 0)), 0, 1), 0.001, 1.2, 1e-6, 1e-6)
-    append!(σ_coeffs, [[σ]])
-    for i = 1:max_order
-        curr_ = TaylorN(HomogeneousPolynomial.(σ_coeffs))
-        inner_order = length(zero_type[i])
-        cur_level_σ_coeffs = zeros(inner_order)
-        for j = 1:inner_order
-            # @show i,j
-            σ_der = FinancialToolbox.brentMethod(x -> f_order(curr_ + TaylorN(HomogeneousPolynomial(setindex!(cur_level_σ_coeffs, x, j))), i, j), -2.0, 1.2, 1e-6, 1e-6)
-            # @show σ_der
-            #append!(cur_level_σ_coeffs,σ_der)
-            # @show cur_level_σ_coeffs
-            # @show j
-            setindex!(cur_level_σ_coeffs, σ_der, j)
-        end
-        push!(σ_coeffs, cur_level_σ_coeffs)
-    end
-    return TaylorN(σ_coeffs)
+    S0_r=value__d(S0)
+	K_r=value__d(K)
+	r_r=value__d(r)
+	T_r=value__d(T)
+	p_r=value__d(price_d)
+	d_r=value__d(d)
+	sigma = blsimpv(S0_r, K_r, r_r, T_r, p_r, d_r, FlagIsCall, xtol, ytol)
+	der_ = (price_d-blsprice(S0, K, r, T, sigma, d, FlagIsCall)) / blsvega(S0_r, K_r, r_r, T_r, sigma, d_r, FlagIsCall)
+	out = sigma+der_
+	return out;
 end

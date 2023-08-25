@@ -531,19 +531,19 @@ function blsvanna(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::
     return Vanna
 end
 
-import ChainRulesCore: rrule, NoTangent, @thunk
+import ChainRulesCore: rrule, frule, NoTangent, @thunk
 function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blsimpv), S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
     sigma = blsimpv(S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
     function update_pullback(slice)
         _, pullback_blsprice = ChainRulesCore.rrule_via_ad(config, blsprice, S0, K, r, T, sigma, d, FlagIsCall)
         dy = @thunk(pullback_blsprice(slice))
-        @views der_S0 = -dy[2]
-        @views der_K = -dy[3]
-        @views der_r = -dy[4]
-        @views der_T = -dy[5]
-        @views der_d = -dy[7]
-        @views slice_mod = 1 / dy[6]
-        return NoTangent(), slice_mod * der_S0, slice_mod * der_K, slice_mod * der_r, slice_mod * der_T, slice_mod, slice_mod * der_d, NoTangent(), NoTangent(), NoTangent()
+        @views der_S0 = dy[2]
+        @views der_K = dy[3]
+        @views der_r = dy[4]
+        @views der_T = dy[5]
+        @views der_d = dy[7]
+        @views slice_mod = @thunk(-1 / dy[6])
+        return NoTangent(), @thunk(slice_mod * der_S0), @thunk(slice_mod * der_K), @thunk(slice_mod * der_r), @thunk(slice_mod * der_T), @thunk(-slice_mod), @thunk(slice_mod * der_d), NoTangent(), NoTangent(), NoTangent()
     end
     return sigma, update_pullback
 end
