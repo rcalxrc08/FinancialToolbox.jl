@@ -16,4 +16,4 @@ cfg = ReverseDiff.GradientConfig(similar(inputs))
 const f_tape = ReverseDiff.compile(ReverseDiff.GradientTape(x -> blsimpv(x[1], x[2], x[3], x[4], x[5], x[6]), inputs, cfg))
 suite["implied volatility ReverseDiff compiled"] = @benchmarkable ReverseDiff.gradient!($output, $f_tape, $inputs);
 suite["implied volatility Zygote"] = @benchmarkable Zygote.gradient(blsimpv, $S0, $K, $r, $T, $price, $d);
-run(suite)
+@show run(suite)
