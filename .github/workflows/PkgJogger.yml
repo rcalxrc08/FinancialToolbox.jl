@@ -10,7 +10,7 @@ jobs:
             - uses: actions/checkout@v2
             - uses: julia-actions/setup-julia@latest
             - name: Run Benchmarks
-              run: julia -e 'using Pkg; Pkg.add("PkgJogger"); using PkgJogger; PkgJogger.ci()'
+              run: julia --project=benchmark -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate(); using PkgJogger; PkgJogger.ci();'
             - uses: actions/upload-artifact@v2
               with:
                 name: benchmarks
