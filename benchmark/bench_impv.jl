@@ -1,5 +1,5 @@
 ## Bench pricer function
-using FinancialToolbox, BenchmarkTools, ForwardDiff, ReverseDiff, Zygote
+using FinancialToolbox, BenchmarkTools, ForwardDiff, ReverseDiff, Zygote, TaylorSeries
 suite = BenchmarkGroup()
 S0 = 100.0;
 K = 100.0;
