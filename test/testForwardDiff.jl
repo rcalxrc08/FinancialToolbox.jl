@@ -138,3 +138,13 @@ print_colored("----Testing Negative  Volatility \n", :cyan)
 @test_throws(ErrorException, blsvega(spot, K, r, T, -SigmaDual, d))
 
 print_colored("Dual Input Validation Test Passed\n", :magenta)
+
+price_dual = blsprice(SpotDual, K, r, T, sigma, d)
+sigma_h1 = blsimpv(SpotDual, K, r, T, price_dual, d)
+assert_(sigma_h1.value - sigma, DerToll)
+assert_(sigma_h1.partials[1], DerToll)
+
+price_dual2 = blsprice(SpotDual, K, r, T, SigmaDual, d)
+sigma_h2 = blsimpv(SpotDual, K, r, T, price_dual2, d)
+assert_(sigma_h2.value - SigmaDual.value, DerToll)
+assert_(sigma_h2.partials[1] - SigmaDual.partials[1], DerToll)

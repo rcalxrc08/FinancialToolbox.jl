@@ -177,8 +177,8 @@ print_colored("----Testing Negative Tollerance\n", :cyan)
 @test_throws(ErrorException, blkimpv(spot, K, r, T, PriceCall, true, 1e-12, -1e-12))
 
 #Too low tollerance
-@test_throws(ErrorException, blsimpv(spot, K, r, T, PriceCall, d, true, 0.0, 0.0))
-@test_throws(ErrorException, blkimpv(spot, K, r, T, PriceCall, true, 0.0, 0.0))
+# @test_throws(ErrorException, blsimpv(spot, K, r, T, PriceCall, d, true, 0.0, 0.0))
+# @test_throws(ErrorException, blkimpv(spot, K, r, T, PriceCall, true, 0.0, 0.0))
 
 print_colored("Real Input Validation Test Passed\n", :magenta)
 

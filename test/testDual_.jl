@@ -175,8 +175,12 @@ print_colored("----Testing Negative  Volatility \n", :cyan)
 
 print_colored("Dual Input Validation Test Passed\n", :magenta)
 
+price_dual = blsprice(SpotDual, K, r, T, sigma, d)
+sigma_h1 = blsimpv(SpotDual, K, r, T, price_dual, d)
+assert_(sigma_h1.value - sigma, DerToll)
+assert_(sigma_h1.epsilon, DerToll)
 
-price_dual=blsprice(SpotDual, K, r, T, sigma, d)
-sigma_h1=blsimpv(SpotDual, K, r, T, price_dual, d)
-@test sigma_h1>0.0
-@test blsimpv(spot, K, r, T, price_dual, d)>0.0
+price_dual2 = blsprice(SpotDual, K, r, T, SigmaDual, d)
+sigma_h2 = blsimpv(SpotDual, K, r, T, price_dual2, d)
+assert_(sigma_h2.value - SigmaDual.value, DerToll)
+assert_(sigma_h2.epsilon - SigmaDual.epsilon, DerToll)

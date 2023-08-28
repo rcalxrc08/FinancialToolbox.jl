@@ -156,10 +156,28 @@ print_colored("----Testing Negative  Volatility \n", :cyan)
 
 print_colored("Hyper Dual Input Validation Test Passed\n", :magenta)
 
+price_dual = blsprice(SpotHyper, K, r, T, sigma, d)
+sigma_h1 = blsimpv(SpotHyper, K, r, T, price_dual, d)
+assert_(sigma_h1.value - sigma, DerToll)
+assert_(sigma_h1.epsilon1, DerToll)
+assert_(sigma_h1.epsilon12, DerToll)
 
-price_hyper=blsprice(SpotHyper, K, r, T, sigma, d)
-sigma_h1=blsimpv(SpotHyper, K, r, T, price_hyper, d)
-@test sigma_h1>0.0
-@test blsimpv(spot, K, r, T, price_hyper, d)>0.0
+price_dual2 = blsprice(SpotHyper, K, r, T, SigmaHyper, d)
+sigma_h2 = blsimpv(SpotHyper, K, r, T, price_dual2, d)
+assert_(sigma_h2.value - SigmaHyper.value, DerToll)
+assert_(sigma_h2.epsilon1 - SigmaHyper.epsilon1, DerToll)
+assert_(sigma_h2.epsilon12 - SigmaHyper.epsilon12, DerToll)
 
+price_dual2 = blsprice(SpotHyper, KHyper, r, T, SigmaHyper, d)
+sigma_h2 = blsimpv(SpotHyper, KHyper, r, T, price_dual2, d)
+assert_(sigma_h2.value - SigmaHyper.value, DerToll)
+assert_(sigma_h2.epsilon1 - SigmaHyper.epsilon1, DerToll)
+assert_(sigma_h2.epsilon12 - SigmaHyper.epsilon12, DerToll)
 
+SigmaHyper = hyper(sigma, 1.0, 2.0, 3.0);
+price_dual2 = blsprice(SpotHyper, KHyper, r, T, SigmaHyper, d)
+sigma_h2 = blsimpv(SpotHyper, KHyper, r, T, price_dual2, d)
+assert_(sigma_h2.value - SigmaHyper.value, DerToll)
+assert_(sigma_h2.epsilon1 - SigmaHyper.epsilon1, DerToll)
+assert_(sigma_h2.epsilon2 - SigmaHyper.epsilon2, DerToll)
+assert_(sigma_h2.epsilon12 - SigmaHyper.epsilon12, DerToll)
