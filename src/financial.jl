@@ -1,8 +1,9 @@
-constant_types(::Any) = Float64
-constant_types(::BigFloat) = BigFloat
-constant_types(::Float32) = Float32
-constant_types(::Float16) = Float16
-
+arithmetical_type(::Any, x) = Float64(x)
+arithmetical_type(::BigFloat, x) = BigFloat(x)
+arithmetical_type(::Float32, x) = Float32(x)
+arithmetical_type(::Float16, x) = Float16(x)
+const SQRT2 = sqrt(2.0)
+const SQRT2PI = sqrt(2 * pi)
 """
 Cumulative Distribution Function of a Standard Gaussian Random Variable
 
@@ -19,9 +20,9 @@ julia> normcdf(0.0)
 0.5
 ```
 """
-function normcdf(x::number) where {number <: Number}
-    const_ = ChainRulesCore.@ignore_derivatives(constant_types(x)(sqrt(2.0)))
-    return (1 + erf(x / const_)) / 2
+function normcdf(x::number) where {number}
+    const_ = ChainRulesCore.@ignore_derivatives(arithmetical_type(x, SQRT2))
+    return (erf(x / const_) + 1) / 2
 end
 
 """
@@ -41,66 +42,20 @@ julia> normpdf(0.0)
 ```
 """
 function normpdf(x::number) where {number <: Number}
-    const_ = ChainRulesCore.@ignore_derivatives(constant_types(x)(sqrt(2 * pi)))
-    return exp(-(x^2) / 2) / const_
+    const_ = ChainRulesCore.@ignore_derivatives(arithmetical_type(x, SQRT2PI))
+    return exp(-x^2 / 2) / const_
 end
 
-"""
-Black & Scholes Price for European Options
-
-		Price=blsprice(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
-
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Price      = price of the European Option.
-
-# Example
-```julia-repl
-julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
-1.1023600107733191
-```
-"""
-function blsprice(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d1 = (log(S0 / K) + (r - d + (σ^2) / 2) * T) / (σ * sqrt(T))
-    d2 = d1 - σ * sqrt(T)
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
-    Price = iscall * S0 * exp(-d * T) * normcdf(iscall * d1) - iscall * K * exp(-r * T) * normcdf(iscall * d2)
-    return Price
+function compute_d1(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+    d1 = (log(S0 / K) + (r - d + σ^2 / 2) * T) / (σ * sqrt(T))
+    return d1
 end
-
-"""
-Black Price for European Options
-
-		Price=blkprice(F0,K,r,T,σ,FlagIsCall=true)
-
-Where:\n
-		F0         = Value of the Forward.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Price      = price of the European Option.
-
-# Example
-```julia-repl
-julia> blkprice(10.0,10.0,0.01,2.0,0.2)
-1.1023600107733191
-```
-"""
-function blkprice(F0::num1, K::num2, r::num3, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number}
-    ChainRulesCore.@ignore_derivatives(blscheck(F0, K, r, T, σ))
-    Price = blsprice(F0, K, r, T, σ, r, FlagIsCall)
-    return Price
+function compute_d2(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+    d2 = (log(S0 / K) + (r - d - σ^2 / 2) * T) / (σ * sqrt(T))
+    return d2
+end
+function compute_d2(d1::num1, T::num4, σ::num5) where {num1 <: Number, num4 <: Number, num5 <: Number}
+    return d1 - σ * sqrt(T)
 end
 
 """
@@ -126,9 +81,13 @@ julia> blsbin(10.0,10.0,0.01,2.0,0.2)
 """
 function blsbin(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d2 = (log(S0 / K) + (r - d - (σ^2) / 2) * T) / (σ * sqrt(T))
+    rt = r * T
+    dt = -d * T
+    sqrtT = sqrt(T)
+    sigma_sqrtT = σ * sqrtT
+    d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / 2
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
-    Price = exp(-r * T) * FinancialToolbox.normcdf(iscall * d2)
+    Price = exp(-rt) * normcdf(iscall * d2)
     return Price
 end
 
@@ -156,12 +115,80 @@ julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blsdelta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d1 = (log(S0 / K) + (r - d + (σ^2) / 2) * T) / (σ * sqrt(T))
+    rt = r * T
+    dt = -d * T
+    sigma_sqrtT = σ * sqrt(T)
+    S0_K = S0 / K
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
-    Δ = exp(-d * T) * normcdf(iscall * d1) * iscall
+    Δ = exp(dt) * normcdf(iscall * d1) * iscall
     return Δ
 end
+"""
+Black & Scholes Price for European Options
 
+		Price=blsprice(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+
+Where:\n
+		S0         = Value of the Underlying.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ          = Implied Volatility
+		d          = Implied Dividend of the Underlying.
+		FlagIsCall = true for Call Options, false for Put Options.
+
+		Price      = price of the European Option.
+
+# Example
+```julia-repl
+julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
+1.1023600107733191
+```
+"""
+function blsprice(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    rt = r * T
+    dt = -d * T
+    sigma_sqrtT = σ * sqrt(T)
+    S0_K = S0 / K
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
+    Price = iscall * K * (S0_K * exp(dt) * normcdf(iscall * d1) - exp(-rt) * normcdf(iscall * (d1 - sigma_sqrtT)))
+    return Price
+end
+"""
+Black Price for European Options
+
+		Price=blkprice(F0,K,r,T,σ,FlagIsCall=true)
+
+Where:\n
+		F0         = Value of the Forward.
+		K          = Strike Price of the Option.
+		r          = Zero Rate.
+		T          = Time to Maturity of the Option.
+		σ          = Implied Volatility.
+		FlagIsCall = true for Call Options, false for Put Options.
+
+		Price      = price of the European Option.
+
+# Example
+```julia-repl
+julia> blkprice(10.0,10.0,0.01,2.0,0.2)
+1.1023600107733191
+```
+"""
+function blkprice(F0::num1, K::num2, r::num3, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number}
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(F0, K, r, T, σ))
+    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
+    rt = r * T
+    sigma_sqrtT = σ * sqrt(T)
+    F0_K = F0 / K
+    d1 = (log(F0_K)) / sigma_sqrtT + sigma_sqrtT / 2
+    d2 = d1 - sigma_sqrtT
+    Price = iscall * K * exp(-rt) * (F0_K * normcdf(iscall * d1) - normcdf(iscall * d2))
+    return Price
+end
 """
 Black & Scholes Gamma for European Options
 
@@ -186,8 +213,12 @@ julia> blsgamma(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blsgamma(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d1 = (log(S0 / K) + (r - d + (σ^2) / 2) * T) / (σ * sqrt(T))
-    Γ = exp(-d * T) * normpdf(d1) / (S0 * σ * sqrt(T))
+    rt = r * T
+    dt = -d * T
+    sigma_sqrtT = σ * sqrt(T)
+    S0_K = S0 / K
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    Γ = exp(dt) * normpdf(d1) / (S0 * sigma_sqrtT)
     return Γ
 end
 
@@ -215,8 +246,12 @@ julia> blsvega(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blsvega(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d1 = (log(S0 / K) + (r - d + (σ^2) / 2) * T) / (σ * sqrt(T))
-    ν = S0 * exp(-d * T) * normpdf(d1) * sqrt(T)
+    rt = r * T
+    dt = -d * T
+    sqrtT = sqrt(T)
+    sigma_sqrtT = σ * sqrtT
+    d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    ν = S0 * exp(dt) * normpdf(d1) * sqrtT
     return ν
 end
 
@@ -244,9 +279,13 @@ julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blsrho(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d2 = (log(S0 / K) + (r - d - (σ^2) / 2) * T) / (σ * sqrt(T))
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
-    ρ = iscall * K * exp(-r * T) * normcdf(iscall * d2) * T
+    rt = r * T
+    dt = -d * T
+    sqrtT = sqrt(T)
+    sigma_sqrtT = σ * sqrtT
+    d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / 2
+    ρ = iscall * K * exp(-rt) * normcdf(iscall * d2) * T
     return ρ
 end
 
@@ -274,14 +313,17 @@ julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blstheta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    rt = r * T
+    dt = -d * T
     sqrtT = sqrt(T)
-    σ_sqrtT = σ * sqrtT
-    d1 = (log(S0 / K) + (r - d + σ .^ 2 / 2) * T) / σ_sqrtT
-    shift = -exp(-d * T) * S0 * normpdf(d1) * σ / 2 / sqrtT
-    t1 = r * K * exp(-r * T)
-    t2 = d * S0 * exp(-d * T)
+    sigma_sqrtT = σ * sqrtT
+    d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d2 = d1 - sigma_sqrtT
+    shift = -exp(dt) * S0 * normpdf(d1) * σ / 2 / sqrtT
+    t1 = r * K * exp(-rt)
+    t2 = d * S0 * exp(dt)
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
-    Θ = shift - iscall * t1 * normcdf(iscall * (d1 - σ_sqrtT)) + iscall * t2 * normcdf(iscall * d1)
+    Θ = shift - iscall * (t1 * normcdf(iscall * d2) - t2 * normcdf(iscall * d1))
     return Θ
 end
 
@@ -309,14 +351,22 @@ julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blslambda(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    Price = blsprice(S0, K, r, T, σ, d, FlagIsCall)
-    Δ = blsdelta(S0, K, r, T, σ, d, FlagIsCall)
-    Λ = Δ * S0 / Price
+    rt = r * T
+    dt = -d * T
+    sigma_sqrtT = σ * sqrt(T)
+    S0_K = S0 / K
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d2 = d1 - sigma_sqrtT
+    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
+    Δ = exp(dt) * normcdf(iscall * d1) * iscall
+    Δ_adj = S0 * Δ
+    Price = Δ_adj - iscall * K * exp(-rt) * normcdf(iscall * d2)
+    Λ = Δ_adj / Price
     return Λ
 end
 
 "Check input for Black Scholes Formula"
-function blscheck(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+@inline function blscheck(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y
     if (lesseq(S0, zero(num1)))
@@ -402,12 +452,71 @@ function brentMethod(f::Function, x0::Number, x1::Number, xtol::AbstractFloat = 
     throw(ErrorException("Max iteration exceeded, possible wrong result"))
 end
 
-function blsimpv_impl(zero_typed::AbstractFloat, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
-    f(x) = blsprice(S0, K, r, T, x, d, FlagIsCall) - price_d
-    σ = brentMethod(f, typeof(zero_typed)(0.001), typeof(zero_typed)(1.2), xtol, ytol)
+function price_and_vega(S0, K, r, T, σ, d, FlagIsCall)
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    rt = r * T
+    dt = -d * T
+    sqrtT = sqrt(T)
+    sigma_sqrtT = σ * sqrtT
+    d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d2 = d1 - sigma_sqrtT
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    common_term = S0 * exp(dt)
+    Price = iscall * (common_term * normcdf(iscall * d1) - K * exp(-rt) * normcdf(iscall * d2))
+    ν = common_term * normpdf(d1) * sqrtT
+    return Price, ν
+end
+
+function iter_blsimpv(S0, K, r, T, price, d, FlagIsCall, cur_sigma)
+    cur_price, cur_vega = price_and_vega(S0, K, r, T, cur_sigma, d, FlagIsCall)
+    new_sigma = cur_sigma + (price - cur_price) / cur_vega
+    eps_adj = eps(typeof(new_sigma))
+    new_sigma = max(new_sigma, eps_adj)
+    return isnan(new_sigma) ? eps_adj : new_sigma
+end
+
+function fixed_point_blsimpv(S0, K, r, T, price, d, FlagIsCall, xtol, ytol)
+    if xtol <= 0.0
+        throw(ErrorException("x tollerance cannot be negative"))
+    end
+    adj_S0 = S0 * exp(-d * T)
+    disc_K = K * exp(r * T)
+    num, den = ifelse(FlagIsCall, (adj_S0, disc_K), (disc_K, adj_S0))
+    res = (num - price) / den
+    cur_sigma = sqrt(abs(log(res)))
+    max_iter = 80
+    for _ = 1:max_iter
+        new_sigma = iter_blsimpv(S0, K, r, T, price, d, FlagIsCall, cur_sigma)
+        diff = abs(new_sigma - cur_sigma)
+        if diff < xtol
+            return new_sigma
+        end
+        cur_sigma = new_sigma
+    end
+    @warn "max number of iterations reached, switching to bracketing method."
+    f(x) = blsprice(S0, K, r, T, x, d, FlagIsCall) - price
+    zero_typed = 0 * +(S0, K, r, T, price, d)
+    σ = brentMethod(f, typeof(zero_typed)(0.00001), typeof(zero_typed)(10.2), xtol, ytol)
     return σ
 end
 
+function blsimpv_impl(::AbstractFloat, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
+    if ytol <= 0.0
+        throw(ErrorException("y tollerance cannot be negative"))
+    end
+    if S0 * exp(-d * T) <= price_d
+        throw(ErrorException("y tollerance cannot be negative"))
+    end
+    return fixed_point_blsimpv(S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
+end
+
+function check_positive_price(price::num) where {num <: Number}
+    lesseq(x::Complex, y::Complex) = real(x) <= real(y)
+    lesseq(x, y) = x <= y
+    if (lesseq(price, zero(num)))
+        throw(ErrorException("Option Price Cannot Be Negative"))
+    end
+end
 export blsimpv
 """
 Black & Scholes Implied Volatility for European Options
@@ -432,11 +541,10 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 ```
 """
 function blsimpv(S0::num1, K::num2, r::num3, T::num4, Price::num5, d::num6 = 0, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    if (Price < num5(0))
-        throw(ErrorException("Option Price Cannot Be Negative"))
-    end
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.check_positive_price(Price))
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, 0.1, d))
-    zero_typed = 0 * S0 * K * r * T * d * Price
+    # zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num3, num4, num5, num6)))
+    zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num3, num4, num5, num6)))
     σ = blsimpv_impl(zero_typed, S0, K, r, T, Price, d, FlagIsCall, xtol, ytol)
     return σ
 end
@@ -495,9 +603,13 @@ julia> blspsi(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blspsi(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d1 = (log(S0 / K) + (r - d + (σ^2) / 2) * T) / (σ * sqrt(T))
+    rt = r * T
+    dt = -d * T
+    sigma_sqrtT = σ * sqrt(T)
+    S0_K = S0 / K
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
-    Ψ = -iscall * S0 * exp(-d * T) * normcdf(iscall * d1) * T
+    Ψ = -iscall * S0 * exp(dt) * normcdf(iscall * d1) * T
     return Ψ
 end
 
@@ -525,13 +637,17 @@ julia> blsvanna(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blsvanna(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    d1 = (log(S0 / K) + (r - d + (σ^2) / 2) * T) / (σ * sqrt(T))
-    d2 = d1 - σ * sqrt(T)
-    Vanna = -exp(-d * T) * normpdf(d1) * d2 / σ
+    rt = r * T
+    dt = -d * T
+    sigma_sqrtT = σ * sqrt(T)
+    S0_K = S0 / K
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d2 = d1 - sigma_sqrtT
+    Vanna = -exp(dt) * normpdf(d1) * d2 / σ
     return Vanna
 end
 
-import ChainRulesCore: rrule, frule, NoTangent, @thunk
+import ChainRulesCore: rrule, frule, NoTangent, @thunk, rrule_via_ad
 function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blsimpv), S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
     sigma = blsimpv(S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
     function update_pullback(slice)
@@ -542,7 +658,7 @@ function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blsimpv), S0, K, r
         @views der_r = dy[4]
         @views der_T = dy[5]
         @views der_d = dy[7]
-        @views slice_mod = @thunk(-1 / dy[6])
+        @views slice_mod = @thunk(-inv(dy[6]))
         return NoTangent(), @thunk(slice_mod * der_S0), @thunk(slice_mod * der_K), @thunk(slice_mod * der_r), @thunk(slice_mod * der_T), @thunk(-slice_mod), @thunk(slice_mod * der_d), NoTangent(), NoTangent(), NoTangent()
     end
     return sigma, update_pullback
