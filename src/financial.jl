@@ -39,18 +39,6 @@ function normpdf(x::number) where {number <: Number}
     return exp(-x^2 / 2) / sqrt2π
 end
 
-function compute_d1(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    d1 = (log(S0 / K) + (r - d + σ^2 / 2) * T) / (σ * sqrt(T))
-    return d1
-end
-function compute_d2(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    d2 = (log(S0 / K) + (r - d - σ^2 / 2) * T) / (σ * sqrt(T))
-    return d2
-end
-function compute_d2(d1::num1, T::num4, σ::num5) where {num1 <: Number, num4 <: Number, num5 <: Number}
-    return d1 - σ * sqrt(T)
-end
-
 """
 Black Price for Binary European Options
 
