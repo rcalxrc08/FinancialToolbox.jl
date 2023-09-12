@@ -74,15 +74,15 @@ end
 
 #     return nothing
 # end
-function mul_and_integrate(f_der::TaylorN{T}, x::TaylorN{T}, y::S) where {T <: Number, S <: Number}
-    order = get_order(x)
-    res_t = Taylor1(order)
-    @views @inbounds res_t[0] = y
-    @inbounds for i = 1:order
-        @views res_t[i] = mul_internal(f_der, x, i - 1)
-    end
-    return res_t
-end
+# function mul_and_integrate(f_der::TaylorN{T}, x::TaylorN{T}, y::S) where {T <: Number, S <: Number}
+#     order = get_order(x)
+#     res_t = Taylor1(order)
+#     @views @inbounds res_t[0] = y
+#     @inbounds for i = 1:order
+#         @views res_t[i] = mul_internal(f_der, x, i - 1)
+#     end
+#     return res_t
+# end
 # TODO: move to proper implementation: https://github.com/JuliaDiff/TaylorSeries.jl/issues/285
 function FinancialToolbox.normcdf(x::TaylorN)
     Nmax = 20000
@@ -172,33 +172,33 @@ end
 #     return out
 # end
 
-@inline function blsimpv_impl(::TaylorN, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
-    zero_type = S0 * K * r * T * d * price_d * 0
-    S0_r = value__d(S0)
-    K_r = value__d(K)
-    r_r = value__d(r)
-    T_r = value__d(T)
-    p_r = value__d(price_d)
-    d_r = value__d(d)
-    sigma = blsimpv(S0_r, K_r, r_r, T_r, p_r, d_r, FlagIsCall, xtol, ytol)
-    max_order = get_order(zero_type)
-    vega = blsvega(S0_r, K_r, r_r, T_r, sigma, d_r)
-    σ_coeffs = Array{Float64}[]
-    # σ_coeffs = Array{Array{Float64}}(undef, get_order(zero_type) + 1)
-    # σ_coeffs = Array{Float64}(undef, max_order + 1)
-    push!(σ_coeffs, [sigma])
-    # @views σ_coeffs[1] = [sigma]
-    for i = 1:max_order
-        @show σ_coeffs
-        cur_sigma = TaylorN(HomogeneousPolynomial.(deepcopy(σ_coeffs)))
-        @show cur_sigma
-        @show price_d - blsprice(S0, K, r, T, cur_sigma, d, FlagIsCall)
-        cur_sigma += (price_d - blsprice(S0, K, r, T, cur_sigma, d, FlagIsCall)) / vega
-        @show cur_sigma
-        σ_der = cur_sigma[i-1]
-        push!(σ_coeffs, σ_der.coeffs)
-        # @views σ_coefkfs[i+1] = σ_der
-    end
-    return TaylorN(HomogeneousPolynomial.(σ_coeffs))
-    # return Taylor1(σ_coeffs)
-end
+# @inline function blsimpv_impl(::TaylorN, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
+#     zero_type = S0 * K * r * T * d * price_d * 0
+#     S0_r = value__d(S0)
+#     K_r = value__d(K)
+#     r_r = value__d(r)
+#     T_r = value__d(T)
+#     p_r = value__d(price_d)
+#     d_r = value__d(d)
+#     sigma = blsimpv(S0_r, K_r, r_r, T_r, p_r, d_r, FlagIsCall, xtol, ytol)
+#     max_order = get_order(zero_type)
+#     vega = blsvega(S0_r, K_r, r_r, T_r, sigma, d_r)
+#     σ_coeffs = Array{Float64}[]
+#     # σ_coeffs = Array{Array{Float64}}(undef, get_order(zero_type) + 1)
+#     # σ_coeffs = Array{Float64}(undef, max_order + 1)
+#     push!(σ_coeffs, [sigma])
+#     # @views σ_coeffs[1] = [sigma]
+#     for i = 1:max_order
+#         @show σ_coeffs
+#         cur_sigma = TaylorN(HomogeneousPolynomial.(deepcopy(σ_coeffs)))
+#         @show cur_sigma
+#         @show price_d - blsprice(S0, K, r, T, cur_sigma, d, FlagIsCall)
+#         cur_sigma += (price_d - blsprice(S0, K, r, T, cur_sigma, d, FlagIsCall)) / vega
+#         @show cur_sigma
+#         σ_der = cur_sigma[i-1]
+#         push!(σ_coeffs, σ_der.coeffs)
+#         # @views σ_coefkfs[i+1] = σ_der
+#     end
+#     return TaylorN(HomogeneousPolynomial.(σ_coeffs))
+#     # return Taylor1(σ_coeffs)
+# end
