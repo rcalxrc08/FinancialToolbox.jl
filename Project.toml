@@ -7,12 +7,14 @@ version = "0.4.3"
 [deps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+IrrationalConstants = "92d709cd-6900-40b7-9082-c6be49f344b6"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 ChainRulesCore = "1"
+IrrationalConstants = "0.2"
 Requires = "1"
 SpecialFunctions = "0.8, 0.9, 0.10, 1.0, 2"
 julia = "1"

@@ -1,7 +1,7 @@
 __precompile__()
 module FinancialToolbox
 
-using SpecialFunctions: erf
+using SpecialFunctions: erfc
 using Dates, Requires, ChainRulesCore
 include("dates.jl")
 function __init__()

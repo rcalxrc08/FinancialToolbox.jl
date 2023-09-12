@@ -1,9 +1,4 @@
-arithmetical_type(::Any, x) = Float64(x)
-arithmetical_type(::BigFloat, x) = BigFloat(x)
-arithmetical_type(::Float32, x) = Float32(x)
-arithmetical_type(::Float16, x) = Float16(x)
-const SQRT2 = sqrt(2.0)
-const SQRT2PI = sqrt(2 * pi)
+using IrrationalConstants
 """
 Cumulative Distribution Function of a Standard Gaussian Random Variable
 
@@ -21,8 +16,7 @@ julia> normcdf(0.0)
 ```
 """
 function normcdf(x::number) where {number}
-    const_ = ChainRulesCore.@ignore_derivatives(arithmetical_type(x, SQRT2))
-    return (erf(x / const_) + 1) / 2
+    return erfc(-x / sqrt2) / 2
 end
 
 """
@@ -42,8 +36,7 @@ julia> normpdf(0.0)
 ```
 """
 function normpdf(x::number) where {number <: Number}
-    const_ = ChainRulesCore.@ignore_derivatives(arithmetical_type(x, SQRT2PI))
-    return exp(-x^2 / 2) / const_
+    return exp(-x^2 / 2) / sqrt2π
 end
 
 function compute_d1(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
@@ -543,7 +536,6 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 function blsimpv(S0::num1, K::num2, r::num3, T::num4, Price::num5, d::num6 = 0, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.check_positive_price(Price))
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, 0.1, d))
-    # zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num3, num4, num5, num6)))
     zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num3, num4, num5, num6)))
     σ = blsimpv_impl(zero_typed, S0, K, r, T, Price, d, FlagIsCall, xtol, ytol)
     return σ
