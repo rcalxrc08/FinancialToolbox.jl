@@ -12,6 +12,7 @@ function __init__()
     @require TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea" include("financial_taylor.jl")
 end
 include("financial.jl")
+include("financial_implied_volatility.jl")
 export normcdf,
     normpdf,
     blsprice,
