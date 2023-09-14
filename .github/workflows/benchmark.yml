@@ -2,6 +2,12 @@ name: Run benchmarks
 
 on:
   pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+    tags: '*'
 
 jobs:
   Benchmark:
