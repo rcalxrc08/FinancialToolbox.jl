@@ -1,19 +1,28 @@
-using Pkg, FinancialToolbox;
-#get(ENV, "CI", nothing) == "true" ? Pkg.instantiate() : nothing;
-path1 = joinpath(dirname(pathof(FinancialToolbox)), "..", "benchmark")
-test_listTmp = readdir(path1);
-BlackList = ["Project.toml", "benchmarks.jl", "runner.jl", "cuda", "af", "Manifest.toml", "bench_kou_rev_diff_grad.jl", "bench_black_mp.jl", "bench_black_mn.jl", "bench_black_mt.jl"]
-test_list = [test_element for test_element in test_listTmp if !Bool(sum(test_element .== BlackList))]
-println("Running tests:\n")
-function eval_current_file(path1,current_test, i,test_list)
-	println("------------------------------------------------------------")
-    println("  * $(current_test) *")
-    include(joinpath(path1, current_test))
-    println("------------------------------------------------------------")
-    if (i < length(test_list))
-        println("")
-    end
-end
-for (current_test, i) in zip(test_list, 1:length(test_list))
-    eval_current_file(path1,current_test, i,test_list)
-end
+using BenchmarkTools
+using Random
+
+const SUITE = BenchmarkGroup()
+include("bench_pricer.jl")
+include("bench_vega.jl")
+include("bench_impv.jl")
+
+# SUITE["utf8"] = BenchmarkGroup(["string", "unicode"])
+# teststr = String(join(rand(MersenneTwister(1), 'a':'d', 10^4)))
+# SUITE["utf8"]["replace"] = @benchmarkable replace($teststr, "a" => "b")
+# SUITE["utf8"]["join"] = @benchmarkable join($teststr, $teststr)
+# SUITE["utf8"]["plots"] = BenchmarkGroup()
+
+# SUITE["trigonometry"] = BenchmarkGroup(["math", "triangles"])
+# SUITE["trigonometry"]["circular"] = BenchmarkGroup()
+# for f in (sin, cos, tan)
+#     for x in (0.0, pi)
+#         SUITE["trigonometry"]["circular"][string(f), x] = @benchmarkable ($f)($x)
+#     end
+# end
+
+# SUITE["trigonometry"]["hyperbolic"] = BenchmarkGroup()
+# for f in (sin, cos, tan)
+#     for x in (0.0, pi)
+#         SUITE["trigonometry"]["hyperbolic"][string(f), x] = @benchmarkable ($f)($x)
+#     end
+# end
