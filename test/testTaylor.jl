@@ -31,31 +31,31 @@ VolaCall = blsimpv(spotDual, K, r, T, PriceCall, d);
 # @test(abs(VolaCall[1]) < toll)
 
 # #EuropeanCall Option
-# sigma_dual = taylor_expand(identity, sigma, order = 22)
-# PriceCall3 = blsprice(spotDual, K, r, T, sigma_dual, d);
-# VolaCall3 = blsimpv(spotDual, K, r, T, PriceCall3, d);
-# @test(abs(VolaCall3[0] - sigma_dual[0]) < toll)
-# @test(abs(VolaCall3[1] - sigma_dual[1]) < toll)
-# @test(abs(VolaCall3[2] - sigma_dual[2]) < toll)
-# @test(abs(VolaCall3[3] - sigma_dual[3]) < toll)
+sigma_dual = taylor_expand(identity, sigma, order = 22)
+PriceCall3 = blsprice(spotDual, K, r, T, sigma_dual, d);
+VolaCall3 = blsimpv(spotDual, K, r, T, PriceCall3, d);
+@test(abs(VolaCall3[0] - sigma_dual[0]) < toll)
+@test(abs(VolaCall3[1] - sigma_dual[1]) < toll)
+@test(abs(VolaCall3[2] - sigma_dual[2]) < toll)
+@test(abs(VolaCall3[3] - sigma_dual[3]) < toll)
 
-# sigma_dual_new = deepcopy(PriceCall3)
-# sigma_dual_new[0] = sigma
-# PriceCall3 = blsprice(spotDual, K, r, T, sigma_dual_new, d);
-# VolaCall3 = blsimpv(spotDual, K, r, T, PriceCall3, d);
-# @show VolaCall3
-# @show sigma_dual_new
-# @test(abs(VolaCall3[0] - sigma_dual_new[0]) < toll)
-# @show @test(abs(VolaCall3[1] - sigma_dual_new[1]) < toll)
-# @test(abs(VolaCall3[2] - sigma_dual_new[2]) < toll)
-# @test(abs(VolaCall3[3] - sigma_dual_new[3]) < toll)
+sigma_dual_new = deepcopy(PriceCall3)
+sigma_dual_new[0] = sigma
+PriceCall3 = blsprice(spotDual, K, r, T, sigma_dual_new, d);
+VolaCall3 = blsimpv(spotDual, K, r, T, PriceCall3, d);
+@show VolaCall3
+@show sigma_dual_new
+@test(abs(VolaCall3[0] - sigma_dual_new[0]) < toll)
+@show @test(abs(VolaCall3[1] - sigma_dual_new[1]) < toll)
+@test(abs(VolaCall3[2] - sigma_dual_new[2]) < toll)
+@test(abs(VolaCall3[3] - sigma_dual_new[3]) < toll)
 
-# sigma_dual_new = deepcopy(PriceCall3)
-# sigma_dual_new[0] = sigma
-# PriceCall3 = blsprice(spot, K, r, T, sigma_dual_new, d);
-# VolaCall3 = blsimpv(spot, K, r, T, PriceCall3, d);
+sigma_dual_new = deepcopy(PriceCall3)
+sigma_dual_new[0] = sigma
+PriceCall3 = blsprice(spot, K, r, T, sigma_dual_new, d);
+VolaCall3 = blsimpv(spot, K, r, T, PriceCall3, d);
 
-# @test(abs(VolaCall3[0] - sigma_dual_new[0]) < toll)
-# @test(abs(VolaCall3[1] - sigma_dual_new[1]) < toll)
-# @test(abs(VolaCall3[2] - sigma_dual_new[2]) < toll)
-# @test(abs(VolaCall3[3] - sigma_dual_new[3]) < toll)
+@test(abs(VolaCall3[0] - sigma_dual_new[0]) < toll)
+@test(abs(VolaCall3[1] - sigma_dual_new[1]) < toll)
+@test(abs(VolaCall3[2] - sigma_dual_new[2]) < toll)
+@test(abs(VolaCall3[3] - sigma_dual_new[3]) < toll)

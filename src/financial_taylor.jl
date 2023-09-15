@@ -137,7 +137,7 @@ value__d(x) = x
 # end
 get_order_adj(x::Taylor1) = get_order(x)
 get_order_adj(::Any) = 0
-function blimpv_impl(::Taylor1, S0, K, T, price_d, FlagIsCall, xtol, ytol)
+function blimpv_impl(::Taylor1{T}, S0, K, T, price_d, FlagIsCall, xtol, ytol) where {T}
     S0_r = value__d(S0)
     K_r = value__d(K)
     T_r = value__d(T)
@@ -145,15 +145,18 @@ function blimpv_impl(::Taylor1, S0, K, T, price_d, FlagIsCall, xtol, ytol)
     sigma = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, ytol)
     max_order = maximum(map(x -> get_order_adj(x), (S0, K, T, price_d)))
     vega = blvega_impl(S0_r, K_r, T_r, sigma)
-    σ_coeffs = Array{Float64}(undef, max_order + 1)
+    σ_coeffs = Array{T}(undef, max_order + 1)
+    σ_coeffs .= NaN
     @views σ_coeffs[1] = sigma
-    @inbounds for i = 1:max_order
+    for i = 1:max_order
         # @show σ_coeffs
-        cur_sigma = Taylor1(deepcopy(σ_coeffs), i)
+        new_c = deepcopy(σ_coeffs[1:i])
+        cur_sigma = Taylor1(new_c, i)
         # cur_sigma += (price_d - blsprice(S0, K, r, T, cur_sigma, d, FlagIsCall))
         cur_sigma += (price_d - blprice_impl(S0, K, T, cur_sigma, FlagIsCall)) / vega
         # @views σ_coeffs[i+1] = cur_sigma[i] / vega
-        @views σ_coeffs[i+1] = cur_sigma[i]
+        sigma_n = cur_sigma[i]
+        @views σ_coeffs[i+1] = sigma_n
     end
     return Taylor1(σ_coeffs)
 end
