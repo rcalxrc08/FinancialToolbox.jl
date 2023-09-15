@@ -352,7 +352,7 @@ function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     return Λ
 end
 
-"""Check input for Black Scholes Formula"""
+#Check input for Black Scholes Formula
 function blcheck(S0::num1, K::num2, T::num4, σ::num5 = 1) where {num1, num2, num4, num5}
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y

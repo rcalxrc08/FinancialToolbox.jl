@@ -1,4 +1,4 @@
-"""Brent Method: Scalar Equation Solver"""
+#Brent Method: Scalar Equation Solver
 function brentMethod(f::Function, x0::Number, x1::Number, xtol::AbstractFloat = 1e-14, ytol::AbstractFloat = 1e-15)
     if xtol < 0.0
         throw(ErrorException("x tollerance cannot be negative"))
