@@ -107,7 +107,7 @@ function blsdelta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
 end
 
 function blprice_impl(S0, K, T, σ, FlagIsCall::Bool = true)
-    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
     sigma_sqrtT = σ * sqrt(T)
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / 2
     Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * (d1 - sigma_sqrtT)))
@@ -141,8 +141,8 @@ julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blsprice(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     cv = exp(r * T)
-    cv2 = exp(-d * T)
-    F = S0 * cv * cv2
+    cv2 = exp((r - d) * T)
+    F = S0 * cv2
     return blprice(F, K, T, σ, FlagIsCall) / cv
 end
 """
@@ -167,8 +167,8 @@ julia> blkprice(10.0,10.0,0.01,2.0,0.2)
 ```
 """
 function blkprice(F0, K, r, T, σ, FlagIsCall::Bool = true)
-    cv = exp(-r * T)
-    return blprice(F0, K, T, σ, FlagIsCall) * cv
+    cv = exp(r * T)
+    return blprice(F0, K, T, σ, FlagIsCall) / cv
 end
 """
 Black & Scholes Gamma for European Options
@@ -344,7 +344,7 @@ function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     S0_K = S0 / K
     d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
     d2 = d1 - sigma_sqrtT
-    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
     Δ = exp(dt) * normcdf(iscall * d1) * iscall
     Δ_adj = S0 * Δ
     Price = Δ_adj - iscall * K * exp(-rt) * normcdf(iscall * d2)
