@@ -137,23 +137,21 @@ value__d(x) = x
 # end
 get_order_adj(x::Taylor1) = get_order(x)
 get_order_adj(::Any) = 0
-function blsimpv_impl(::Taylor1, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
+function blimpv_impl(::Taylor1, S0, K, T, price_d, FlagIsCall, xtol, ytol)
     S0_r = value__d(S0)
     K_r = value__d(K)
-    r_r = value__d(r)
     T_r = value__d(T)
     p_r = value__d(price_d)
-    d_r = value__d(d)
-    sigma = blsimpv(S0_r, K_r, r_r, T_r, p_r, d_r, FlagIsCall, xtol, ytol)
-    max_order = maximum(map(x -> get_order_adj(x), (S0, K, r, T, price_d, d)))
-    vega = blsvega(S0_r, K_r, r_r, T_r, sigma, d_r)
+    sigma = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, ytol)
+    max_order = maximum(map(x -> get_order_adj(x), (S0, K, T, price_d)))
+    vega = blvega_impl(S0_r, K_r, T_r, sigma)
     σ_coeffs = Array{Float64}(undef, max_order + 1)
     @views σ_coeffs[1] = sigma
     @inbounds for i = 1:max_order
         # @show σ_coeffs
         cur_sigma = Taylor1(deepcopy(σ_coeffs), i)
         # cur_sigma += (price_d - blsprice(S0, K, r, T, cur_sigma, d, FlagIsCall))
-        cur_sigma += (price_d - blsprice(S0, K, r, T, cur_sigma, d, FlagIsCall)) / vega
+        cur_sigma += (price_d - blprice_impl(S0, K, T, cur_sigma, FlagIsCall)) / vega
         # @views σ_coeffs[i+1] = cur_sigma[i] / vega
         @views σ_coeffs[i+1] = cur_sigma[i]
     end

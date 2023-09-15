@@ -1,5 +1,3 @@
-using IrrationalConstants
-
 "Brent Method: Scalar Equation Solver"
 function brentMethod(f::Function, x0::Number, x1::Number, xtol::AbstractFloat = 1e-14, ytol::AbstractFloat = 1e-15)
     if xtol < 0.0
@@ -71,40 +69,36 @@ function brentMethod(f::Function, x0::Number, x1::Number, xtol::AbstractFloat = 
     throw(ErrorException("Max iteration exceeded, possible wrong result"))
 end
 
-function price_and_vega(S0, K, r, T, σ, d, FlagIsCall)
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    rt = r * T
-    dt = -d * T
-    sqrtT = sqrt(T)
-    sigma_sqrtT = σ * sqrtT
-    d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
-    d2 = d1 - sigma_sqrtT
+function blprice_and_vega(S0, K, x, sqrtT, σ, FlagIsCall)
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, sqrtT, σ))
+    d1 = sqrtT * (x / σ + σ / 2)
+    d2 = d1 - σ * sqrtT
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
-    common_term = S0 * exp(dt)
-    Price = iscall * (common_term * normcdf(iscall * d1) - K * exp(-rt) * normcdf(iscall * d2))
-    ν = common_term * normpdf(d1) * sqrtT
+    Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * d2))
+    ν = S0 * normpdf(d1) * sqrtT
     return Price, ν
 end
 
-function iter_blsimpv(S0, K, r, T, price, d, FlagIsCall, cur_sigma)
-    cur_price, cur_vega = price_and_vega(S0, K, r, T, cur_sigma, d, FlagIsCall)
+function iter_blimpv(S0, K, x, T, price, FlagIsCall, cur_sigma)
+    cur_price, cur_vega = blprice_and_vega(S0, K, x, T, cur_sigma, FlagIsCall)
     new_sigma = cur_sigma + (price - cur_price) / cur_vega
     eps_adj = eps(typeof(new_sigma))
     new_sigma = max(new_sigma, eps_adj)
     return ifelse(isnan(new_sigma), eps_adj, new_sigma)
 end
-function fixed_point_blsimpv(S0, K, r, T, price, d, FlagIsCall, xtol, ytol)
+
+function fixed_point_blimpv(S0, K, T, price, FlagIsCall, xtol, ytol)
     if xtol <= 0.0
         throw(ErrorException("x tollerance cannot be negative"))
     end
-    adj_S0 = S0 * exp(-d * T)
-    disc_K = K * exp(r * T)
-    num, den = ifelse(FlagIsCall, (adj_S0, disc_K), (disc_K, adj_S0))
+    num, den = ifelse(FlagIsCall, (S0, K), (K, S0))
     res = (num - price) / den
+    sqrtT = sqrt(T)
+    x = log(S0 / K) / T
     cur_sigma = sqrt(abs(log(res)))
     max_iter = 80
     for _ = 1:max_iter
-        new_sigma = iter_blsimpv(S0, K, r, T, price, d, FlagIsCall, cur_sigma)
+        new_sigma = iter_blimpv(S0, K, x, sqrtT, price, FlagIsCall, cur_sigma)
         diff = abs(new_sigma - cur_sigma)
         if diff < xtol
             return new_sigma
@@ -112,32 +106,38 @@ function fixed_point_blsimpv(S0, K, r, T, price, d, FlagIsCall, xtol, ytol)
         cur_sigma = new_sigma
     end
     @warn "max number of iterations reached, switching to bracketing method."
-    # f(sigma)=ifelse(sigma>=0.0,price_t-blsprice2(S0, K, r, T, sigma, d),price_t-blsprice2(S0, K, r, T, sigma, d)-S0*exp(-r*T)+K*exp(-d*T))
+    # f(σ)=ifelse(σ>=0.0,price_t-blsprice2(S0, K, r, T, σ, d),price_t-blsprice2(S0, K, r, T, σ, d)-S0*exp(-r*T)+K*exp(-d*T))
     # TODO: extend the folliwing to support negative sigmas.
-    f(x) = blsprice(S0, K, r, T, x, d, FlagIsCall) - price
-    zero_typed = 0 * +(S0, K, r, T, price, d)
-    σ = brentMethod(f, typeof(zero_typed)(0.00001), typeof(zero_typed)(10.2), xtol, ytol)
+    f(x) = blprice(S0, K, T, x, FlagIsCall) - price
+    zero_typed = 0 * +(S0, K, T, price)
+    σ_min = zero_typed + 1 // 100000
+    σ_max = zero_typed + 102 // 10
+    σ = brentMethod(f, σ_min, σ_max, xtol, ytol)
     return σ
 end
 
-function blsimpv_impl(::AbstractFloat, S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
+function blimpv_impl(::AbstractFloat, S0, K, T, price_d, FlagIsCall, xtol, ytol)
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T))
     if ytol <= 0.0
         throw(ErrorException("y tollerance cannot be negative"))
     end
-    if S0 * exp(-d * T) <= price_d
-        throw(ErrorException("y tollerance cannot be negative"))
+    max_price = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, S0, K))
+    if max_price <= price_d
+        throw(ErrorException("Price is reaching maximum value"))
     end
-    return fixed_point_blsimpv(S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
+    min_price = ChainRulesCore.@ignore_derivatives(eps(zero(price_d)))
+    if min_price >= price_d
+        throw(ErrorException("Price is reaching minimum value"))
+    end
+    return fixed_point_blimpv(S0, K, T, price_d, FlagIsCall, xtol, ytol)
 end
 
-function check_positive_price(price::num) where {num <: Number}
-    lesseq(x::Complex, y::Complex) = real(x) <= real(y)
-    lesseq(x, y) = x <= y
-    if (lesseq(price, zero(num)))
-        throw(ErrorException("Option Price Cannot Be Negative"))
-    end
+function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+    zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num4, num5)))
+    σ = blimpv_impl(zero_typed, S0, K, T, Price, FlagIsCall, xtol, ytol)
+    return σ
 end
-export blsimpv
+
 """
 Black & Scholes Implied Volatility for European Options
 
@@ -161,14 +161,14 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 ```
 """
 function blsimpv(S0::num1, K::num2, r::num3, T::num4, Price::num5, d::num6 = 0, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.check_positive_price(Price))
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, 0.1, d))
-    zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num3, num4, num5, num6)))
-    σ = blsimpv_impl(zero_typed, S0, K, r, T, Price, d, FlagIsCall, xtol, ytol)
+    cv = exp(r * T)
+    cv2 = exp(-d * T)
+    adj_S0 = S0 * cv * cv2
+    adj_price = Price * cv
+    σ = blimpv(adj_S0, K, T, adj_price, FlagIsCall, xtol, ytol)
     return σ
 end
 
-export blkimpv
 """
 Black Implied Volatility for European Options
 
@@ -191,24 +191,23 @@ julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
 ```
 """
 function blkimpv(F0::num1, K::num2, r::num3, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(F0, K, r, T, 0.1))
-    σ = blsimpv(F0, K, r, T, Price, r, FlagIsCall, xtol, ytol)
+    adj_price = Price * exp(r * T)
+    σ = blimpv(F0, K, T, adj_price, FlagIsCall, xtol, ytol)
     return σ
 end
 
 import ChainRulesCore: rrule, frule, NoTangent, @thunk, rrule_via_ad
-function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blsimpv), S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
-    sigma = blsimpv(S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
+
+function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T, price_d, FlagIsCall, xtol, ytol)
+    σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, ytol)
     function update_pullback(slice)
-        _, pullback_blsprice = ChainRulesCore.rrule_via_ad(config, blsprice, S0, K, r, T, sigma, d, FlagIsCall)
-        dy = @thunk(pullback_blsprice(slice))
+        _, pullback_blprice = ChainRulesCore.rrule_via_ad(config, blprice_impl, S0, K, T, σ, FlagIsCall)
+        dy = @thunk(pullback_blprice(slice))
         @views der_S0 = dy[2]
         @views der_K = dy[3]
-        @views der_r = dy[4]
-        @views der_T = dy[5]
-        @views der_d = dy[7]
-        @views slice_mod = @thunk(-inv(dy[6]))
-        return NoTangent(), @thunk(slice_mod * der_S0), @thunk(slice_mod * der_K), @thunk(slice_mod * der_r), @thunk(slice_mod * der_T), @thunk(-slice_mod), @thunk(slice_mod * der_d), NoTangent(), NoTangent(), NoTangent()
+        @views der_T = dy[4]
+        @views slice_mod = @thunk(-inv(dy[5]))
+        return NoTangent(), @thunk(slice_mod * der_S0), @thunk(slice_mod * der_K), @thunk(slice_mod * der_T), @thunk(-slice_mod), NoTangent(), NoTangent(), NoTangent()
     end
-    return sigma, update_pullback
+    return σ, update_pullback
 end

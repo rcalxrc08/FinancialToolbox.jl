@@ -61,7 +61,7 @@ julia> blsbin(10.0,10.0,0.01,2.0,0.2)
 ```
 """
 function blsbin(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
     sqrtT = sqrt(T)
@@ -95,7 +95,7 @@ julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blsdelta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
@@ -104,6 +104,18 @@ function blsdelta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, Fl
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
     Δ = exp(dt) * normcdf(iscall * d1) * iscall
     return Δ
+end
+
+function blprice_impl(S0::num1, K::num2, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
+    sigma_sqrtT = σ * sqrt(T)
+    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / 2
+    Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * (d1 - sigma_sqrtT)))
+    return Price
+end
+function blprice(S0::num1, K::num2, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
+    return blprice_impl(S0, K, T, σ, FlagIsCall)
 end
 """
 Black & Scholes Price for European Options
@@ -128,15 +140,10 @@ julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blsprice(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    rt = r * T
-    dt = -d * T
-    sigma_sqrtT = σ * sqrt(T)
-    S0_K = S0 / K
-    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
-    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
-    Price = iscall * K * (S0_K * exp(dt) * normcdf(iscall * d1) - exp(-rt) * normcdf(iscall * (d1 - sigma_sqrtT)))
-    return Price
+    cv = exp(r * T)
+    cv2 = exp(-d * T)
+    F = S0 * cv * cv2
+    return blprice(F, K, T, σ, FlagIsCall) / cv
 end
 """
 Black Price for European Options
@@ -160,15 +167,8 @@ julia> blkprice(10.0,10.0,0.01,2.0,0.2)
 ```
 """
 function blkprice(F0::num1, K::num2, r::num3, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(F0, K, r, T, σ))
-    iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
-    rt = r * T
-    sigma_sqrtT = σ * sqrt(T)
-    F0_K = F0 / K
-    d1 = (log(F0_K)) / sigma_sqrtT + sigma_sqrtT / 2
-    d2 = d1 - sigma_sqrtT
-    Price = iscall * K * exp(-rt) * (F0_K * normcdf(iscall * d1) - normcdf(iscall * d2))
-    return Price
+    cv = exp(-r * T)
+    return blprice(F0, K, T, σ, FlagIsCall) * cv
 end
 """
 Black & Scholes Gamma for European Options
@@ -193,7 +193,7 @@ julia> blsgamma(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blsgamma(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
@@ -202,7 +202,17 @@ function blsgamma(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::
     Γ = exp(dt) * normpdf(d1) / (S0 * sigma_sqrtT)
     return Γ
 end
-
+function blvega_impl(S0::num1, K::num2, T::num4, σ::num5) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+    sqrtT = sqrt(T)
+    sigma_sqrtT = σ * sqrtT
+    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / 2
+    ν = S0 * normpdf(d1) * sqrtT
+    return ν
+end
+function blvega(S0::num1, K::num2, T::num4, σ::num5) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
+    return blvega_impl(S0, K, T, σ)
+end
 """
 Black & Scholes Vega for European Options
 
@@ -226,14 +236,10 @@ julia> blsvega(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blsvega(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
-    rt = r * T
-    dt = -d * T
-    sqrtT = sqrt(T)
-    sigma_sqrtT = σ * sqrtT
-    d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
-    ν = S0 * exp(dt) * normpdf(d1) * sqrtT
-    return ν
+    cv = exp(r * T)
+    cv2 = exp(-d * T)
+    F = S0 * cv * cv2
+    return blvega(F, K, T, σ) / cv
 end
 
 """
@@ -259,7 +265,7 @@ julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blsrho(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
     rt = r * T
     dt = -d * T
@@ -293,7 +299,7 @@ julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blstheta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
     sqrtT = sqrt(T)
@@ -331,7 +337,7 @@ julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blslambda(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
@@ -347,7 +353,7 @@ function blslambda(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, F
 end
 
 "Check input for Black Scholes Formula"
-@inline function blscheck(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blcheck(S0::num1, K::num2, T::num4, σ::num5 = 1) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y
     if (lesseq(S0, zero(num1)))
@@ -361,7 +367,6 @@ end
     end
     return
 end
-
 ##	ADDITIONAL Functions
 
 """
@@ -387,7 +392,7 @@ julia> blspsi(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blspsi(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
@@ -421,7 +426,7 @@ julia> blsvanna(10.0,10.0,0.01,2.0,0.2,0.01)
 ```
 """
 function blsvanna(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
-    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blscheck(S0, K, r, T, σ, d))
+    ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
