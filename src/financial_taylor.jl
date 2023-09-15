@@ -145,7 +145,7 @@ function blimpv_impl(::Taylor1{V}, S0, K, T, price_d, FlagIsCall, xtol, ytol) wh
     sigma = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, ytol)
     max_order = maximum(map(x -> get_order_adj(x), (S0, K, T, price_d)))
     vega = blvega_impl(S0_r, K_r, T_r, sigma)
-    σ_coeffs = Array{T}(undef, max_order + 1)
+    σ_coeffs = Array{V}(undef, max_order + 1)
     σ_coeffs .= NaN
     @views σ_coeffs[1] = sigma
     for i = 1:max_order
