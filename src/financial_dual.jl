@@ -1,6 +1,6 @@
 using .DualNumbers
-value__d(x) = x.value
-value__d(x::Real) = x
+value__d(x::Dual) = x.value
+value__d(x) = x
 
 function blimpv_impl(::Dual, S0, K, T, price_d, FlagIsCall, xtol, ytol)
     S0_r = value__d(S0)
