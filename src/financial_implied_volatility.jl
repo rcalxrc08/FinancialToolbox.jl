@@ -79,8 +79,8 @@ function blprice_and_vega(S0, K, x, sqrtT, σ, FlagIsCall)
     return Price, ν
 end
 
-function iter_blimpv(S0, K, x, T, price, FlagIsCall, cur_sigma)
-    cur_price, cur_vega = blprice_and_vega(S0, K, x, T, cur_sigma, FlagIsCall)
+function iter_blimpv(S0, K, x, sqrtT, price, FlagIsCall, cur_sigma)
+    cur_price, cur_vega = blprice_and_vega(S0, K, x, sqrtT, cur_sigma, FlagIsCall)
     new_sigma = cur_sigma + (price - cur_price) / cur_vega
     eps_adj = eps(typeof(new_sigma))
     new_sigma = max(new_sigma, eps_adj)
@@ -132,7 +132,7 @@ function blimpv_impl(::AbstractFloat, S0, K, T, price_d, FlagIsCall, xtol, ytol)
     return fixed_point_blimpv(S0, K, T, price_d, FlagIsCall, xtol, ytol)
 end
 
-function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1, num2, num4, num5}
     zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num4, num5)))
     σ = blimpv_impl(zero_typed, S0, K, T, Price, FlagIsCall, xtol, ytol)
     return σ
@@ -160,7 +160,7 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 0.3433730534290586
 ```
 """
-function blsimpv(S0::num1, K::num2, r::num3, T::num4, Price::num5, d::num6 = 0, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsimpv(S0::num1, K::num2, r::num3, T::num4, Price::num5, d::num6 = 0, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1, num2, num3, num4, num5, num6}
     cv = exp(r * T)
     cv2 = exp(-d * T)
     adj_S0 = S0 * cv * cv2
@@ -190,7 +190,7 @@ julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
 0.36568658096623635
 ```
 """
-function blkimpv(F0::num1, K::num2, r::num3, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number}
+function blkimpv(F0::num1, K::num2, r::num3, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, ytol::Real = 1e-15) where {num1, num2, num3, num4, num5}
     adj_price = Price * exp(r * T)
     σ = blimpv(F0, K, T, adj_price, FlagIsCall, xtol, ytol)
     return σ

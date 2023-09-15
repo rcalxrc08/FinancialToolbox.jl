@@ -15,7 +15,7 @@ julia> normcdf(0.0)
 0.5
 ```
 """
-function normcdf(x::number) where {number}
+function normcdf(x)
     return erfc(-x / sqrt2) / 2
 end
 
@@ -35,7 +35,7 @@ julia> normpdf(0.0)
 0.3989422804014327
 ```
 """
-function normpdf(x::number) where {number <: Number}
+function normpdf(x)
     return exp(-x^2 / 2) / sqrt2π
 end
 
@@ -60,7 +60,7 @@ julia> blsbin(10.0,10.0,0.01,2.0,0.2)
 0.4624714677292208
 ```
 """
-function blsbin(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsbin(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
@@ -94,7 +94,7 @@ julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
 0.5452173371920436
 ```
 """
-function blsdelta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsdelta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
@@ -106,14 +106,14 @@ function blsdelta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, Fl
     return Δ
 end
 
-function blprice_impl(S0::num1, K::num2, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+function blprice_impl(S0::num1, K::num2, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1, num2, num4, num5}
     iscall = ifelse(ChainRulesCore.@ignore_derivatives(FlagIsCall), 1, -1)
     sigma_sqrtT = σ * sqrt(T)
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / 2
     Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * (d1 - sigma_sqrtT)))
     return Price
 end
-function blprice(S0::num1, K::num2, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+function blprice(S0::num1, K::num2, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1, num2, num4, num5}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     return blprice_impl(S0, K, T, σ, FlagIsCall)
 end
@@ -139,7 +139,7 @@ julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
 1.1023600107733191
 ```
 """
-function blsprice(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsprice(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5, num6}
     cv = exp(r * T)
     cv2 = exp(-d * T)
     F = S0 * cv * cv2
@@ -166,7 +166,7 @@ julia> blkprice(10.0,10.0,0.01,2.0,0.2)
 1.1023600107733191
 ```
 """
-function blkprice(F0::num1, K::num2, r::num3, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number}
+function blkprice(F0::num1, K::num2, r::num3, T::num4, σ::num5, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5}
     cv = exp(-r * T)
     return blprice(F0, K, T, σ, FlagIsCall) * cv
 end
@@ -192,7 +192,7 @@ julia> blsgamma(10.0,10.0,0.01,2.0,0.2,0.01)
 0.13687881535712826
 ```
 """
-function blsgamma(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsgamma(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
@@ -202,14 +202,14 @@ function blsgamma(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::
     Γ = exp(dt) * normpdf(d1) / (S0 * sigma_sqrtT)
     return Γ
 end
-function blvega_impl(S0::num1, K::num2, T::num4, σ::num5) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+function blvega_impl(S0::num1, K::num2, T::num4, σ::num5) where {num1, num2, num4, num5}
     sqrtT = sqrt(T)
     sigma_sqrtT = σ * sqrtT
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / 2
     ν = S0 * normpdf(d1) * sqrtT
     return ν
 end
-function blvega(S0::num1, K::num2, T::num4, σ::num5) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+function blvega(S0::num1, K::num2, T::num4, σ::num5) where {num1, num2, num4, num5}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     return blvega_impl(S0, K, T, σ)
 end
@@ -235,7 +235,7 @@ julia> blsvega(10.0,10.0,0.01,2.0,0.2,0.01)
 5.475152614285131
 ```
 """
-function blsvega(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsvega(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1, num2, num3, num4, num5, num6}
     cv = exp(r * T)
     cv2 = exp(-d * T)
     F = S0 * cv * cv2
@@ -264,7 +264,7 @@ julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
 8.699626722294234
 ```
 """
-function blsrho(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsrho(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
     rt = r * T
@@ -298,7 +298,7 @@ julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
 -0.26273403060652334
 ```
 """
-function blstheta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blstheta(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
@@ -336,7 +336,7 @@ julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
 4.945909973725978
 ```
 """
-function blslambda(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blslambda(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
@@ -353,7 +353,7 @@ function blslambda(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, F
 end
 
 "Check input for Black Scholes Formula"
-function blcheck(S0::num1, K::num2, T::num4, σ::num5 = 1) where {num1 <: Number, num2 <: Number, num4 <: Number, num5 <: Number}
+function blcheck(S0::num1, K::num2, T::num4, σ::num5 = 1) where {num1, num2, num4, num5}
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y
     if (lesseq(S0, zero(num1)))
@@ -391,7 +391,7 @@ julia> blspsi(10.0,10.0,0.01,2.0,0.2,0.01)
 -10.904346743840872
 ```
 """
-function blspsi(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blspsi(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, FlagIsCall::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
@@ -425,7 +425,7 @@ julia> blsvanna(10.0,10.0,0.01,2.0,0.2,0.01)
 0.2737576307142566
 ```
 """
-function blsvanna(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number, num5 <: Number, num6 <: Number}
+function blsvanna(S0::num1, K::num2, r::num3, T::num4, σ::num5, d::num6 = 0, ::Bool = true) where {num1, num2, num3, num4, num5, num6}
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
     rt = r * T
     dt = -d * T
