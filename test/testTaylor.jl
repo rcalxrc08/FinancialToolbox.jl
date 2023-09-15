@@ -26,8 +26,8 @@ PriceCall2 = blsprice(spot + dS0, K, r + dr, T, sigma + dsigma, d);
 @test(abs(gamma_opt - PriceCall2[2][1] * 2) < toll)
 
 #Broken for some reason
-# VolaCall = blsimpv(spotDual, K, r, T, PriceCall, d);
-# @test(abs(VolaCall[0] - 0.2) < toll)
+VolaCall = blsimpv(spotDual, K, r, T, PriceCall, d);
+@test(abs(VolaCall[0] - 0.2) < toll)
 # @test(abs(VolaCall[1]) < toll)
 
 # #EuropeanCall Option
