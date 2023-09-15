@@ -137,7 +137,7 @@ value__d(x) = x
 # end
 get_order_adj(x::Taylor1) = get_order(x)
 get_order_adj(::Any) = 0
-function blimpv_impl(::Taylor1{T}, S0, K, T, price_d, FlagIsCall, xtol, ytol) where {T}
+function blimpv_impl(::Taylor1{V}, S0, K, T, price_d, FlagIsCall, xtol, ytol) where {V}
     S0_r = value__d(S0)
     K_r = value__d(K)
     T_r = value__d(T)
