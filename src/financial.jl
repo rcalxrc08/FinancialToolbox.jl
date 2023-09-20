@@ -16,7 +16,7 @@ julia> normcdf(0.0)
 ```
 """
 function normcdf(x)
-    return erfc(-x / sqrt2) / 2
+    return erfc(-x * invsqrt2) / 2
 end
 
 """
@@ -36,7 +36,7 @@ julia> normpdf(0.0)
 ```
 """
 function normpdf(x)
-    return exp(-x^2 / 2) / sqrt2π
+    return exp(-x^2 / 2) * invsqrt2π
 end
 
 """
@@ -353,7 +353,7 @@ function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
 end
 
 #Check input for Black Scholes Formula
-function blcheck(S0::num1, K::num2, T::num4, σ::num5 = 1) where {num1, num2, num4, num5}
+function blcheck(S0::num1, K::num2, T::num4, σ::num5) where {num1, num2, num4, num5}
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y
     if (lesseq(S0, zero(num1)))
