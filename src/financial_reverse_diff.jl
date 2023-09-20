@@ -22,12 +22,12 @@ using .ReverseDiff
 # return sigma, update_pullback
 # end
 
-function FinancialToolbox.blimpv_impl(::ReverseDiff.TrackedReal, S0, K, T, price_d, FlagIsCall, xtol, ytol)
+function FinancialToolbox.blimpv_impl(::ReverseDiff.TrackedReal, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     S0_r = ReverseDiff.value(S0)
     K_r = ReverseDiff.value(K)
     T_r = ReverseDiff.value(T)
     p_r = ReverseDiff.value(price_d)
-    σ = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, ytol)
+    σ = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, n_iter_max)
     der_ = (price_d - blprice_impl(S0, K, T, σ, FlagIsCall)) / blvega_impl(S0_r, K_r, T_r, σ)
     out = σ + der_
     return out

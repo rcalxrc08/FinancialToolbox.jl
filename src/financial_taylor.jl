@@ -137,12 +137,12 @@ value__d(x) = x
 # end
 get_order_adj(x::Taylor1) = get_order(x)
 get_order_adj(::Any) = 0
-function blimpv_impl(::Taylor1{V}, S0, K, T, price_d, FlagIsCall, xtol, ytol) where {V}
+function blimpv_impl(::Taylor1{V}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max) where {V}
     S0_r = value__d(S0)
     K_r = value__d(K)
     T_r = value__d(T)
     p_r = value__d(price_d)
-    sigma = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, ytol)
+    sigma = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, n_iter_max)
     max_order = maximum(map(x -> get_order_adj(x), (S0, K, T, price_d)))
     vega = blvega_impl(S0_r, K_r, T_r, sigma)
     σ_coeffs = Array{V}(undef, max_order + 1)

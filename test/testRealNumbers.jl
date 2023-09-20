@@ -71,17 +71,6 @@ print_colored("-----Testing Implied Volatility\n", :blue);
 assert_(SigmaCall - 0.2, testToll)
 print_colored("-----Testing Implied Volatility Black\n", :blue);
 assert_(SigmaCallBlack - 0.2, testToll)
-#Low Xtol for blsimpv
-tol_low = 1e-16;
-tol_high = 1e-3;
-SigmaLowXTol = blsimpv(spot, K, r, T, PriceCall, d, true, tol_low, tol_high);
-print_colored("-----Testing Implied Volatility Low X tol, High Y tol\n", :blue);
-@test((abs(blsprice(spot, K, r, T, SigmaLowXTol, d, true) - PriceCall) < tol_high) || abs(SigmaLowXTol - sigma) < tol_low)
-#Low Ytol for blsimpv
-SigmaLowYTol = blsimpv(spot, K, r, T, PriceCall, d, true, tol_high, tol_low);
-print_colored("-----Testing Implied Volatility Low Y tol, High X tol\n", :blue);
-@test((abs(blsprice(spot, K, r, T, SigmaLowYTol, d, true) - PriceCall) < tol_low) || abs(SigmaLowYTol - sigma) < tol_high)
-
 print_colored("---  European Put: Price and Sensitivities\n", :yellow)
 #Standard Test European Put Option
 print_colored("-----Testing Price\n", :blue);
@@ -171,10 +160,10 @@ print_colored("----Testing Negative Option Price\n", :cyan)
 @test_throws(DomainError, blkimpv(spot, K, r, T, -PriceCall))
 
 print_colored("----Testing Negative Tollerance\n", :cyan)
-@test_throws(DomainError, blsimpv(spot, K, r, T, PriceCall, d, true, -1e-12, 1e-12))
-@test_throws(DomainError, blkimpv(spot, K, r, T, PriceCall, true, -1e-12, 1e-12))
-@test_throws(DomainError, blsimpv(spot, K, r, T, PriceCall, d, true, 1e-12, -1e-12))
-@test_throws(DomainError, blkimpv(spot, K, r, T, PriceCall, true, 1e-12, -1e-12))
+@test_throws(DomainError, blsimpv(spot, K, r, T, PriceCall, d, true, -1e-12, 1))
+@test_throws(DomainError, blkimpv(spot, K, r, T, PriceCall, true, -1e-12, 1))
+@test_throws(DomainError, blsimpv(spot, K, r, T, PriceCall, d, true, 1e-12, -1))
+@test_throws(DomainError, blkimpv(spot, K, r, T, PriceCall, true, 1e-12, -1))
 
 #Too low tollerance
 # @test_throws(DomainError, blsimpv(spot, K, r, T, PriceCall, d, true, 0.0, 0.0))
