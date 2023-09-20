@@ -27,6 +27,3 @@ After the installation, to test the package type on the Julia REPL the following
 ```Julia
 Pkg.test("FinancialToolbox")
 ```
-
-### Contributors
-Thanks to [Modesto Mas](https://github.com/mmas) for the implementation of the [Brent Method](http://blog.mmast.net/brent-julia). 

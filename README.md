@@ -62,6 +62,3 @@ Price=blsprice(spot,K,r,T,σ,d)
 Volatility=blsimpv(spot,K,r,T,Price,d)
 #Volatility=0.20000000000000002
 ```
-
-### Contributors
-Thanks to [Modesto Mas](https://github.com/mmas) for the implementation of the [Brent Method](http://blog.mmast.net/brent-julia). 
