@@ -21,7 +21,7 @@ end
 
 function mul_and_integrate(f_der::Taylor1{T}, x::Taylor1{T}, y::S) where {T <: Number, S <: Number}
     order = get_order(x)
-    res = Array{Float64}(undef, order + 1)
+    res = Array{T}(undef, order + 1)
     res_t = Taylor1(res)
     @views @inbounds res_t[0] = y
     @inbounds for i = 1:order
