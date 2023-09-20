@@ -357,13 +357,13 @@ function blcheck(S0::num1, K::num2, T::num4, σ::num5) where {num1, num2, num4, 
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y
     if (lesseq(S0, zero(num1)))
-        error("Spot Price Cannot Be Negative")
+        throw(DomainError(S0, "Spot Price Cannot Be Negative"))
     elseif (lesseq(K, zero(num2)))
-        error("Strike Price Cannot Be Negative")
+        throw(DomainError(K, "Strike Price Cannot Be Negative"))
     elseif (lesseq(T, zero(num4)))
-        error("Time to Maturity Cannot Be Negative")
+        throw(DomainError(T, "Time to Maturity Cannot Be Negative"))
     elseif (lesseq(σ, zero(num5)))
-        error("Volatility Cannot Be Negative")
+        throw(DomainError(σ, "Volatility Cannot Be Negative"))
     end
     return
 end

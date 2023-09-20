@@ -27,8 +27,8 @@ function FinancialToolbox.blimpv_impl(::ReverseDiff.TrackedReal, S0, K, T, price
     K_r = ReverseDiff.value(K)
     T_r = ReverseDiff.value(T)
     p_r = ReverseDiff.value(price_d)
-    sigma = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, ytol)
-    der_ = (price_d - blprice_impl(S0, K, T, sigma, FlagIsCall)) / blvega_impl(S0_r, K_r, T_r, sigma)
-    out = sigma + der_
+    σ = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, ytol)
+    der_ = (price_d - blprice_impl(S0, K, T, σ, FlagIsCall)) / blvega_impl(S0_r, K_r, T_r, σ)
+    out = σ + der_
     return out
 end

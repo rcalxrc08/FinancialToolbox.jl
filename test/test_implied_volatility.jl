@@ -12,7 +12,8 @@ function test_implied_volatility_from_σ(toll, S0, K, r, T, σ, d, FlagIsCall)
 end
 function test_broken_implied_volatility_from_σ(toll, S0, K, r, T, σ, d, FlagIsCall)
     price_t = blsprice(S0, K, r, T, σ, d, FlagIsCall)
-    @test_broken abs(blsimpv(S0, K, r, T, price_t, d, FlagIsCall) - σ) < toll
+    new_σ = blsimpv(S0, K, r, T, price_t, d, FlagIsCall)
+    @test_broken abs(new_σ - σ) < toll
 end
 S0 = 100.0;
 K = 100.0;
