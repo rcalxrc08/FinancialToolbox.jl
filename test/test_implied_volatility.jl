@@ -59,6 +59,9 @@ T = 1.0;
 d = 0.01;
 test_broken_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
 test_broken_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
+
+@test_throws(DomainError, blsimpv(S0, K, r, T, S0 * 10, d, FlagIsCall))
+
 print_colored("Implied Volatility Test Passed\n", :magenta)
 
 #End of the Test
