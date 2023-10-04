@@ -19,7 +19,7 @@ The latter allows you to plug in values that you would have defined here.
              deployed page to be in a subfolder e.g.: `YourPackage.jl/web/`.
 -->
 @def title       = "FinancialToolbox.jl"
-@def prepath     = "FinancialToolbox.jl/page"
+@def prepath     = "FinancialToolbox.jl"
 @def description = """
                    Black and Scholes utility functions.
                    """
