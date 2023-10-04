@@ -14,7 +14,7 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: 1.5
-    - run: julia -e '
+    - run: julia --project=@. -e '
             using InteractiveUtils; versioninfo(); import Pkg; Pkg.build(); using FinancialToolbox;
             Pkg.activate("page/Project.toml"); Pkg.instantiate();
             Pkg.add(["NodeJS", "PkgPage"]);
