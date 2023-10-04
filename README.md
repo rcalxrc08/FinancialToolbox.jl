@@ -1,5 +1,6 @@
 # FinancialToolbox
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://rcalxrc08.github.io/FinancialToolbox.jl/dev)
+[![status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://rcalxrc08.github.io/FinancialToolbox.jl/)
 [![CI](https://github.com/rcalxrc08/FinancialToolbox.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/rcalxrc08/FinancialToolbox.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl?branch=master)
 ##### This is a Julia package containing some useful Financial functions for Pricing and Risk Management under the Black and Scholes Model.
@@ -17,8 +18,8 @@ It currently contains the following functions:
 - blslambda: Black & Scholes Lambda sensitivity for European Options.
 - blspsi   : Black & Scholes Psi sensitivity for European Options.
 - blsvanna : Black & Scholes Vanna sensitivity for European Options.
-- blsimpv  : Black & Scholes Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
-- blkimpv  : Black Implied Volatility for European Options (using [Brent Method](http://blog.mmast.net/brent-julia)).
+- blsimpv  : Black & Scholes Implied Volatility for European Options.
+- blkimpv  : Black Implied Volatility for European Options.
 
 Currently supports classical numerical input and other less common like:
 
