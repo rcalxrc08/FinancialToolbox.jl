@@ -14,13 +14,14 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: 1.5
-    - run: julia -e '
+    - run: julia --project=@. -e '
             import Pkg; Pkg.activate("page/Project.toml"); Pkg.instantiate();
+            using InteractiveUtils; versioninfo(); Pkg.build(); using FinancialToolbox;
             Pkg.add(["NodeJS", "PkgPage"]);
             using NodeJS;
             run(`$(npm_cmd()) install highlight.js purgecss`);
             import PkgPage;
-            PkgPage.optimize(input="page", output="page")'
+            PkgPage.optimize(input="page", output="")'
     - run: touch page/__site/.nojekyll
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v4
