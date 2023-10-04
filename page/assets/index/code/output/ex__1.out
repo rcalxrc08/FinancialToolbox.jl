@@ -1,0 +1,3 @@
+ArgumentError: Package FinancialToolbox not found in current path:
+- Run `import Pkg; Pkg.add("FinancialToolbox")` to install the FinancialToolbox package.
+
