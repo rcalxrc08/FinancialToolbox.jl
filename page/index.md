@@ -102,7 +102,7 @@ $$d_1 = \frac{\ln\left(\frac{F}{K}\right) + \frac{\sigma^2}{2}T}{\sigma\sqrt{T}}
 $$d_2 = d_1 - \sigma\sqrt{T}$$
 \\
 And:
-* $F$ is the underlying spot price.
+* $F$ is the underlying forward price.
 * $K$ is the strike price.
 * $r$ is the risk free rate.
 * $T$ is the time to maturity.
@@ -229,16 +229,16 @@ $$ f(S,K,r,T,\sigma(S,K,r,T,V,d),d) = V $$ <!--_-->
 By differentating both sides for a generic parameter $\theta$ we get:
 $$ \partial_{\theta}\sigma = \frac{\partial_{\theta}(V-f(S,K,r,T,\sigma,d))}{\partial_{\sigma}f(S,K,r,T,\sigma,d)} $$ <!--_-->
 Very similar applies to Black model:
-$$ \partial_{\theta}\sigma = \frac{\partial_{\theta}(V-f(S,K,r,T,\sigma))}{\partial_{\sigma}f(S,K,r,T,\sigma)} $$ <!--_-->
+$$ \partial_{\theta}\sigma = \frac{\partial_{\theta}(V-f(F,K,r,T,\sigma))}{\partial_{\sigma}f(F,K,r,T,\sigma)} $$ <!--_-->
 with:
 \begin{columns}
 \begin{column}{}
 **_For European Call_**
-$$ f = C_{bk}(S,K,r,T,\sigma) $$
+$$ f = C_{bk}(F,K,r,T,\sigma) $$
 \end{column}
 \begin{column}{}
 **_For European Put_**
-$$ f = P_{bk}(S,K,r,T,\sigma) $$
+$$ f = P_{bk}(F,K,r,T,\sigma) $$
 \end{column}
 \end{columns}
 This formulation of the derivative allows to define analytically the frule and the rrule for the function blsimpv and blkimpv, without the need of differentiating the numerical solver, proving once again the superiority of automatic differentiation against numerical one.
