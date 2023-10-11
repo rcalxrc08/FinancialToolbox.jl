@@ -1,9 +1,8 @@
-function blprice_and_vega(S0, K, x, sqrtT, σ, FlagIsCall)
+function blprice_and_vega(S0, K, x, sqrtT, σ, iscall)
     #I avoid the checks for the inputs since we have already checked them apart of volatility.
     #The volatility is positive by construction.
-    d1 = sqrtT * (x / σ + σ / 2)
+    d1 = sqrtT * (x / σ + σ / two_internal)
     d2 = d1 - σ * sqrtT
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
     Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * d2))
     ν = S0 * normpdf(d1) * sqrtT
     return Price, ν
@@ -15,16 +14,17 @@ function iter_blimpv(S0, K, x, sqrtT, price, FlagIsCall, σ, eps_adj)
     return ifelse(isnan(σ_new), eps_adj, σ_new)
 end
 
-function fixed_point_blimpv(S0, K, T, price, FlagIsCall, xtol, n_iter_max::Integer = 80)
+function fixed_point_blimpv(S0, K, T, price, FlagIsCall, xtol, n_iter_max::Integer)
     num, den = ifelse(FlagIsCall, (S0, K), (K, S0))
     res = (num - price) / den
     sqrtT = sqrt(T)
     x = log(S0 / K) / T
     σ_cur = sqrt(abs(log(res)))
     eps_type = typeof(x + price)
-    eps_adj = eps(eps_type)
+    eps_adj = eps(zero(eps_type))
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     for _ = 1:n_iter_max
-        σ_new = iter_blimpv(S0, K, x, sqrtT, price, FlagIsCall, σ_cur, eps_adj)
+        σ_new = iter_blimpv(S0, K, x, sqrtT, price, iscall, σ_cur, eps_adj)
         diff = abs(σ_new - σ_cur)
         if diff < xtol
             return σ_new
@@ -32,6 +32,7 @@ function fixed_point_blimpv(S0, K, T, price, FlagIsCall, xtol, n_iter_max::Integ
         σ_cur = σ_new
     end
     @warn "max number of iterations reached, a NaN result will be returned."
+    @show S0, K, T, price, xtol, n_iter_max
     return eps_type(NaN)
 end
 
@@ -69,7 +70,7 @@ function blimpv_impl(::AbstractFloat, S0, K, T, price_d, FlagIsCall, xtol, n_ite
     return fixed_point_blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
 end
 
-function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool = true, xtol::Real = 1e-14, n_iter_max::Integer = 80) where {num1, num2, num4, num5}
+function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool, xtol::Real, n_iter_max::Integer) where {num1, num2, num4, num5}
     zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num4, num5)))
     σ = blimpv_impl(zero_typed, S0, K, T, Price, FlagIsCall, xtol, n_iter_max)
     return σ
@@ -97,7 +98,7 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 0.3433730534290586
 ```
 """
-function blsimpv(S0, K, r, T, Price, d = 0, FlagIsCall::Bool = true, xtol::Real = 1e-14, n_iter_max::Integer = 80)
+function blsimpv(S0, K, r, T, Price, d = 0, FlagIsCall::Bool = true, xtol::Real = 100 * eps(Float64), n_iter_max::Integer = 80)
     cv = exp(r * T)
     cv2 = exp(-d * T)
     adj_S0 = S0 * cv * cv2
@@ -133,7 +134,7 @@ function blkimpv(F0, K, r, T, Price, FlagIsCall::Bool = true, xtol::Real = 1e-14
     return σ
 end
 
-import ChainRulesCore: rrule, frule, NoTangent, @thunk, rrule_via_ad
+import ChainRulesCore: rrule, frule, NoTangent, @thunk, rrule_via_ad, frule_via_ad
 
 function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
@@ -146,9 +147,13 @@ function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T,
     return σ, update_pullback
 end
 
-# function frule(config::RuleConfig{>:HasForwardsMode}, (Δf, dS, dK, dT, dprice, _, _, _), ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol::AbstractFloat, ytol::AbstractFloat)
-#     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, ytol)
-#     vega = blvega_impl(S0, K, T, σ)
-#     _, der_fwd = ChainRulesCore.frule_via_ad(config, (Δf, dS, dK, dT, dprice), blprice_impl, S0, K, T, σ, FlagIsCall)
-#     return σ, -der_fwd / vega
-# end
+function blprice_diff_impl(S0, K, T, σ, price, FlagIsCall)
+    return price - blprice_impl(S0, K, T, σ, FlagIsCall)
+end
+#TODO: Test the following function
+function frule(config::RuleConfig{>:HasForwardsMode}, (_, dS, dK, dT, dprice, _, _, _), ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
+    σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+    vega = blvega_impl(S0, K, T, σ)
+    _, der_fwd = ChainRulesCore.frule_via_ad(config, (NoTangent(), dS, dK, dT, NoTangent(), dprice, NoTangent()), blprice_diff_impl, S0, K, T, σ, price_d, FlagIsCall)
+    return σ, der_fwd / vega
+end

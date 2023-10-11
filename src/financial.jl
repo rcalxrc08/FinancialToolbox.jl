@@ -1,4 +1,7 @@
 using IrrationalConstants
+const one_internal = ChainRulesCore.@ignore_derivatives(Int8(1))
+const minus_one_internal = ChainRulesCore.@ignore_derivatives(Int8(-1))
+const two_internal = ChainRulesCore.@ignore_derivatives(Int8(2))
 """
 Cumulative Distribution Function of a Standard Gaussian Random Variable
 
@@ -16,7 +19,7 @@ julia> normcdf(0.0)
 ```
 """
 function normcdf(x)
-    return erfc(-x * invsqrt2) / 2
+    return erfc(-x * invsqrt2) / two_internal
 end
 
 """
@@ -36,7 +39,7 @@ julia> normpdf(0.0)
 ```
 """
 function normpdf(x)
-    return exp(-x^2 / 2) * invsqrt2π
+    return exp(x^2 / (-two_internal)) * invsqrt2π
 end
 
 """
@@ -66,8 +69,8 @@ function blsbin(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     dt = -d * T
     sqrtT = sqrt(T)
     sigma_sqrtT = σ * sqrtT
-    d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / 2
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / two_internal
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     Price = exp(-rt) * normcdf(iscall * d2)
     return Price
 end
@@ -100,16 +103,16 @@ function blsdelta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
     S0_K = S0 / K
-    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     Δ = exp(dt) * normcdf(iscall * d1) * iscall
     return Δ
 end
 
 function blprice_impl(S0, K, T, σ, FlagIsCall::Bool = true)
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     sigma_sqrtT = σ * sqrt(T)
-    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / 2
+    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
     Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * (d1 - sigma_sqrtT)))
     return Price
 end
@@ -198,14 +201,14 @@ function blsgamma(S0, K, r, T, σ, d, ::Bool = true)
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
     S0_K = S0 / K
-    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     Γ = exp(dt) * normpdf(d1) / (S0 * sigma_sqrtT)
     return Γ
 end
 function blvega_impl(S0, K, T, σ)
     sqrtT = sqrt(T)
     sigma_sqrtT = σ * sqrtT
-    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / 2
+    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
     ν = S0 * normpdf(d1) * sqrtT
     return ν
 end
@@ -266,12 +269,12 @@ julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
 """
 function blsrho(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     ChainRulesCore.@ignore_derivatives(FinancialToolbox.blcheck(S0, K, T, σ))
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     rt = r * T
     dt = -d * T
     sqrtT = sqrt(T)
     sigma_sqrtT = σ * sqrtT
-    d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / 2
+    d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / two_internal
     ρ = iscall * K * exp(-rt) * normcdf(iscall * d2) * T
     return ρ
 end
@@ -304,12 +307,13 @@ function blstheta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     dt = -d * T
     sqrtT = sqrt(T)
     sigma_sqrtT = σ * sqrtT
-    d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     d2 = d1 - sigma_sqrtT
-    shift = -exp(dt) * S0 * normpdf(d1) * σ / 2 / sqrtT
+    S0_adj = S0 * exp(dt)
+    shift = -S0_adj * normpdf(d1) * σ / two_internal / sqrtT
     t1 = r * K * exp(-rt)
-    t2 = d * S0 * exp(dt)
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    t2 = d * S0_adj
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     Θ = shift - iscall * (t1 * normcdf(iscall * d2) - t2 * normcdf(iscall * d1))
     return Θ
 end
@@ -342,9 +346,9 @@ function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
     S0_K = S0 / K
-    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     d2 = d1 - sigma_sqrtT
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     Δ = exp(dt) * normcdf(iscall * d1) * iscall
     Δ_adj = S0 * Δ
     Price = Δ_adj - iscall * K * exp(-rt) * normcdf(iscall * d2)
@@ -397,8 +401,8 @@ function blspsi(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
     S0_K = S0 / K
-    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, 1, -1))
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
+    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
     Ψ = -iscall * S0 * exp(dt) * normcdf(iscall * d1) * T
     return Ψ
 end
@@ -431,7 +435,7 @@ function blsvanna(S0, K, r, T, σ, d, ::Bool = true)
     dt = -d * T
     sigma_sqrtT = σ * sqrt(T)
     S0_K = S0 / K
-    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / 2
+    d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     d2 = d1 - sigma_sqrtT
     Vanna = -exp(dt) * normpdf(d1) * d2 / σ
     return Vanna
