@@ -78,11 +78,11 @@ The latter allows you to plug in values that you would have defined here.
 @def header_img_style   = """
                           background-repeat: repeat;
                           """
-@def header_margin_top  = "55px" <!-- 55-60px ~ touching nav bar -->
+@def header_margin_top  = "59px" <!-- 55-60px ~ touching nav bar -->
 
 @def use_hero           = false
-@def hero_width         = "80%"
-@def hero_margin_top    = "100px"
+@def hero_width         = "90%"
+@def hero_margin_top    = "90px"
 
 @def add_github_view  = true
 @def add_github_star  = true

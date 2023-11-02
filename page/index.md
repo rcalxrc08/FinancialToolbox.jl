@@ -138,8 +138,8 @@ $$ V =  Ke^{-r\,T} N(-d_2) - S e^{-d\,T} N(-d_1) $$
 \end{column}
 \end{columns}
 where:
-$$d_1 = \frac{\ln\left(\frac{S}{K}\right) + \left(r - q + \frac{\sigma^2}{2}\right)(T-t)}{\sigma\sqrt{T-t}}$$
-$$d_2 = d_1 - \sigma\sqrt{T-t}$$
+$$d_1 = \frac{\ln\left(\frac{S}{K}\right) + \left(r - q + \frac{\sigma^2}{2}\right) T}{\sigma\sqrt{T}}$$
+$$d_2 = d_1 - \sigma\sqrt{T}$$
 \\
 The way to compute the volatility in this library is:
 \begin{columns}
