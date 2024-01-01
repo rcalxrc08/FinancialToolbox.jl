@@ -10,7 +10,8 @@ end
 
 function iter_blimpv(S0, K, x, sqrtT, price, FlagIsCall, σ, eps_adj)
     cur_price, cur_vega = blprice_and_vega(S0, K, x, sqrtT, σ, FlagIsCall)
-    σ_new = max(σ + (price - cur_price) / cur_vega, eps_adj)
+    price_diff = price - cur_price
+    σ_new = max(σ + price_diff / cur_vega, eps_adj)
     return ifelse(isnan(σ_new), eps_adj, σ_new)
 end
 
@@ -31,9 +32,10 @@ function fixed_point_blimpv(S0, K, T, price, FlagIsCall, xtol, n_iter_max::Integ
         end
         σ_cur = σ_new
     end
-    @warn "max number of iterations reached, a NaN result will be returned."
+    #plan b: we revert to let's be rational
+    @warn "max number of iterations reached, newton approach is discarded."
     @show S0, K, T, price, xtol, n_iter_max
-    return eps_type(NaN)
+    return new_blimpv(S0, K, T, price, FlagIsCall, xtol, n_iter_max)
 end
 
 function blimpv_check(S0::num1, K::num2, T::num4) where {num1, num2, num4}
@@ -140,7 +142,7 @@ function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T,
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     function update_pullback(slice)
         _, pullback_blprice = ChainRulesCore.rrule_via_ad(config, blprice_impl, S0, K, T, σ, FlagIsCall)
-        _, der_S0, der_K, der_T, der_σ = pullback_blprice(slice)
+        _, der_S0, der_K, der_T, der_σ, _ = pullback_blprice(slice)
         slice_mod = -inv(der_σ)
         return NoTangent(), slice_mod * der_S0, slice_mod * der_K, slice_mod * der_T, -slice_mod, NoTangent(), NoTangent(), NoTangent()
     end

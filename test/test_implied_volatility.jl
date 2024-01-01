@@ -62,6 +62,9 @@ test_broken_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, fal
 
 @test_throws(DomainError, blsimpv(S0, K, r, T, S0 * 10, d))
 
+#New test from issue #21
+@test !isnan(blsimpv(4753.63, 4085.0, 0.0525, 0.13870843734533175, 701.3994, 0.0, true))
+
 print_colored("Implied Volatility Test Passed\n", :magenta)
 
 #End of the Test
