@@ -54,7 +54,7 @@ function rational_cubic_control_parameter_to_fit_second_derivative_at_left_side(
     denominator = (y_r - y_l) / h - d_l
     zero_typed = zero_num + zero(denominator)
     if (is_zero(denominator))
-        return numerator > 0 ? maximum_rational_cubic_control_parameter_value(zero_typed) : minimum_rational_cubic_control_parameter_value(zero_typed)
+        return ifelse(numerator > 0, maximum_rational_cubic_control_parameter_value(zero_typed), minimum_rational_cubic_control_parameter_value(zero_typed))
     end
     return numerator / denominator
 end
@@ -69,7 +69,7 @@ function rational_cubic_control_parameter_to_fit_second_derivative_at_right_side
     denominator = d_r - (y_r - y_l) / h
     zero_typed = zero_num + zero(denominator)
     if (is_zero(denominator))
-        return numerator > 0 ? maximum_rational_cubic_control_parameter_value(zero_typed) : minimum_rational_cubic_control_parameter_value(zero_typed)
+        return ifelse(numerator > 0, maximum_rational_cubic_control_parameter_value(zero_typed), minimum_rational_cubic_control_parameter_value(zero_typed))
     end
     return numerator / denominator
 end
@@ -391,30 +391,6 @@ end
 # number of exponential function evaluations can be minimised by a judicious choice of one of the above
 # formulations depending on the input values and the branch logic in Cody's erfc() and erfcx().
 #
-function normalised_black_call_with_optimal_use_of_codys_functions(x::T, s::V) where {T <: Real, V <: Real}
-    zero_typed = zero(promote_type(T, V))
-    codys_threshold = 15 // 32
-    h = x / s
-    t = s / 2
-    q1 = sqrt2 * (h + t) / (-2)
-    q2 = sqrt2 * (t - h) / 2
-    two_b = zero_typed
-    if (q1 < codys_threshold)
-        if (q2 < codys_threshold)
-            exp_x_half = exp(x / 2)
-            @muladd two_b = exp_x_half * erfc(q1) - inv(exp_x_half) * erfc(q2)
-        else
-            @muladd two_b = exp(x / 2) * erfc(q1) - exp(-(square(h) + square(t)) / 2) * erfcx(q2)
-        end
-    else
-        if (q2 < codys_threshold)
-            @muladd two_b = exp(-(square(h) + square(t)) / 2) * erfcx(q1) - exp(-x / 2) * erfc(q2)
-        else
-            @muladd two_b = exp(-(square(h) + square(t)) / 2) * (erfcx(q1) - erfcx(q2))
-        end
-    end
-    return abs(positive_part(two_b / 2))
-end
 
 function normalised_black_call(x::T, s::V) where {T <: Real, V <: Real}
     if (x > 0)
@@ -467,17 +443,17 @@ function normalised_vega_inverse(x::T, s::V) where {T <: Real, V <: Real}
     return sqrt2π * exp((square(x / s) + square(s / 2)) / 2)
 end
 
-normalised_black(x, s, q) = return normalised_black_call(q * x, s); #/* Reciprocal-strike call-put equivalence */ 
+# normalised_black(x, s, q) = return normalised_black_call(q * x, s); #/* Reciprocal-strike call-put equivalence */ 
 
-function black(F, K, sigma, T, q)
-    adj_F_K = q * (F - K)
-    intrinsic = abs(positive_part(adj_F_K))
-    # Map in-the-money to out-of-the-money
-    if (adj_F_K > 0)
-        return intrinsic + black(F, K, sigma, T, -q)
-    end
-    return max(intrinsic, sqrt(F * K) * normalised_black(log(F / K), sigma * sqrt(T), q))
-end
+# function black(F, K, sigma, T, q)
+#     adj_F_K = q * (F - K)
+#     intrinsic = abs(positive_part(adj_F_K))
+#     # Map in-the-money to out-of-the-money
+#     if (adj_F_K > 0)
+#         return intrinsic + black(F, K, sigma, T, -q)
+#     end
+#     return max(intrinsic, sqrt(F * K) * normalised_black(log(F / K), sigma * sqrt(T), q))
+# end
 
 function compute_f_lower_map_and_first_two_derivatives(x::T, s::V) where {T <: Real, V <: Real}
     ax = abs(x)
@@ -663,7 +639,12 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
             s_right = s_c
         end
     else
-        s_h = v_c_inv < dbl_max_typed ? s_c + (b_max - b_c) * v_c_inv : s_c #TODO: improve this
+        s_h = s_c
+        if (v_c_inv < dbl_max_typed)
+            s_h += (b_max - b_c) * v_c_inv
+        end
+        # s_h = v_c_inv < dbl_max_typed ? s_c + (b_max - b_c) * v_c_inv : s_c #TODO: improve this
+        # s_h = v_c_inv < dbl_max_typed ? s_c + (b_max - b_c) * v_c_inv : s_c #TODO: improve this
         b_h = normalised_black_call(x, s_h)
         if (beta <= b_h)
             v_h_inv = normalised_vega_inverse(x, s_h)
@@ -788,7 +769,7 @@ function implied_volatility_from_a_transformed_rational_guess_with_limited_itera
     if (price < intrinsic)
         return implied_volatility_output(0, VOLATILITY_VALUE_TO_SIGNAL_PRICE_IS_BELOW_INTRINSIC(zero_typed))
     end
-    max_price = (q < 0 ? K : F)
+    max_price = ifelse(q < 0, K, F)
     if (price >= max_price)
         return implied_volatility_output(0, VOLATILITY_VALUE_TO_SIGNAL_PRICE_IS_ABOVE_MAXIMUM(zero_typed))
     end
