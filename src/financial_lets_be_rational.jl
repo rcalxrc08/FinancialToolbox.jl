@@ -140,13 +140,6 @@ end
 # Note that you cannot achieve full machine accuracy from denormalised inputs!
 const DENORMALISATION_CUTOFF = 0;
 
-function VOLATILITY_VALUE_TO_SIGNAL_PRICE_IS_BELOW_INTRINSIC(x::T) where {T <: Number}
-    return -dbl_max(x)
-end
-
-function VOLATILITY_VALUE_TO_SIGNAL_PRICE_IS_ABOVE_MAXIMUM(x::T) where {T <: Number}
-    return dbl_max(x)
-end
 is_below_horizon(x) = abs(x) < DENORMALISATION_CUTOFF;
 const implied_volatility_maximum_iterations = 2
 
@@ -440,7 +433,7 @@ function normalised_vega_inverse(x::T, s::V) where {T <: Real, V <: Real}
     elseif (s <= 0 || s <= ax * sqrt_dbl_min(zero_typed))
         return dbl_max(zero_typed)
     end
-    return sqrt2π * exp((square(x / s) + square(s / 2)) / 2)
+    return exp((square(x / s) + square(s / 2)) / 2) * sqrt2π
 end
 
 # normalised_black(x, s, q) = return normalised_black_call(q * x, s); #/* Reciprocal-strike call-put equivalence */ 
@@ -541,7 +534,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
     end
     b_max = exp(x / 2)
     if (beta >= b_max)
-        return implied_volatility_output(0, VOLATILITY_VALUE_TO_SIGNAL_PRICE_IS_ABOVE_MAXIMUM(typed_zero))
+        return dbl_max(typed_zero)
     end
     iterations = 0
     direction_reversal_count = 0
@@ -558,7 +551,6 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
     # The temptation is great to use the optimised form b_c = exp(x/2)/2-exp(-x/2)·Phi(sqrt(-2·x)) but that would require implementing all of the above types of round-off and over/underflow handling for this expression, too.
     s_c = sqrt(abs(2 * x))
     b_c = normalised_black_call(x, s_c)
-    # v_c = normalised_vega(x, s_c)
     v_c_inv = normalised_vega_inverse(x, s_c)
     # Four branches.
     if (beta < b_c)
@@ -632,7 +624,6 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
             return implied_volatility_output(iterations, s)
         else
             v_l_inv = normalised_vega_inverse(x, s_l)
-            # v_c_inv = inv(v_c)
             r_lm = convex_rational_cubic_control_parameter_to_fit_second_derivative_at_right_side(b_l, b_c, s_l, s_c, v_l_inv, v_c_inv, typed_zero, false)
             s = rational_cubic_interpolation(beta, b_l, b_c, s_l, s_c, v_l_inv, v_c_inv, r_lm)
             s_left = s_l
@@ -643,12 +634,9 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
         if (v_c_inv < dbl_max_typed)
             s_h += (b_max - b_c) * v_c_inv
         end
-        # s_h = v_c_inv < dbl_max_typed ? s_c + (b_max - b_c) * v_c_inv : s_c #TODO: improve this
-        # s_h = v_c_inv < dbl_max_typed ? s_c + (b_max - b_c) * v_c_inv : s_c #TODO: improve this
         b_h = normalised_black_call(x, s_h)
         if (beta <= b_h)
             v_h_inv = normalised_vega_inverse(x, s_h)
-            # v_c_inv = inv(v_c)
             r_hm = convex_rational_cubic_control_parameter_to_fit_second_derivative_at_left_side(b_c, b_h, s_c, s_h, v_c_inv, v_h_inv, typed_zero, false)
             s = rational_cubic_interpolation(beta, b_c, b_h, s_c, s_h, v_c_inv, v_h_inv, r_hm)
             s_left = s_c
@@ -748,13 +736,13 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
         end
         ds_previous = ds
         b = normalised_black_call(x, s)
-        bp = normalised_vega(x, s)
+        bp_inv = normalised_vega_inverse(x, s)
         if (b > beta && s < s_right)
             s_right = s
         elseif (b < beta && s > s_left)
             s_left = s # Tighten the bracket if applicable.
         end
-        newton = (beta - b) / bp
+        newton = (beta - b) * bp_inv
         halley = square(x / s) / s - s / 4
         hh3 = square(halley) - 3 * square(x / (square(s))) - 1 // 4
         ds = max(-s / 2, newton * householder_factor(newton, halley, hh3))
@@ -764,15 +752,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
 end
 
 function implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price::num1, F::num2, K::num3, T::num4, q, N) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number}
-    zero_typed = zero(promote_type(num1, num2, num3, num4))
     intrinsic = abs(positive_part(q * (F - K)))
-    if (price < intrinsic)
-        return implied_volatility_output(0, VOLATILITY_VALUE_TO_SIGNAL_PRICE_IS_BELOW_INTRINSIC(zero_typed))
-    end
-    max_price = ifelse(q < 0, K, F)
-    if (price >= max_price)
-        return implied_volatility_output(0, VOLATILITY_VALUE_TO_SIGNAL_PRICE_IS_ABOVE_MAXIMUM(zero_typed))
-    end
     x = log(F / K)
     # Map in-the-money to out-of-the-money
     if (q * x > 0)
