@@ -72,7 +72,7 @@ d = 0.0
 σ = blsimpv(S0, K, r, T, price_1, d);
 @test !isnan(σ)
 test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
-test_broken_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
 print_colored("Implied Volatility Test Passed\n", :magenta)
 
 #End of the Test
