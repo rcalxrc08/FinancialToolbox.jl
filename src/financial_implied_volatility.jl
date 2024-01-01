@@ -1,43 +1,3 @@
-function blprice_and_vega(S0, K, x, sqrtT, σ, iscall)
-    #I avoid the checks for the inputs since we have already checked them apart of volatility.
-    #The volatility is positive by construction.
-    d1 = sqrtT * (x / σ + σ / two_internal)
-    d2 = d1 - σ * sqrtT
-    Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * d2))
-    ν = S0 * normpdf(d1) * sqrtT
-    return Price, ν
-end
-
-function iter_blimpv(S0, K, x, sqrtT, price, FlagIsCall, σ, eps_adj)
-    cur_price, cur_vega = blprice_and_vega(S0, K, x, sqrtT, σ, FlagIsCall)
-    price_diff = price - cur_price
-    σ_new = max(σ + price_diff / cur_vega, eps_adj)
-    return ifelse(isnan(σ_new), eps_adj, σ_new)
-end
-
-function fixed_point_blimpv(S0, K, T, price, FlagIsCall, xtol, n_iter_max::Integer)
-    num, den = ifelse(FlagIsCall, (S0, K), (K, S0))
-    res = (num - price) / den
-    sqrtT = sqrt(T)
-    x = log(S0 / K) / T
-    σ_cur = sqrt(abs(log(res)))
-    eps_type = typeof(x + price)
-    eps_adj = eps(zero(eps_type))
-    iscall = ChainRulesCore.@ignore_derivatives(ifelse(FlagIsCall, one_internal, minus_one_internal))
-    for _ = 1:n_iter_max
-        σ_new = iter_blimpv(S0, K, x, sqrtT, price, iscall, σ_cur, eps_adj)
-        diff = abs(σ_new - σ_cur)
-        if diff < xtol
-            return σ_new
-        end
-        σ_cur = σ_new
-    end
-    #plan b: we revert to let's be rational
-    @warn "max number of iterations reached, newton approach is discarded."
-    @show S0, K, T, price, xtol, n_iter_max
-    return new_blimpv(S0, K, T, price, FlagIsCall, xtol, n_iter_max)
-end
-
 function blimpv_check(S0::num1, K::num2, T::num4) where {num1, num2, num4}
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y
@@ -69,7 +29,7 @@ function blimpv_impl(::AbstractFloat, S0, K, T, price_d, FlagIsCall, xtol, n_ite
             throw(DomainError(price_d, "Price is reaching minimum value"))
         end
     end
-    return fixed_point_blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+    return new_blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
 end
 
 function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool, xtol::Real, n_iter_max::Integer) where {num1, num2, num4, num5}

@@ -810,10 +810,10 @@ function new_blimpv(F::num1, K::num2, T::num4, price::num5, FlagIsCall::Bool, ::
     return implied_volatility_from_a_transformed_rational_guess(price, F, K, T, FlagIsCall)
 end
 
-function new_blsprice(S0, K, r, T, sigma, d, FlagIsCall::Bool = true)
-    cv = exp(r * T)
-    cv2 = exp(-d * T)
-    F = S0 * cv * cv2
-    q = ifelse(FlagIsCall, 1, -1)
-    return black(F, K, sigma, T, q) / cv
-end
+# function new_blsprice(S0, K, r, T, sigma, d, FlagIsCall::Bool = true)
+#     cv = exp(r * T)
+#     cv2 = exp(-d * T)
+#     F = S0 * cv * cv2
+#     q = ifelse(FlagIsCall, 1, -1)
+#     return black(F, K, sigma, T, q) / cv
+# end
