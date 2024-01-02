@@ -73,6 +73,60 @@ d = 0.0
 @test !isnan(σ)
 test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
 test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
+
+S0 = 100.0;
+K = 10.0;
+r = 0.02;
+T = 1.2;
+σ = 0.2;
+d = 0.01;
+test_broken_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true) #TODO: FIX
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
+
+S0 = 10.0;
+K = 100.0;
+r = 0.02;
+T = 1.2;
+σ = 0.2;
+d = 0.01;
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
+test_broken_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)#TODO: FIX
+
+S0 = 100.0;
+K = 100.0;
+r = 0.2;
+T = 1.2;
+σ = 0.2;
+d = 0.01;
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
+
+S0 = 100.0;
+K = 100.0;
+r = 0.02;
+T = 0.2;
+σ = 0.2;
+d = 0.01;
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
+
+S0 = 100.0;
+K = 100.0;
+r = 0.02;
+T = 1.2;
+σ = 0.2;
+d = 0.1;
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
+
+S0 = 100.0;
+K = 100.0;
+r = 0.02;
+T = 10.2;
+σ = 0.2;
+d = 0.01;
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, true)
+test_implied_volatility_from_σ(testToll_float64, S0, K, r, T, σ, d, false)
 print_colored("Implied Volatility Test Passed\n", :magenta)
 
 #End of the Test
