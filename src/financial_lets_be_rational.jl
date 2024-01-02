@@ -138,12 +138,7 @@ end
 
 # Set this to 0 if you want positive results for (positive) denormalised inputs, else to dbl_min.
 # Note that you cannot achieve full machine accuracy from denormalised inputs!
-const DENORMALISATION_CUTOFF = 0;
 
-is_below_horizon(x) = abs(x) < DENORMALISATION_CUTOFF;
-const implied_volatility_maximum_iterations = 2
-
-implied_volatility_output(count, volatility) = volatility;
 householder_factor(newton, halley, hh3) = @muladd (1 + halley * newton / 2) / (1 + newton * (halley + hh3 * newton / 6));
 
 function normalised_intrinsic(x, q)
@@ -389,7 +384,7 @@ function normalised_black_call(x::T, s::V) where {T <: Real, V <: Real}
     if (x > 0)
         return normalised_intrinsic_call(x) + normalised_black_call(-x, s) # In the money.
     end
-    if (s <= abs(x) * DENORMALISATION_CUTOFF)
+    if (s <= 0)
         return normalised_intrinsic_call(x) # sigma=0 -> intrinsic value.
     end
     zero_typed = zero(promote_type(T, V))
@@ -459,20 +454,10 @@ function compute_f_lower_map_and_first_two_derivatives(x::T, s::V) where {T <: R
     exp_y_adj = exp(y + s2 / 8)
 
     @muladd fpp = pi * y / (6 * s2 * s) * Phi * (8 * s * sqrt3 * ax + (3 * s2 * (s2 - 8) - 8 * square(x)) * Phi / phi) * square(exp_y_adj)
-    if (is_below_horizon(s))
-        fp = typed_zero + 1
-        f = typed_zero
-        return f, fp, fpp
-    else
-        Phi2 = square(Phi)
-        fp = 2 * y * pi * Phi2 * exp_y_adj
-        if (is_below_horizon(x))
-            f = typed_zero
-        else
-            f = twoπ * ax * Phi2 / 3 * Phi / sqrt3
-        end
-        return f, fp, fpp
-    end
+    Phi2 = square(Phi)
+    fp = 2 * y * pi * Phi2 * exp_y_adj
+    f = twoπ * ax * Phi2 / 3 * Phi / sqrt3
+    return f, fp, fpp
 end
 
 using SpecialFunctions
@@ -485,28 +470,16 @@ end
 # end
 
 function inverse_f_lower_map(x::T, f::V) where {T <: Real, V <: Real}
-    typed_zero = zero(promote_type(T, V))
-    if is_below_horizon(f)
-        return typed_zero
-    end
     y = abs(x) / 3 * twoπ
     return abs(x / (sqrt3 * inverse_normcdf(cbrt(sqrt3 * f / y))))
 end
 
 function compute_f_upper_map_and_first_two_derivatives(x::T, s::S) where {T <: Real, S <: Real}
     f = normcdf(-s / 2)
-    typed_zero = zero(promote_type(S, T))
-    typed_one = one(typed_zero)
-    if (is_below_horizon(x))
-        fp = -typed_one / 2
-        fpp = typed_zero
-        return f, fp, fpp
-    else
-        w = square(x / s)
-        fp = -exp(w / 2) / 2
-        fpp = sqrt2π * exp(w + square(s) / 8) / 2 * w / s
-        return f, fp, fpp
-    end
+    w = square(x / s)
+    fp = -exp(w / 2) / 2
+    fpp = sqrt2π * exp(w + square(s) / 8) / 2 * w / s
+    return f, fp, fpp
 end
 
 function inverse_f_upper_map(f)
@@ -527,10 +500,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
         q = -q
     end
     if (beta <= 0) # For negative or zero prices we return 0.0.
-        return implied_volatility_output(0, typed_zero)
-    end
-    if (beta < DENORMALISATION_CUTOFF) # For positive but denormalised (a.k.a. 'subnormal') prices, we return 0.0 since it would be impossible to converge to full machine accuracy anyway.
-        return implied_volatility_output(0, typed_zero)
+        return typed_zero
     end
     b_max = exp(x / 2)
     if (beta >= b_max)
@@ -621,7 +591,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
                 ds = max(-s / 2, ds)
                 s += ds
             end
-            return implied_volatility_output(iterations, s)
+            return s
         else
             v_l_inv = normalised_vega_inverse(x, s_l)
             r_lm = convex_rational_cubic_control_parameter_to_fit_second_derivative_at_right_side(b_l, b_c, s_l, s_c, v_l_inv, v_c_inv, typed_zero, false)
@@ -707,7 +677,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
                     ds = max(-s / 2, ds)
                     s += ds
                 end
-                return implied_volatility_output(iterations, s)
+                return s
             end
         end
     end
@@ -748,7 +718,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
         ds = max(-s / 2, newton * householder_factor(newton, halley, hh3))
         s += ds
     end
-    return implied_volatility_output(iterations, s)
+    return s
 end
 
 function implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price::num1, F::num2, K::num3, T::num4, q, N) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number}
@@ -762,19 +732,7 @@ function implied_volatility_from_a_transformed_rational_guess_with_limited_itera
     return unchecked_normalised_implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price / sqrt(F * K), x, q, N) / sqrt(T)
 end
 
-function implied_volatility_from_a_transformed_rational_guess(price, F, K, T, iscall::Bool)
-    q = ifelse(iscall, 1, -1)
-    return implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price, F, K, T, q, implied_volatility_maximum_iterations)
+function new_blimpv(F::num1, K::num2, T::num4, price::num5, FlagIsCall::Bool, ::Real, niter::Integer) where {num1, num2, num4, num5}
+    q = ifelse(FlagIsCall, 1, -1)
+    return implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price, F, K, T, q, niter)
 end
-
-function new_blimpv(F::num1, K::num2, T::num4, price::num5, FlagIsCall::Bool, ::Real, ::Integer) where {num1, num2, num4, num5}
-    return implied_volatility_from_a_transformed_rational_guess(price, F, K, T, FlagIsCall)
-end
-
-# function new_blsprice(S0, K, r, T, sigma, d, FlagIsCall::Bool = true)
-#     cv = exp(r * T)
-#     cv2 = exp(-d * T)
-#     F = S0 * cv * cv2
-#     q = ifelse(FlagIsCall, 1, -1)
-#     return black(F, K, sigma, T, q) / cv
-# end
