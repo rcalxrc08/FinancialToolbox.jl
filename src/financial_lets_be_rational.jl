@@ -15,7 +15,7 @@ end
 function minimum_rational_cubic_control_parameter_value(x::T) where {T <: Number}
     return -(1 - sqrt(dbl_epsilon(x)))
 end
-square(x) = x * x
+square(x) = x^2
 positive_part(x::T) where {T <: Number} = max(x, zero(T))
 function maximum_rational_cubic_control_parameter_value(x::T) where {T <: Number}
     return 2 / square(dbl_epsilon(x))
@@ -74,7 +74,7 @@ function rational_cubic_control_parameter_to_fit_second_derivative_at_right_side
     return numerator / denominator
 end
 
-function minimum_rational_cubic_control_parameter(d_l::T, d_r::U, s::V, preferShapePreservationOverSmoothness) where {T <: Real, U <: Real, V <: Real}
+function minimum_rational_cubic_control_parameter(d_l::T, d_r::U, s::V, prefer_shape_preservation_over_smoothness) where {T <: Real, U <: Real, V <: Real}
     monotonic = d_l * s >= 0 && d_r * s >= 0
     convex = d_l <= s && s <= d_r
     concave = d_l >= s && s >= d_r
@@ -92,31 +92,31 @@ function minimum_rational_cubic_control_parameter(d_l::T, d_r::U, s::V, preferSh
     if (monotonic)
         if (!is_zero(s)) # (3.8), avoiding division by zero.
             r1 = (d_r + d_l) / s # (3.8)
-        elseif (preferShapePreservationOverSmoothness) # If division by zero would occur, and shape preservation is preferred, set value to enforce linear interpolation.
+        elseif (prefer_shape_preservation_over_smoothness) # If division by zero would occur, and shape preservation is preferred, set value to enforce linear interpolation.
             r1 = maximum_rational_cubic_control_parameter_value(zero_typed)  # This value enforces linear interpolation.
         end
     end
     if (convex || concave)
         if (!(is_zero(s_m_d_l) || is_zero(d_r_m_s))) # (3.18), avoiding division by zero.
             r2 = max(abs(d_r_m_d_l / d_r_m_s), abs(d_r_m_d_l / s_m_d_l))
-        elseif (preferShapePreservationOverSmoothness)
+        elseif (prefer_shape_preservation_over_smoothness)
             r2 = maximum_rational_cubic_control_parameter_value(zero_typed) # This value enforces linear interpolation.
         end
-    elseif (monotonic && preferShapePreservationOverSmoothness)
+    elseif (monotonic && prefer_shape_preservation_over_smoothness)
         r2 = maximum_rational_cubic_control_parameter_value(zero_typed) # This enforces linear interpolation along segments that are inconsistent with the slopes on the boundaries, e.g., a perfectly horizontal segment that has negative slopes on either edge.
     end
     return max(minimum_rational_cubic_control_parameter_value(zero_typed), r1, r2)
 end
 
-function convex_rational_cubic_control_parameter_to_fit_second_derivative_at_left_side(x_l, x_r, y_l, y_r, d_l, d_r, second_derivative_l, preferShapePreservationOverSmoothness)
+function convex_rational_cubic_control_parameter_to_fit_second_derivative_at_left_side(x_l, x_r, y_l, y_r, d_l, d_r, second_derivative_l, prefer_shape_preservation_over_smoothness)
     r = rational_cubic_control_parameter_to_fit_second_derivative_at_left_side(x_l, x_r, y_l, y_r, d_l, d_r, second_derivative_l)
-    r_min = minimum_rational_cubic_control_parameter(d_l, d_r, (y_r - y_l) / (x_r - x_l), preferShapePreservationOverSmoothness)
+    r_min = minimum_rational_cubic_control_parameter(d_l, d_r, (y_r - y_l) / (x_r - x_l), prefer_shape_preservation_over_smoothness)
     return max(r, r_min)
 end
 
-function convex_rational_cubic_control_parameter_to_fit_second_derivative_at_right_side(x_l, x_r, y_l, y_r, d_l, d_r, second_derivative_r, preferShapePreservationOverSmoothness)
+function convex_rational_cubic_control_parameter_to_fit_second_derivative_at_right_side(x_l, x_r, y_l, y_r, d_l, d_r, second_derivative_r, prefer_shape_preservation_over_smoothness)
     r = rational_cubic_control_parameter_to_fit_second_derivative_at_right_side(x_l, x_r, y_l, y_r, d_l, d_r, second_derivative_r)
-    r_min = minimum_rational_cubic_control_parameter(d_l, d_r, (y_r - y_l) / (x_r - x_l), preferShapePreservationOverSmoothness)
+    r_min = minimum_rational_cubic_control_parameter(d_l, d_r, (y_r - y_l) / (x_r - x_l), prefer_shape_preservation_over_smoothness)
     return max(r, r_min)
 end
 
@@ -140,23 +140,6 @@ end
 # Note that you cannot achieve full machine accuracy from denormalised inputs!
 
 householder_factor(newton, halley, hh3) = @muladd (1 + halley * newton / 2) / (1 + newton * (halley + hh3 * newton / 6));
-
-function normalised_intrinsic(x, q)
-    if (q * x <= 0)
-        return zero(x)
-    end
-    x2 = square(x)
-    if (x2 < 98 * fourth_root_dbl_epsilon(x)) # The factor 98 is computed from last coefficient: √√92897280 = 98.1749
-        @muladd res = q * x * (1 + x2 / 24 * (1 + x2 / 80 * (1 + x2 / 168 * (1 + x2 / 288))))
-        return abs(positive_part(res))
-    end
-    b_max = exp(x / 2)
-    one_over_b_max = inv(b_max)
-    res = q * (b_max - one_over_b_max)
-    return abs(positive_part(res))
-end
-
-normalised_intrinsic_call(x) = normalised_intrinsic(x, 1)
 
 # Asymptotic expansion of
 #
@@ -310,7 +293,7 @@ function normalised_black_call_using_erfcx(h, t)
     # retains the full 16 digits of accuracy (or just a little less than that).
     #
     arg_minus = (t - h) / sqrt2
-    arg_plus = arg_minus - t * sqrt2
+    arg_plus = (-t - h) / sqrt2
     b = exp(-(square(h) + square(t)) / 2) * (erfcx(arg_plus) - erfcx(arg_minus)) / 2
     return abs(positive_part(b))
 end
@@ -332,9 +315,8 @@ function small_t_expansion_of_normalised_black_call(h, t)
     # Y(h) := Φ(h)/φ(h) = √(π/2)·erfcx(-h/√2)
     # a := 1+h·Y(h)  --- Note that due to h<0, and h·Y(h) -> -1 (from above) as h -> -∞, we also have that a>0 and a -> 0 as h -> -∞
     # w := t² , h2 := h²
-    half_h = h / 2
-    half_h_sqrt2 = sqrt2 * half_h
-    a = 1 + sqrt2π * half_h * erfcx(-half_h_sqrt2)
+    half_h_sqrt2 = h / sqrt2
+    a = 1 + sqrtπ * half_h_sqrt2 * erfcx(-half_h_sqrt2)
     w = square(t)
     h2 = square(h)
     #TODO: this is too much for float "less" than Float64
@@ -381,11 +363,8 @@ end
 #
 
 function normalised_black_call(x::T, s::V) where {T <: Real, V <: Real}
-    if (x > 0)
-        return normalised_intrinsic_call(x) + normalised_black_call(-x, s) # In the money.
-    end
     if (s <= 0)
-        return normalised_intrinsic_call(x) # sigma=0 -> intrinsic value.
+        return zero(x) # sigma=0 -> intrinsic value.
     end
     zero_typed = zero(promote_type(T, V))
     small_t_expansion_of_normalised_black_threshold_ = small_t_expansion_of_normalised_black_threshold(zero_typed)
@@ -431,24 +410,11 @@ function normalised_vega_inverse(x::T, s::V) where {T <: Real, V <: Real}
     return exp((square(x / s) + square(s / 2)) / 2) * sqrt2π
 end
 
-# normalised_black(x, s, q) = return normalised_black_call(q * x, s); #/* Reciprocal-strike call-put equivalence */ 
-
-# function black(F, K, sigma, T, q)
-#     adj_F_K = q * (F - K)
-#     intrinsic = abs(positive_part(adj_F_K))
-#     # Map in-the-money to out-of-the-money
-#     if (adj_F_K > 0)
-#         return intrinsic + black(F, K, sigma, T, -q)
-#     end
-#     return max(intrinsic, sqrt(F * K) * normalised_black(log(F / K), sigma * sqrt(T), q))
-# end
-
 function compute_f_lower_map_and_first_two_derivatives(x::T, s::V) where {T <: Real, V <: Real}
     ax = abs(x)
     z = ax / (sqrt3 * s)
     y = square(z)
     s2 = square(s)
-    typed_zero = zero(promote_type(T, V))
     Phi = normcdf(-z)
     phi = normpdf(z)
     exp_y_adj = exp(y + s2 / 8)
@@ -461,7 +427,7 @@ function compute_f_lower_map_and_first_two_derivatives(x::T, s::V) where {T <: R
 end
 
 using SpecialFunctions
-function inverse_normcdf(el::T) where {T <: Real}
+function inverse_normcdf(el)
     return -erfcinv(2 * el) * sqrt2
 end
 
@@ -470,7 +436,7 @@ end
 # end
 
 function inverse_f_lower_map(x::T, f::V) where {T <: Real, V <: Real}
-    y = abs(x) / 3 * twoπ
+    y = twoπ * abs(x) / 3
     return abs(x / (sqrt3 * inverse_normcdf(cbrt(sqrt3 * f / y))))
 end
 
@@ -486,26 +452,11 @@ function inverse_f_upper_map(f)
     return -2 * inverse_normcdf(f)
 end
 
-function unchecked_normalised_implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(beta::T, x::V, q, N) where {T <: Real, V <: Real}
+function unchecked_normalised_implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(beta::T, x::V, N) where {T <: Real, V <: Real}
     # Subtract intrinsic.
     typed_zero = zero(promote_type(T, V))
     typed_one = typed_zero + 1
-    if (q * x > 0)
-        beta = abs(positive_part(beta - normalised_intrinsic(x, q)))
-        q = -q
-    end
-    # Map puts to calls
-    if (q < 0)
-        x = -x
-        q = -q
-    end
-    if (beta <= 0) # For negative or zero prices we return 0.0.
-        return typed_zero
-    end
     b_max = exp(x / 2)
-    if (beta >= b_max)
-        return dbl_max(typed_zero)
-    end
     iterations = 0
     direction_reversal_count = 0
     dbl_max_typed = dbl_max(typed_zero)
@@ -714,25 +665,15 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
         end
         newton = (beta - b) * bp_inv
         halley = square(x / s) / s - s / 4
-        hh3 = square(halley) - 3 * square(x / (square(s))) - 1 // 4
+        hh3 = square(halley) - 3 * square(x / square(s)) - 1 // 4
         ds = max(-s / 2, newton * householder_factor(newton, halley, hh3))
         s += ds
     end
     return s
 end
 
-function implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price::num1, F::num2, K::num3, T::num4, q, N) where {num1 <: Number, num2 <: Number, num3 <: Number, num4 <: Number}
-    intrinsic = abs(positive_part(q * (F - K)))
-    x = log(F / K)
-    # Map in-the-money to out-of-the-money
-    if (q * x > 0)
-        price = abs(positive_part(price - intrinsic))
-        q = -q
-    end
-    return unchecked_normalised_implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price / sqrt(F * K), x, q, N) / sqrt(T)
-end
-
 function new_blimpv(F::num1, K::num2, T::num4, price::num5, FlagIsCall::Bool, ::Real, niter::Integer) where {num1, num2, num4, num5}
+    x = log(F / K)
     q = ifelse(FlagIsCall, 1, -1)
-    return implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price, F, K, T, q, niter)
+    return unchecked_normalised_implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price / sqrt(F * K), x * q, niter) / sqrt(T)
 end
