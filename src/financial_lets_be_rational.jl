@@ -419,9 +419,9 @@ function compute_f_lower_map_and_first_two_derivatives(x, s)
     exp_y_adj = exp(y + s2 / 8)
 
     @muladd fpp = pi * y / (6 * s2 * s) * Phi * (8 * s * sqrt3 * ax + (3 * s2 * (s2 - 8) - 8 * square(x)) * Phi / phi) * square(exp_y_adj)
-    Phi2 = square(Phi)
-    fp = 2 * y * pi * Phi2 * exp_y_adj
-    f = twoπ * ax * Phi2 / 3 * Phi / sqrt3
+    Phi2 = twoπ * square(Phi)
+    fp = y * Phi2 * exp_y_adj
+    f = ax * Phi2 / 3 * Phi / sqrt3
     return f, fp, fpp
 end
 
