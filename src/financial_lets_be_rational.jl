@@ -12,12 +12,12 @@ using IrrationalConstants
 function dbl_epsilon(::T) where {T <: Number}
     return eps(T)
 end
-function minimum_rational_cubic_control_parameter_value(x::T) where {T <: Number}
+function minimum_rational_cubic_control_parameter_value(x)
     return -(1 - sqrt(dbl_epsilon(x)))
 end
 square(x) = x^2
 positive_part(x::T) where {T <: Number} = max(x, zero(T))
-function maximum_rational_cubic_control_parameter_value(x::T) where {T <: Number}
+function maximum_rational_cubic_control_parameter_value(x)
     return 2 / square(dbl_epsilon(x))
 end
 
@@ -42,7 +42,7 @@ function rational_cubic_interpolation(x, x_l, x_r, y_l, y_r, d_l, d_r, r)
     # Linear interpolation without over-or underflow.
     return y_r * t + y_l * omt
 end
-is_zero(x::T) where {T <: Real} = abs(x) < dbl_min(x);
+is_zero(x) = abs(x) < dbl_min(x);
 
 function rational_cubic_control_parameter_to_fit_second_derivative_at_left_side(x_l, x_r, y_l, y_r, d_l, d_r, second_derivative_l)
     h = (x_r - x_l)
@@ -85,7 +85,6 @@ function minimum_rational_cubic_control_parameter(d_l::T, d_r::U, s::V, prefer_s
     d_r_m_d_l = d_r - d_l
     d_r_m_s = d_r - s
     s_m_d_l = s - d_l
-    # typed_zero = zero(d_l + d_r + s)
     r1 = -dbl_max(zero_typed)
     r2 = r1
     # If monotonicity on this interval is possible, set r1 to satisfy the monotonicity condition (3.8).
@@ -120,19 +119,19 @@ function convex_rational_cubic_control_parameter_to_fit_second_derivative_at_rig
     return max(r, r_min)
 end
 
-function sqrt_dbl_epsilon(x::T) where {T <: Number}
+function sqrt_dbl_epsilon(x)
     return sqrt(dbl_epsilon(x))
 end
-function fourth_root_dbl_epsilon(x::T) where {T <: Number}
+function fourth_root_dbl_epsilon(x)
     return sqrt(sqrt_dbl_epsilon(x))
 end
-function eighth_root_dbl_epsilon(x::T) where {T <: Number}
+function eighth_root_dbl_epsilon(x)
     return sqrt(fourth_root_dbl_epsilon(x))
 end
-function sixteenth_root_dbl_epsilon(x::T) where {T <: Number}
+function sixteenth_root_dbl_epsilon(x)
     return sqrt(eighth_root_dbl_epsilon(x))
 end
-function sqrt_dbl_min(x::T) where {T <: Number}
+function sqrt_dbl_min(x)
     return sqrt(dbl_min(x))
 end
 
@@ -168,7 +167,7 @@ function asymptotic_expansion_of_normalised_black_call(h, t)
     q = square(h / r)
     twice_e = 2 * e
     # 17th order asymptotic expansion of A(h,t) in q, sufficient for Φ(h) [and thus y(h)] to have relative accuracy of 1.64E-16 for h <= η  with  η:=-10.
-    #TODO: this is too much for float "less" than Float64
+    #TODO: this is too much for "less" than Float64
     @muladd asymptotic_expansion_sum = (
         2 +
         q * (
@@ -326,7 +325,7 @@ function small_t_expansion_of_normalised_black_call(h, t)
 end
 
 # const small_t_expansion_of_normalised_black_threshold = 2 * sixteenth_root_dbl_epsilon
-function small_t_expansion_of_normalised_black_threshold(x::T) where {T <: Number}
+function small_t_expansion_of_normalised_black_threshold(x)
     return 2 * sixteenth_root_dbl_epsilon(x)
 end
 #     b(x,s)  =  Φ(x/s+s/2)·exp(x/2)  -   Φ(x/s-s/2)·exp(-x/2)
@@ -410,7 +409,7 @@ function normalised_vega_inverse(x::T, s::V) where {T <: Real, V <: Real}
     return exp((square(x / s) + square(s / 2)) / 2) * sqrt2π
 end
 
-function compute_f_lower_map_and_first_two_derivatives(x::T, s::V) where {T <: Real, V <: Real}
+function compute_f_lower_map_and_first_two_derivatives(x, s)
     ax = abs(x)
     z = ax / (sqrt3 * s)
     y = square(z)
@@ -431,16 +430,12 @@ function inverse_normcdf(el)
     return -erfcinv(2 * el) * sqrt2
 end
 
-# function inverse_f_lower_map(x, f)
-#     return is_below_horizon(f) ? zero(x + f) : abs(x / (SQRT_THREE * inverse_normcdf(tmp_pow(f / (TWO_PI_OVER_SQRT_TWENTY_SEVEN * abs(x)), one(x + f) / 3))))
-# end
-
-function inverse_f_lower_map(x::T, f::V) where {T <: Real, V <: Real}
+function inverse_f_lower_map(x, f)
     y = twoπ * abs(x) / 3
     return abs(x / (sqrt3 * inverse_normcdf(cbrt(sqrt3 * f / y))))
 end
 
-function compute_f_upper_map_and_first_two_derivatives(x::T, s::S) where {T <: Real, S <: Real}
+function compute_f_upper_map_and_first_two_derivatives(x, s)
     f = normcdf(-s / 2)
     w = square(x / s)
     fp = -exp(w / 2) / 2

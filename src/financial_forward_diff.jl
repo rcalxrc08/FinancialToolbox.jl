@@ -8,6 +8,6 @@ function blimpv_impl(::ForwardDiff.Dual, S0, K, T, price_d, FlagIsCall, xtol, n_
     T_r = value__d(T)
     p_r = value__d(price_d)
     σ = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, n_iter_max)
-    der_ = (price_d - blprice_impl(S0, K, T, σ, FlagIsCall)) / blvega_impl(S0_r, K_r, T_r, σ)
+    der_ = blprice_diff_impl(S0, K, T, σ, price_d, FlagIsCall) / blvega_impl(S0_r, K_r, T_r, σ)
     return σ + der_
 end

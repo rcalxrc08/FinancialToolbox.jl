@@ -109,8 +109,8 @@ function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T,
     return σ, update_pullback
 end
 
-function blprice_diff_impl(S0, K, T, σ, price, FlagIsCall)
-    return price - blprice_impl(S0, K, T, σ, FlagIsCall)
+function blprice_diff_impl(S0, K, T, σ, price_d, FlagIsCall)
+    return price_d - blprice_impl(S0, K, T, σ, FlagIsCall)
 end
 #TODO: Test the following function
 function frule(config::RuleConfig{>:HasForwardsMode}, (_, dS, dK, dT, dprice, _, _, _), ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
