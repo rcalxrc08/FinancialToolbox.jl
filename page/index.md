@@ -161,7 +161,7 @@ put_price=7.990980449685762
 \end{column}
 \end{columns}
 blsimpv accepts additional arguments such as the absolute tolerance and the maximum numbers of steps of the numerical inversion.
-\alert{Currently blsimpv is using the Newton method in order to invert the relation between the price and the volatility.
+\alert{Currently blsimpv is using the rational inversion method based on [LetsBeRational](http://www.jaeckel.org/LetsBeRational.pdf) method in order to invert the relation between the price and the volatility.
 If you notice something wrong with the numerical inversion, you are strongly suggested to open a issue.}
 \\
 \label{blkimpv}
@@ -201,7 +201,7 @@ put_price=9.612495404098706
 \end{column}
 \end{columns}
 blkimpv accepts additional arguments such as the absolute tolerance and the maximum numbers of steps of the numerical inversion.
-\alert{Currently blkimpv is using the Newton method in order to invert the relation between the price and the volatility.
+\alert{Currently blkimpv is using the rational inversion method based on [LetsBeRational](http://www.jaeckel.org/LetsBeRational.pdf) method in order to invert the relation between the price and the volatility.
 If you notice something wrong with the numerical inversion, you are strongly suggested to open a issue.}
 \end{section}
 
