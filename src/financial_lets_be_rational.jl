@@ -667,7 +667,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
     return s
 end
 
-function new_blimpv(F::num1, K::num2, T::num4, price::num5, FlagIsCall::Bool, ::Real, niter::Integer) where {num1, num2, num4, num5}
+function blimpv_lets_be_rational(F::num1, K::num2, T::num4, price::num5, FlagIsCall::Bool, ::Real, niter::Integer) where {num1, num2, num4, num5}
     x = log(F / K)
     q = ifelse(FlagIsCall, 1, -1)
     return unchecked_normalised_implied_volatility_from_a_transformed_rational_guess_with_limited_iterations(price / sqrt(F * K), x * q, niter) / sqrt(T)

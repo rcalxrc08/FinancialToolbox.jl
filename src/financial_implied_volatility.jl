@@ -29,7 +29,7 @@ function blimpv_impl(::AbstractFloat, S0, K, T, price_d, FlagIsCall, xtol, n_ite
             throw(DomainError(price_d, "Price is reaching minimum value"))
         end
     end
-    return new_blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+    return blimpv_lets_be_rational(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
 end
 
 function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool, xtol::Real, n_iter_max::Integer) where {num1, num2, num4, num5}
