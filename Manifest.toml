@@ -71,10 +71,10 @@ version = "0.1.10"
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[FinancialToolbox]]
-deps = ["ChainRulesCore", "Dates", "IrrationalConstants", "Requires", "SpecialFunctions", "Test"]
-git-tree-sha1 = "7ed3d69309d5130a16a965ac3135ff5710206cc3"
+deps = ["ChainRulesCore", "Dates", "IrrationalConstants", "MuladdMacro", "Requires", "SpecialFunctions", "Test"]
+git-tree-sha1 = "e8b597bcf6ab4b547c6eab0f176052c639360dea"
 uuid = "2edd74a5-e968-5e45-af77-76d29aa6a478"
-version = "0.5.0"
+version = "0.6.0"
 
 [[Franklin]]
 deps = ["Dates", "DelimitedFiles", "DocStringExtensions", "ExprTools", "FranklinTemplates", "HTTP", "Literate", "LiveServer", "Logging", "Markdown", "NodeJS", "OrderedCollections", "Pkg", "REPL", "Random", "TOML"]
@@ -102,9 +102,9 @@ version = "0.9.17"
 
 [[IOCapture]]
 deps = ["Logging", "Random"]
-git-tree-sha1 = "d75853a0bdbfb1ac815478bacd89cd27b550ace6"
+git-tree-sha1 = "8b72179abc660bfab5e28472e019392b97d0985c"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
-version = "0.2.3"
+version = "0.2.4"
 
 [[IniFile]]
 git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
@@ -193,6 +193,11 @@ version = "2.16.8+1"
 
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+
+[[MuladdMacro]]
+git-tree-sha1 = "c6190f9a7fc5d9d5915ab29f2134421b12d24a68"
+uuid = "46d2c3a1-f734-5fdb-9937-b9b9aeba4221"
+version = "0.2.2"
 
 [[NetworkOptions]]
 git-tree-sha1 = "ed3157f48a05543cce9b241e1f2815f7e843d96e"
