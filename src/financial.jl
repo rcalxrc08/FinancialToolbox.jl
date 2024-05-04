@@ -357,7 +357,20 @@ function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
 end
 
 #Check input for Black Scholes Formula
-function blcheck(S0::num1, K::num2, T::num4, σ::num5) where {num1, num2, num4, num5}
+function blcheck_impl(::num0, S0::num1, K::num2, T::num4, σ::num5) where {num0, num1, num2, num4, num5}
+    lesseq(x, y) = x <= y
+    if (lesseq(S0, zero(num1)))
+        throw(DomainError(S0, "Spot Price Cannot Be Negative"))
+    elseif (lesseq(K, zero(num2)))
+        throw(DomainError(K, "Strike Price Cannot Be Negative"))
+    elseif (lesseq(T, zero(num4)))
+        throw(DomainError(T, "Time to Maturity Cannot Be Negative"))
+    elseif (lesseq(σ, zero(num5)))
+        throw(DomainError(σ, "Volatility Cannot Be Negative"))
+    end
+    return
+end
+function blcheck_impl(::num0, S0::num1, K::num2, T::num4, σ::num5) where {num0 <: Complex, num1, num2, num4, num5}
     lesseq(x::Complex, y::Complex) = real(x) <= real(y)
     lesseq(x, y) = x <= y
     if (lesseq(S0, zero(num1)))
@@ -369,6 +382,12 @@ function blcheck(S0::num1, K::num2, T::num4, σ::num5) where {num1, num2, num4, 
     elseif (lesseq(σ, zero(num5)))
         throw(DomainError(σ, "Volatility Cannot Be Negative"))
     end
+    return
+end
+
+function blcheck(S0::num1, K::num2, T::num4, σ::num5) where {num1, num2, num4, num5}
+    zero_typed = S0 * K * T * σ
+    blcheck_impl(zero_typed, S0, K, T, σ)
     return
 end
 ##	ADDITIONAL Functions

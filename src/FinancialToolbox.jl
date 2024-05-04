@@ -13,6 +13,7 @@ function __init__()
     @require ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267" include("financial_reverse_diff.jl")
     @require HyperDualNumbers = "50ceba7f-c3ee-5a84-a6e8-3ad40456ec97" include("financial_hyper.jl")
     @require TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea" include("financial_taylor.jl")
+    @require Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7" include("financial_symbolics.jl")
 end
 export normcdf,
     normpdf,
