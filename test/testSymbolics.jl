@@ -68,3 +68,7 @@ println("Test First Order Passed")
 @test abs(gamma_T - vol_h_T.epsilon12) < toll
 
 println("Test Second Order Passed")
+
+
+inp=NTuple{7,Any}((1,2,3,4,5,6,7))
+@test Symbolics.derivative(FinancialToolbox.blimpv, inp, Val(5))==0
