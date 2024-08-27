@@ -98,6 +98,10 @@ end
 
 import ChainRulesCore: rrule, frule, NoTangent, @thunk, rrule_via_ad, frule_via_ad
 
+function blprice_diff_impl(S0, K, T, σ, price_d, FlagIsCall)
+    return price_d - blprice_impl(S0, K, T, σ, FlagIsCall)
+end
+
 function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     function update_pullback(slice)
@@ -109,10 +113,7 @@ function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T,
     return σ, update_pullback
 end
 
-function blprice_diff_impl(S0, K, T, σ, price_d, FlagIsCall)
-    return price_d - blprice_impl(S0, K, T, σ, FlagIsCall)
-end
-#TODO: Test the following function
+
 function frule(config::RuleConfig{>:HasForwardsMode}, (_, dS, dK, dT, dprice, _, _, _), ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     vega = blvega_impl(S0, K, T, σ)
