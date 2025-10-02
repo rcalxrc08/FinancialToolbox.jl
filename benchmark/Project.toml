@@ -13,7 +13,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 [compat]
 BenchmarkTools = "1"
 DualNumbers = "0.5, 0.6"
-ForwardDiff = "0.10"
+ForwardDiff = "0.10, 1"
 HyperDualNumbers = "4"
 PkgJogger = "0.4, 0.6"
 ReverseDiff = "1"
