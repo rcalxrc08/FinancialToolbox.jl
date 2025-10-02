@@ -6,3 +6,6 @@ PkgPage = "e7214860-93a8-4f22-b43d-bd447d1a2094"
 
 [compat]
 Franklin = "0.10"
+FinancialToolbox = "0.7"
+NodeJS = "2"
+PkgPage = "0.4"
