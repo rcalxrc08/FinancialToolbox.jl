@@ -379,7 +379,9 @@ function normalised_black_call(x::T, s::V) where {T <: Real, V <: Real}
     if (s_2 < small_t_expansion_of_normalised_black_threshold_)
         return small_t_expansion_of_normalised_black_call(z, s_2)
     end
-    if (s_div > 17 // 20)
+	#Bug for gpu
+	s_div_20_7=20 * s_div - 17
+    if (s_div_20_7 > 0)
         return normalised_black_call_using_normcdf(x, s)
     end
     return normalised_black_call_using_erfcx(z, s_2)
