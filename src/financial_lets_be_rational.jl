@@ -9,6 +9,8 @@ function dbl_max(::T) where {T <: Number}
     return prevfloat(typemax(T))
 end
 using IrrationalConstants
+IrrationalConstants.@irrational invsqrt3 inv(sqrt(big(3)))
+
 function dbl_epsilon(::T) where {T <: Number}
     return eps(T)
 end
@@ -162,9 +164,13 @@ householder_factor(newton, halley, hh3) = @muladd (1 + halley * newton / 2) / (1
 #
 # with r := (h+t)·(h-t) and give an expansion for A(h,t) in q:=(h/r)² expressed in terms of e:=(t/h)² .
 function asymptotic_expansion_of_normalised_black_call(h, t)
-    e = square(t / h)
-    r = (h + t) * (h - t)
-    q = square(h / r)
+    square_h = square(h)
+    square_t = square(t)
+    e = square_t / square_h
+    # r = (h + t) * (h - t)
+    # rinv = inv((h + t) * (h - t))
+    rinv = inv(square_h - square_t)
+    q = square_h * square(rinv)
     twice_e = 2 * e
     # 17th order asymptotic expansion of A(h,t) in q, sufficient for Φ(h) [and thus y(h)] to have relative accuracy of 1.64E-16 for h <= η  with  η:=-10.
     #TODO: this is too much for "less" than Float64
@@ -247,8 +253,8 @@ function asymptotic_expansion_of_normalised_black_call(h, t)
             )
         )
     )
-    z = exp((-(square(h) + square(t)) / 2))
-    b = z * (t / r) * asymptotic_expansion_sum / sqrt2π
+    z = exp((-(square_h + square_t) / 2))
+    b = z * asymptotic_expansion_sum * invsqrt2π * t * rinv
     return abs(positive_part(b))
 end
 
@@ -291,8 +297,8 @@ function normalised_black_call_using_erfcx(h, t)
     # square bracket is between the evaluation of two rational functions, which, typically, according to Marsaglia,
     # retains the full 16 digits of accuracy (or just a little less than that).
     #
-    arg_minus = (t - h) / sqrt2
-    arg_plus = (-t - h) / sqrt2
+    arg_minus = (t - h) * invsqrt2
+    arg_plus = (-t - h) * invsqrt2
     b = exp(-(square(h) + square(t)) / 2) * (erfcx(arg_plus) - erfcx(arg_minus)) / 2
     return abs(positive_part(b))
 end
@@ -314,13 +320,13 @@ function small_t_expansion_of_normalised_black_call(h, t)
     # Y(h) := Φ(h)/φ(h) = √(π/2)·erfcx(-h/√2)
     # a := 1+h·Y(h)  --- Note that due to h<0, and h·Y(h) -> -1 (from above) as h -> -∞, we also have that a>0 and a -> 0 as h -> -∞
     # w := t² , h2 := h²
-    half_h_sqrt2 = h / sqrt2
+    half_h_sqrt2 = h * invsqrt2
     a = 1 + sqrtπ * half_h_sqrt2 * erfcx(-half_h_sqrt2)
     w = square(t)
     h2 = square(h)
     #TODO: this is too much for float "less" than Float64
     @muladd expansion = 2 * t * (a + w * ((-1 + a * (3 + h2)) / 6 + w * ((-7 + 15 * a + h2 * (-1 + a * (10 + h2))) / 120 + w * ((-57 + 105 * a + h2 * (-18 + 105 * a + h2 * (-1 + a * (21 + h2)))) / 5040 + w * ((-561 + 945 * a + h2 * (-285 + 1260 * a + h2 * (-33 + 378 * a + h2 * (-1 + a * (36 + h2))))) / 362880 + w * ((-6555 + 10395 * a + h2 * (-4680 + 17325 * a + h2 * (-840 + 6930 * a + h2 * (-52 + 990 * a + h2 * (-1 + a * (55 + h2)))))) / 39916800 + ((-89055 + 135135 * a + h2 * (-82845 + 270270 * a + h2 * (-20370 + 135135 * a + h2 * (-1926 + 25740 * a + h2 * (-75 + 2145 * a + h2 * (-1 + a * (78 + h2))))))) * w) / 6227020800))))))
-    b = exp((-(h2 + w) / 2)) * expansion / sqrt2π
+    b = exp((-(h2 + w) / 2)) * expansion * invsqrt2π
     return abs(positive_part(b))
 end
 
@@ -379,8 +385,8 @@ function normalised_black_call(x::T, s::V) where {T <: Real, V <: Real}
     if (s_2 < small_t_expansion_of_normalised_black_threshold_)
         return small_t_expansion_of_normalised_black_call(z, s_2)
     end
-	#Bug for gpu
-	s_div_20_7=20 * s_div - 17
+    #Bug for gpu
+    s_div_20_7 = 20 * s_div - 17
     if (s_div_20_7 > 0)
         return normalised_black_call_using_normcdf(x, s)
     end
@@ -392,38 +398,40 @@ function normalised_vega(x::T, s::V) where {T <: Real, V <: Real}
     zero_typed = zero(promote_type(T, V))
     if (ax <= 0)
         z = exp(-square(s) / 8)
-        return z / sqrt2π
+        return z * invsqrt2π
     elseif (s <= 0 || s <= ax * sqrt_dbl_min(zero_typed))
         return zero_typed
     end
-    return exp(-(square(x / s) + square(s / 2)) / 2) / sqrt2π
+    return exp(-(square(x / s) + square(s / 2)) / 2) * invsqrt2π
 end
 
 function normalised_vega_inverse(x::T, s::V) where {T <: Real, V <: Real}
     ax = abs(x)
     zero_typed = zero(promote_type(T, V))
+    sqr_s = square(s)
     if (ax <= 0)
-        z = exp(square(s) / 8)
+        z = exp(sqr_s / 8)
         return sqrt2π * z
     elseif (s <= 0 || s <= ax * sqrt_dbl_min(zero_typed))
         return dbl_max(zero_typed)
     end
-    return exp((square(x / s) + square(s / 2)) / 2) * sqrt2π
+    return exp(sqr_s * (square(x / sqr_s) + 1 // 4) / 2) * sqrt2π
 end
 
 function compute_f_lower_map_and_first_two_derivatives(x, s)
     ax = abs(x)
-    z = ax / (sqrt3 * s)
+    z = invsqrt3 * ax / s
     y = square(z)
     s2 = square(s)
+    # y = square(x) / (3 * square(s))
     Phi = normcdf(-z)
     phi = normpdf(z)
     exp_y_adj = exp(y + s2 / 8)
 
-    @muladd fpp = pi * y / (6 * s2 * s) * Phi * (8 * s * sqrt3 * ax + (3 * s2 * (s2 - 8) - 8 * square(x)) * Phi / phi) * square(exp_y_adj)
+    @muladd fpp = pi * y / (3 * s2 * s) * Phi * 4 * (s * sqrt3 * ax + (3 * s2 * (s2 / 8 - 1) - square(x)) * Phi / phi) * square(exp_y_adj)
     Phi2 = twoπ * square(Phi)
     fp = y * Phi2 * exp_y_adj
-    f = ax * Phi2 / 3 * Phi / sqrt3
+    f = ax * Phi2 / 3 * Phi * invsqrt3
     return f, fp, fpp
 end
 
@@ -433,15 +441,17 @@ function inverse_normcdf(el)
 end
 
 function inverse_f_lower_map(x, f)
-    y = twoπ * abs(x) / 3
-    return abs(x / (sqrt3 * inverse_normcdf(cbrt(sqrt3 * f / y))))
+    # y = twoπ * abs(x) / 3
+    abs_x = abs(x)
+    inv_y = 3 / (twoπ * abs_x)
+    return abs_x / abs(sqrt3 * inverse_normcdf(cbrt(sqrt3 * f * inv_y)))
 end
 
 function compute_f_upper_map_and_first_two_derivatives(x, s)
     f = normcdf(-s / 2)
     w = square(x / s)
     fp = -exp(w / 2) / 2
-    fpp = sqrt2π * exp(w + square(s) / 8) / 2 * w / s
+    fpp = sqrthalfπ * exp(w + square(s) / 8) * w / s
     return f, fp, fpp
 end
 
@@ -528,11 +538,12 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
                     ln_beta = log(beta)
                     bpob = bp / b
                     h = x / s
-                    b_halley = square(h) / s - s / 4
+                    sqr_h_s = square(h / s)
+                    b_halley = s * (sqr_h_s - 1 // 4)
                     newton = (ln_beta - ln_b) * ln_b / ln_beta / bpob
                     inv_lnb = inv(ln_b)
                     @muladd halley = b_halley - bpob * (1 + 2 * inv_lnb)
-                    @muladd b_hh3 = square(b_halley) - 3 * square(h / s) - 1 // 4
+                    @muladd b_hh3 = square(b_halley) - 3 * sqr_h_s - 1 // 4
                     @muladd hh3 = b_hh3 + 2 * square(bpob) * (1 + 3 * inv_lnb * (1 + inv_lnb)) - 3 * b_halley * bpob * (1 + 2 * inv_lnb)
                     ds = newton * householder_factor(newton, halley, hh3)
                 end
@@ -615,8 +626,9 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
                         b_max_minus_b = b_max - b
                         g = log((b_max - beta) / b_max_minus_b)
                         gp = bp / b_max_minus_b
-                        b_halley = square(x / s) / s - s / 4
-                        @muladd b_hh3 = square(b_halley) - 3 * square(x / square(s)) - 1 // 4
+                        supp = square(x / square(s))
+                        b_halley = s * (supp - 1 // 4)
+                        @muladd b_hh3 = square(b_halley) - 3 * supp - 1 // 4
                         newton = -g / gp
                         halley = b_halley + gp
                         @muladd hh3 = b_hh3 + gp * (2 * gp + 3 * b_halley)
@@ -661,8 +673,11 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
             s_left = s # Tighten the bracket if applicable.
         end
         newton = (beta - b) * bp_inv
-        halley = square(x / s) / s - s / 4
-        hh3 = square(halley) - 3 * square(x / square(s)) - 1 // 4
+        sqr_x = square(x)
+        sqr_s = square(s)
+        supp = sqr_x / square(sqr_s)
+        halley = s * (supp - 1 // 4)
+        hh3 = square(halley) - 3 * supp - 1 // 4
         ds = max(-s / 2, newton * householder_factor(newton, halley, hh3))
         s += ds
     end
