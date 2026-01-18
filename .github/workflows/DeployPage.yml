@@ -13,7 +13,7 @@ jobs:
     - name: Install Julia
       uses: julia-actions/setup-julia@v2
       with:
-        version: '1'
+        version: 1.11
     - run: julia --project=@. -e '
             import Pkg; Pkg.activate("page/Project.toml"); Pkg.instantiate();
             using InteractiveUtils; versioninfo(); Pkg.build(); using FinancialToolbox;
