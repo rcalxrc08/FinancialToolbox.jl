@@ -113,14 +113,14 @@ The way to compute the price in this library is:
 **_European Call Price_**
 ```julia:ex_7
 F=100.0; K=102.0; r=0.02; T=1.2; σ=0.2;
-Price_call=blkprice(S,K,r,T,σ)
+Price_call=blkprice(F,K,r,T,σ)
 ```
 \end{column}
 \begin{column}{}
 **_European Put Price_**
 ```julia:ex_7
 F=100.0; K=102.0; r=0.02; T=1.2; σ=0.2;
-Price_put=blkprice(S,K,r,T,σ,false)
+Price_put=blkprice(F,K,r,T,σ,false)
 ```
 \end{column}
 \end{columns}
@@ -186,17 +186,17 @@ The way to compute the volatility in this library is:
 \begin{column}{}
 **_Implied Volatility from Call Price_**
 ```julia:ex_7
-S=100.0; K=102.0; r=0.02; T=1.2;
+F=100.0; K=102.0; r=0.02; T=1.2;
 call_price=7.659923984582901
-σ=blkimpv(S,K,r,T,call_price)
+σ=blkimpv(F,K,r,T,call_price)
 ```
 \end{column}
 \begin{column}{}
 **_Implied Volatility from Put Price_**
 ```julia:ex_7
-S=100.0; K=102.0; r=0.02; T=1.2;
+F=100.0; K=102.0; r=0.02; T=1.2;
 put_price=9.612495404098706
-σ=blkimpv(S,K,r,T,put_price,false)
+σ=blkimpv(F,K,r,T,put_price,false)
 ```
 \end{column}
 \end{columns}
