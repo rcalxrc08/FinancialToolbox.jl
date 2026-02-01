@@ -299,7 +299,7 @@ M834 80h400000v40h-400000z'/></svg></span></span></span><span class="vlist-s">�
 <p><br/> The way to compute the volatility in this library is:  <div class="container"><div class="row"> <div class="col "> <strong><em>Implied Volatility from Call Price</em></strong></p>
 <pre><code class="julia hljs">S=<span class="hljs-number">100.0</span>; K=<span class="hljs-number">100.0</span>; r=<span class="hljs-number">0.02</span>; T=<span class="hljs-number">1.2</span>; d=<span class="hljs-number">0.01</span>;
 call_price=<span class="hljs-number">9.169580760087896</span>
-σ=blsimpv(S,K,r,T,call_price,d)</code></pre><pre><code class="plaintext hljs">0.20000000000000046</code></pre>
+σ=blsimpv(S,K,r,T,call_price,d)</code></pre><pre><code class="plaintext hljs">0.20000000000000043</code></pre>
 <p></div> <div class="col "> <strong><em>Implied Volatility from Put Price</em></strong></p>
 <pre><code class="julia hljs">S=<span class="hljs-number">100.0</span>; K=<span class="hljs-number">100.0</span>; r=<span class="hljs-number">0.02</span>; T=<span class="hljs-number">1.2</span>; d=<span class="hljs-number">0.01</span>;
 put_price=<span class="hljs-number">7.990980449685762</span>
@@ -341,7 +341,7 @@ call_price=<span class="hljs-number">7.659923984582901</span>
 <p></div> <div class="col "> <strong><em>Implied Volatility from Put Price</em></strong></p>
 <pre><code class="julia hljs">F=<span class="hljs-number">100.0</span>; K=<span class="hljs-number">102.0</span>; r=<span class="hljs-number">0.02</span>; T=<span class="hljs-number">1.2</span>;
 put_price=<span class="hljs-number">9.612495404098706</span>
-σ=blkimpv(F,K,r,T,put_price,<span class="hljs-literal">false</span>)</code></pre><pre><code class="plaintext hljs">0.19999999999999984</code></pre>
+σ=blkimpv(F,K,r,T,put_price,<span class="hljs-literal">false</span>)</code></pre><pre><code class="plaintext hljs">0.19999999999999982</code></pre>
 <p></div>  </div></div> blkimpv accepts additional arguments such as the absolute tolerance and the maximum numbers of steps of the numerical inversion. <div class="alert alert-info" role="alert">
 Currently blkimpv is using the rational inversion method based on <a href="http://www.jaeckel.org/LetsBeRational.pdf">LetsBeRational</a> method in order to invert the relation between the price and the volatility. If you notice something wrong with the numerical inversion, you are strongly suggested to open a issue.</div>       </div>
     </div>

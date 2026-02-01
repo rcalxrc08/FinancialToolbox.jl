@@ -131,9 +131,9 @@ version = "1.11.0"
 
 [[deps.FinancialToolbox]]
 deps = ["ChainRulesCore", "Dates", "IrrationalConstants", "MuladdMacro", "Requires", "SpecialFunctions", "Test"]
-git-tree-sha1 = "56dddf9619ef896307031c8c0515e4f7ad1da0b1"
+git-tree-sha1 = "b8e1c16f169f81874004196354994da0aaa4a6d5"
 uuid = "2edd74a5-e968-5e45-af77-76d29aa6a478"
-version = "0.7.0"
+version = "0.7.1"
 
 [[deps.Franklin]]
 deps = ["Dates", "DelimitedFiles", "DocStringExtensions", "ExprTools", "FranklinTemplates", "HTTP", "Literate", "LiveServer", "Logging", "Markdown", "NodeJS", "OrderedCollections", "Pkg", "REPL", "Random", "TOML"]
@@ -360,9 +360,9 @@ version = "1.6.1"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "f19301ae653233bc88b1810ae908194f07f8db9d"
+git-tree-sha1 = "c9cbeda6aceffc52d8a0017e71db27c7a7c0beaf"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.4+0"
+version = "3.5.5+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
