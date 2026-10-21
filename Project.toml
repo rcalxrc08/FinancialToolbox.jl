@@ -13,9 +13,16 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
+[weakdeps]
+Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
+
+[extensions]
+FinancialToolboxMooncakeExt = "Mooncake"
+
 [compat]
 ChainRulesCore = "1"
 IrrationalConstants = "0.2"
+Mooncake = "0.5"
 MuladdMacro = "0.2"
 Requires = "1"
 SpecialFunctions = "0.8, 0.9, 0.10, 1.0, 2"

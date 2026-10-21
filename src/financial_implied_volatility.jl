@@ -60,7 +60,7 @@ julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
 0.3433730534290586
 ```
 """
-function blsimpv(S0, K, r, T, Price, d = 0, FlagIsCall::Bool = true, xtol::Real = 100 * eps(Float64), n_iter_max::Integer = 4)
+function blsimpv(S0, K, r, T, Price, d, FlagIsCall::Bool=true, xtol::Real=100 * eps(Float64), n_iter_max::Integer=4)
     cv = exp(r * T)
     cv2 = exp(-d * T)
     adj_S0 = S0 * cv * cv2

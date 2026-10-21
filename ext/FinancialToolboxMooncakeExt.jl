@@ -58,14 +58,14 @@ function Mooncake.rrule!!(
         @views dK = grad[3]
         @views dT = grad[4]
         @views dσ = grad[5]
-        scale = y_rdata / dσ
+        scale = -y_rdata / dσ
 
         return (
             NoRData(),
-            -scale * dS0,
-            -scale * dK,
-            -scale * dT,
-            scale,
+            scale * dS0,
+            scale * dK,
+            scale * dT,
+            -scale,
             NoRData(),
             ZeroRData(),
             NoRData(),

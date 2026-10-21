@@ -1,22 +1,30 @@
 [deps]
 AbstractDifferentiation = "c29ec348-61ec-40c8-8164-b8c60e9d9f3d"
+ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
 Diffractor = "9f5e2b26-1114-432f-b630-d3fe2085c51c"
 DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
+FinancialToolbox = "2edd74a5-e968-5e45-af77-76d29aa6a478"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 HyperDualNumbers = "50ceba7f-c3ee-5a84-a6e8-3ad40456ec97"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
+[sources]
+FinancialToolbox = {path = ".."}
+
 [compat]
 AbstractDifferentiation = "0.6"
 Diffractor = "0.2"
 DualNumbers = "0.5, 0.6"
 ForwardDiff = "0.10, 1"
+Mooncake= "0.5"
 HyperDualNumbers = "4"
 JSON = "1"
 ReverseDiff = "1"
