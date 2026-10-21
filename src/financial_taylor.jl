@@ -1,7 +1,7 @@
 using .TaylorSeries
 
 # function integrate_correct(a::Taylor1{T}, x::S) where {T <: Number, S <: Number}
-#     order = order(a)
+#     order = get_order(a)
 #     @views aa = a[0] / 1 + zero(x)
 #     R = typeof(aa)
 #     coeffs = Array{typeof(aa)}(undef, order + 2)
@@ -13,18 +13,18 @@ using .TaylorSeries
 #     return Taylor1(coeffs)
 # end
 
-function mul_internal(f_der::Taylor1{T}, x::Taylor1{T}, k::Int) where {T<:Number}
+function mul_internal(f_der::Taylor1{T}, x::Taylor1{T}, k::Int) where {T <: Number}
     k_1 = k + 1
     @views @inbounds res = sum(f_der[i] * x[k_1-i] * (k_1 - i) for i = 0:k)
     return res / k_1
 end
 
-function mul_and_integrate(f_der::Taylor1{T}, x::Taylor1{T}, y::S) where {T<:Number,S<:Number}
-    order_ = order(x)
-    res = Array{T}(undef, order_ + 1)
+function mul_and_integrate(f_der::Taylor1{T}, x::Taylor1{T}, y::S) where {T <: Number, S <: Number}
+    order = get_order(x)
+    res = Array{T}(undef, order + 1)
     res_t = Taylor1(res)
     @views @inbounds res_t[0] = y
-    @inbounds for i = 1:order_
+    @inbounds for i = 1:order
         @views res_t[i] = mul_internal(f_der, x, i - 1)
     end
     return res_t
@@ -75,7 +75,7 @@ end
 #     return nothing
 # end
 # function mul_and_integrate(f_der::TaylorN{T}, x::TaylorN{T}, y::S) where {T <: Number, S <: Number}
-#     order = order(x)
+#     order = get_order(x)
 #     res_t = Taylor1(order)
 #     @views @inbounds res_t[0] = y
 #     @inbounds for i = 1:order
@@ -87,7 +87,7 @@ end
 function FinancialToolbox.normcdf(x::TaylorN)
     Nmax = 20000
     xmin = -20.0
-    x_ = range(xmin, length=Nmax, stop=x)
+    x_ = range(xmin, length = Nmax, stop = x)
     dx = (x - xmin) / (Nmax - 1)
     return sum(FinancialToolbox.normpdf.(x_)) * dx
 end
@@ -135,15 +135,15 @@ value_taylor(x) = x
 #     out = sigma + der_
 #     return out
 # end
-order_adj(x::Taylor1) = order(x)
-order_adj(::Any) = 0
+get_order_adj(x::Taylor1) = get_order(x)
+get_order_adj(::Any) = 0
 function blimpv_impl(::Taylor1{V}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max) where {V}
     S0_r = value_taylor(S0)
     K_r = value_taylor(K)
     T_r = value_taylor(T)
     p_r = value_taylor(price_d)
     sigma = blimpv(S0_r, K_r, T_r, p_r, FlagIsCall, xtol, n_iter_max)
-    max_order = maximum(map(x -> order_adj(x), (S0, K, T, price_d)))
+    max_order = maximum(map(x -> get_order_adj(x), (S0, K, T, price_d)))
     vega = blvega_impl(S0_r, K_r, T_r, sigma)
     σ_coeffs = Array{V}(undef, max_order + 1)
     σ_coeffs .= NaN
@@ -182,10 +182,10 @@ end
 #     p_r = value_taylor(price_d)
 #     d_r = value_taylor(d)
 #     sigma = blsimpv(S0_r, K_r, r_r, T_r, p_r, d_r, FlagIsCall, xtol, ytol)
-#     max_order = order(zero_type)
+#     max_order = get_order(zero_type)
 #     vega = blsvega(S0_r, K_r, r_r, T_r, sigma, d_r)
 #     σ_coeffs = Array{Float64}[]
-#     # σ_coeffs = Array{Array{Float64}}(undef, order(zero_type) + 1)
+#     # σ_coeffs = Array{Array{Float64}}(undef, get_order(zero_type) + 1)
 #     # σ_coeffs = Array{Float64}(undef, max_order + 1)
 #     push!(σ_coeffs, [sigma])
 #     # @views σ_coeffs[1] = [sigma]
