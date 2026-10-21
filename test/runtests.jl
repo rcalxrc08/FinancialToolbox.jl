@@ -2,11 +2,11 @@ function print_colored(in::String, color1)
     if (VERSION.major == 0 && VERSION.minor <= 6)
         return print_with_color(color1, in)
     else
-        return printstyled(in, color = color1)
+        return printstyled(in, color=color1)
     end
 end
 
-test_list = ["testDeepImpliedVol.jl", "testSymbolics.jl", "testRealNumbers.jl", "test_implied_volatility.jl", "test_implied_volatility_black.jl", "testComplexNumbers.jl", "testForwardDiff.jl", "testReverseDiff.jl", "testDual_.jl", "testHyperDualNumbers.jl", "testDates.jl", "testTaylor.jl", "testZygote.jl"]
+test_list = ["testDeepImpliedVol.jl", "testSymbolics.jl", "testRealNumbers.jl", "test_implied_volatility.jl", "test_implied_volatility_black.jl", "testComplexNumbers.jl", "testForwardDiff.jl", "testReverseDiff.jl", "testDual_.jl", "testHyperDualNumbers.jl", "testDates.jl", "testTaylor.jl", "testZygote.jl", "testMooncake.jl"]
 
 println("Running tests:\n")
 for (current_test, i) in zip(test_list, 1:length(test_list))
