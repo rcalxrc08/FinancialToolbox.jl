@@ -23,6 +23,7 @@ path = ".."
 
 [compat]
 AbstractDifferentiation = "0.6"
+ChainRulesCore = "1"
 DifferentiationInterface = "0.7"
 Diffractor = "0.2"
 DualNumbers = "0.5, 0.6"
