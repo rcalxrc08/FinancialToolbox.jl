@@ -1,4 +1,9 @@
-using .HyperDualNumbers
+module FinancialToolboxHyperDualNumbersExt
+
+using HyperDualNumbers
+using FinancialToolbox: blimpv, blprice_diff_impl, blprice_impl, blvega_impl
+import FinancialToolbox: blimpv_impl
+
 
 function blimpv_impl(::Hyper, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     S0_r = HyperDualNumbers.value(S0)
@@ -11,4 +16,6 @@ function blimpv_impl(::Hyper, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ_hyper -= Hyper(0, 0, 0, HyperDualNumbers.eps1eps2(σ_hyper))
     σ_hyper += (price_d - blprice_impl(S0, K, T, σ_hyper, FlagIsCall)) / vega
     return σ_hyper
+end
+
 end

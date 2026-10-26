@@ -9,24 +9,40 @@ ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 IrrationalConstants = "92d709cd-6900-40b7-9082-c6be49f344b6"
 MuladdMacro = "46d2c3a1-f734-5fdb-9937-b9b9aeba4221"
-Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [weakdeps]
+DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+HyperDualNumbers = "50ceba7f-c3ee-5a84-a6e8-3ad40456ec97"
 Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 
 [extensions]
+FinancialToolboxDualNumbersExt = "DualNumbers"
+FinancialToolboxForwardDiffExt = "ForwardDiff"
+FinancialToolboxHyperDualNumbersExt = "HyperDualNumbers"
 FinancialToolboxMooncakeExt = "Mooncake"
+FinancialToolboxReverseDiffExt = "ReverseDiff"
+FinancialToolboxSymbolicsExt = "Symbolics"
+FinancialToolboxTaylorSeriesExt = "TaylorSeries"
 
 [compat]
 ChainRulesCore = "1"
+DualNumbers = "0.5, 0.6"
+ForwardDiff = "0.10, 1"
+HyperDualNumbers = "4"
 IrrationalConstants = "0.2"
 Mooncake = "0.5"
 MuladdMacro = "0.2"
-Requires = "1"
+ReverseDiff = "1"
 SpecialFunctions = "0.8, 0.9, 0.10, 1.0, 2"
-julia = "1"
+Symbolics = "7"
+TaylorSeries = "0.10, 0.11, 0.12, 0.20"
+julia = "1.9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

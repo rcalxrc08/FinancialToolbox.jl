@@ -96,27 +96,37 @@ function blkimpv(F0, K, r, T, Price, FlagIsCall::Bool = true, xtol::Real = 1e-14
     return σ
 end
 
-import ChainRulesCore: rrule, frule, NoTangent, @thunk, rrule_via_ad, frule_via_ad
+import ChainRulesCore: rrule, frule, NoTangent
 
 function blprice_diff_impl(S0, K, T, σ, price_d, FlagIsCall)
     return price_d - blprice_impl(S0, K, T, σ, FlagIsCall)
 end
 
-function rrule(config::RuleConfig{>:HasReverseMode}, ::typeof(blimpv), S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+# Sensitivities of σ = blimpv(S0, K, T, price_d) via the implicit function theorem:
+# dσ/dθ = -(∂P/∂θ) / vega, with closed-form partials of blprice_impl.
+function blimpv_sensitivities(S0, K, T, σ, FlagIsCall::Bool)
+    sqrtT = sqrt(T)
+    sigma_sqrtT = σ * sqrtT
+    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
+    inv_vega = inv(S0 * normpdf(d1) * sqrtT)
+    nd1 = normcdf(d1)
+    nd2 = normcdf(d1 - sigma_sqrtT)
+    der_S0 = ifelse(FlagIsCall, nd1, nd1 - one_internal)
+    der_K = ifelse(FlagIsCall, -nd2, one_internal - nd2)
+    return -der_S0 * inv_vega, -der_K * inv_vega, -σ / (two_internal * T), inv_vega
+end
+
+function rrule(::typeof(blimpv), S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     function update_pullback(slice)
-        _, pullback_blprice = ChainRulesCore.rrule_via_ad(config, blprice_impl, S0, K, T, σ, FlagIsCall)
-        _, der_S0, der_K, der_T, der_σ, _ = pullback_blprice(slice)
-        slice_mod = -inv(der_σ)
-        return NoTangent(), slice_mod * der_S0, slice_mod * der_K, slice_mod * der_T, -slice_mod, NoTangent(), NoTangent(), NoTangent()
+        der_S0, der_K, der_T, der_price = blimpv_sensitivities(S0, K, T, σ, FlagIsCall)
+        return NoTangent(), slice * der_S0, slice * der_K, slice * der_T, slice * der_price, NoTangent(), NoTangent(), NoTangent()
     end
     return σ, update_pullback
 end
 
-
-function frule(config::RuleConfig{>:HasForwardsMode}, (_, dS, dK, dT, dprice, _, _, _), ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
+function frule((_, dS, dK, dT, dprice, _, _, _), ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
-    vega = blvega_impl(S0, K, T, σ)
-    _, der_fwd = ChainRulesCore.frule_via_ad(config, (NoTangent(), dS, dK, dT, NoTangent(), dprice, NoTangent()), blprice_diff_impl, S0, K, T, σ, price_d, FlagIsCall)
-    return σ, der_fwd / vega
+    der_S0, der_K, der_T, der_price = blimpv_sensitivities(S0, K, T, σ, FlagIsCall)
+    return σ, dS * der_S0 + dK * der_K + dT * der_T + dprice * der_price
 end

@@ -1,4 +1,9 @@
-using .ReverseDiff
+module FinancialToolboxReverseDiffExt
+
+using ReverseDiff
+using FinancialToolbox
+using FinancialToolbox: blimpv, blprice_diff_impl, blvega_impl
+
 # blsimpv_impl(x::ReverseDiff.TrackedReal,S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol) = ReverseDiff.track(blsimpv_impl,x,S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
 # ReverseDiff.@grad function blsimpv_impl(x,S0, K, r, T, price_d, d, FlagIsCall, xtol, ytol)
 # S0_r=ReverseDiff.value(S0)
@@ -31,4 +36,6 @@ function FinancialToolbox.blimpv_impl(::ReverseDiff.TrackedReal, S0, K, T, price
     der_ = blprice_diff_impl(S0, K, T, σ, price_d, FlagIsCall) / blvega_impl(S0_r, K_r, T_r, σ)
     out = σ + der_
     return out
+end
+
 end

@@ -1,4 +1,10 @@
-using .TaylorSeries
+module FinancialToolboxTaylorSeriesExt
+
+using TaylorSeries
+using FinancialToolbox
+using FinancialToolbox: blimpv, blprice_impl, blvega_impl
+import FinancialToolbox: blimpv_impl
+
 
 # function integrate_correct(a::Taylor1{T}, x::S) where {T <: Number, S <: Number}
 #     order = get_order(a)
@@ -203,3 +209,5 @@ end
 #     return TaylorN(HomogeneousPolynomial.(σ_coeffs))
 #     # return Taylor1(σ_coeffs)
 # end
+
+end
