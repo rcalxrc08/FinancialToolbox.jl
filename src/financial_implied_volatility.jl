@@ -32,6 +32,23 @@ function blimpv_impl(::AbstractFloat, S0, K, T, price_d, FlagIsCall, xtol, n_ite
     return blimpv_lets_be_rational(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
 end
 
+# Complex inputs: blprice(σ) = price has many complex roots σ. This returns the analytic continuation of the
+# real implied volatility (the root used by the complex step approximation): Newton in the complex plane,
+# σ ← σ + (price - blprice(σ)) / vega(σ), started from the implied volatility of the real parts.
+# Newton converges quadratically, in one or two steps for complex step perturbations.
+function blimpv_impl(::Complex, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+    σ = complex(blimpv(real(S0), real(K), real(T), real(price_d), FlagIsCall, xtol, n_iter_max))
+    max_iter = 100
+    for _ = 1:max_iter
+        Δ = (price_d - blprice_impl(S0, K, T, σ, FlagIsCall)) / blvega_impl(S0, K, T, σ)
+        σ += Δ
+        if abs(Δ) <= xtol * abs(σ)
+            return σ
+        end
+    end
+    throw(DomainError(price_d, "Newton for the complex implied volatility did not converge in $max_iter iterations, the imaginary parts may be too large"))
+end
+
 function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool, xtol::Real, n_iter_max::Integer) where {num1, num2, num4, num5}
     zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num4, num5)))
     σ = blimpv_impl(zero_typed, S0, K, T, Price, FlagIsCall, xtol, n_iter_max)
@@ -114,6 +131,20 @@ function blimpv_sensitivities(S0, K, T, σ, FlagIsCall::Bool)
     der_S0 = ifelse(FlagIsCall, nd1, nd1 - one_internal)
     der_K = ifelse(FlagIsCall, -nd2, one_internal - nd2)
     return -der_S0 * inv_vega, -der_K * inv_vega, -σ / (two_internal * T), inv_vega
+end
+
+# Implied volatility of truncated Taylor polynomials (TaylorSeries and TaylorDiff extensions). σ(t) is only
+# defined implicitly by blprice(σ(t)) = price(t), so its coefficients come from Newton on the whole series,
+# σ ← σ + (price - blprice(σ)) / vega(σ), started from σ, the implied volatility of the constant terms.
+# This is exact, not an approximation: the error of the start is O(t) and each step squares it, so after
+# m steps it is O(t^(2^m)), beyond the truncation order once 2^m > order. Hence the fixed number of steps
+# and no convergence check; only rounding and the accuracy of the constant term (xtol) remain.
+# Solving one coefficient at a time with the constant vega is equivalent but needs `order` steps.
+function blimpv_series_newton(σ, S0, K, T, price_d, FlagIsCall::Bool, order::Integer)
+    for _ = 1:ceil(Int, log2(order + 1))
+        σ += (price_d - blprice_impl(S0, K, T, σ, FlagIsCall)) / blvega_impl(S0, K, T, σ)
+    end
+    return σ
 end
 
 function rrule(::typeof(blimpv), S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)

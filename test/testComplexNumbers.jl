@@ -130,3 +130,21 @@ print_colored("----Testing Negative  Volatility \n", :cyan)
 @test_throws(DomainError, blsvega(spot, K, r, T, -sigma + 1im, d))
 
 print_colored("Complex Input Validation Test Passed\n", :magenta)
+
+## Implied Volatility with Complex Numbers: analytic continuation of the real implied volatility
+print_colored("Starting Complex Implied Volatility Test\n", :green)
+VegaImpv = blsvega(spot, K, r, T, sigma, d)
+for FlagIsCall in (true, false)
+    PriceImpv = blsprice(spot, K, r, T, sigma, d, FlagIsCall)
+    #Complex step approximation: dσ/dθ = -(∂Price/∂θ) / vega
+    @test abs(df(x -> blsimpv(x, K, r, T, PriceImpv, d, FlagIsCall), spot).im + blsdelta(spot, K, r, T, sigma, d, FlagIsCall) / VegaImpv) < DerToll
+    @test abs(df(x -> blsimpv(spot, K, r, T, x, d, FlagIsCall), PriceImpv).im - 1 / VegaImpv) < DerToll
+    @test abs(df(x -> blsimpv(spot, K, x, T, PriceImpv, d, FlagIsCall), r).im + blsrho(spot, K, r, T, sigma, d, FlagIsCall) / VegaImpv) < DerToll
+    #Large imaginary parts: still a root of blsprice(σ) = price
+    PriceComplex = PriceImpv + 1im
+    @test abs(blsprice(spot, K, r, T, blsimpv(spot, K, r, T, PriceComplex, d, FlagIsCall), d, FlagIsCall) - PriceComplex) < 1e-12
+end
+#Real parts outside the domain, imaginary parts too large for Newton
+@test_throws(DomainError, blsimpv(spot, K, r, T, 1000.0 + 1im, d))
+@test_throws(DomainError, blsimpv(spot, K, r, T, blsprice(spot, K, r, T, sigma, d) + 1000im, d))
+print_colored("Complex Implied Volatility Test Passed\n", :green)
