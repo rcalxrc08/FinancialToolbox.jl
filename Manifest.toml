@@ -556,10 +556,10 @@ version = "0.8.7+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "NetworkOptions", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "d1ea2f05c285ae58f82a9e53f8025d9b1dfc1a5f"
+git-tree-sha1 = "9129758d7825178aec8001e879f32c3bd15bd38e"
 registries = "General"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.8.0"
+version = "1.9.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "Libdl"]
