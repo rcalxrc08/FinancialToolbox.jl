@@ -14,13 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      # BenchmarkCI 0.1.9 fails on Julia >= 1.12 (world age error in BenchmarkCI.julia_info)
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1.11'
       - uses: julia-actions/julia-buildpkg@latest
       - name: Install dependencies
-        run: julia -e 'using Pkg; pkg"add PkgBenchmark BenchmarkCI@0.1"'
+        run: julia -e 'using Pkg; pkg"add PkgBenchmark BenchmarkCI@0.1 BenchmarkTools"'
+      # Runs benchmark/benchmarks.jl on this commit and on origin/master, with the parameters in benchmark/tune.json
       - name: Run benchmarks
         run: julia -e 'using BenchmarkCI; BenchmarkCI.judge()'
       - name: Print judgement
         run: julia -e 'using BenchmarkCI; BenchmarkCI.displayjudgement()'
+      - name: Summary of the results
+        run: >
+          julia -e 'using PkgBenchmark; include("benchmark/summary.jl");
+          summary_table(stdout, PkgBenchmark.benchmarkgroup(PkgBenchmark.readresults(".benchmarkci/result-target.json")))'
+          | tee -a $GITHUB_STEP_SUMMARY
