@@ -2,7 +2,7 @@
 
 julia_version = "1.13.3"
 manifest_format = "2.1"
-project_hash = "52330b620e56ee6dc48b055b655ef62e188d51d6"
+project_hash = "68f4f4aa1bbd667e0fbe211ae4eb912ab4d99201"
 
 [[deps.ADTypes]]
 deps = ["PrecompileTools"]
@@ -197,7 +197,7 @@ version = "1.11.0"
 deps = ["ChainRulesCore", "Dates", "IrrationalConstants", "MuladdMacro", "SpecialFunctions", "Test"]
 path = ".."
 uuid = "2edd74a5-e968-5e45-af77-76d29aa6a478"
-version = "0.7.1"
+version = "0.8.0"
 
     [deps.FinancialToolbox.extensions]
     FinancialToolboxDualNumbersExt = "DualNumbers"

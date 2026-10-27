@@ -401,8 +401,8 @@ Currently blkimpv is using the rational inversion method based on <a href="http:
       <div class="col-lg-10 mx-auto">
         <h2>Performance</h2> Time to compute the price and the implied volatility, and their gradients with respect to all the inputs with a forward &#40;TaylorSeries, order one TaylorN in the six inputs&#41; and a reverse &#40;Mooncake&#41; mode AD library. The table is generated when this page is built.</p>
 
-<p><table><tr><th align="left">Function</th><th align="right">Value &#40;Float64&#41;</th><th align="right">Gradient, TaylorSeries &#40;TaylorN&#41;</th><th align="right">Gradient, Mooncake &#40;reverse mode&#41;</th></tr><tr><td align="left"><code>blsprice&#40;S0, K, r, T, σ, d&#41;</code></td><td align="right">32 ns</td><td align="right">2.91 μs &#40;91.2×&#41;</td><td align="right">112 ns &#40;3.5×&#41;</td></tr><tr><td align="left"><code>blsimpv&#40;S0, K, r, T, price, d&#41;</code></td><td align="right">157 ns</td><td align="right">4.57 μs &#40;29.1×&#41;</td><td align="right">270 ns &#40;1.7×&#41;</td></tr></table>
-<p>Julia 1.13.3, AMD EPYC 9V45 96-Core Processor, FinancialToolbox 0.7.1; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.</p>
+<p><table><tr><th align="left">Function</th><th align="right">Value &#40;Float64&#41;</th><th align="right">Gradient, TaylorSeries &#40;TaylorN&#41;</th><th align="right">Gradient, Mooncake &#40;reverse mode&#41;</th></tr><tr><td align="left"><code>blsprice&#40;S0, K, r, T, σ, d&#41;</code></td><td align="right">54 ns</td><td align="right">5.50 μs &#40;101.8×&#41;</td><td align="right">204 ns &#40;3.8×&#41;</td></tr><tr><td align="left"><code>blsimpv&#40;S0, K, r, T, price, d&#41;</code></td><td align="right">242 ns</td><td align="right">8.58 μs &#40;35.4×&#41;</td><td align="right">415 ns &#40;1.7×&#41;</td></tr></table>
+<p>Julia 1.13.3, AMD EPYC 7763 64-Core Processor, FinancialToolbox 0.8.0; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.</p>
        </div>
     </div>
   </div>

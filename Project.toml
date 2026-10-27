@@ -14,7 +14,7 @@ FinancialToolbox = {path = ".."}
 [compat]
 BenchmarkTools = "1"
 DataFrames = "1"
-FinancialToolbox = "0.7"
+FinancialToolbox = "0.8"
 Franklin = "0.10"
 Mooncake = "0.5"
 NodeJS = "1, 2"
