@@ -1,6 +1,0 @@
-| Function | Value (Float64) | Gradient, TaylorSeries (TaylorN) | Gradient, Mooncake (reverse mode) |
-|:--|--:|--:|--:|
-| `blsprice(S0, K, r, T, σ, d)` | 45 ns | 4.39 μs (98.5×) | 220 ns (4.9×) |
-| `blsimpv(S0, K, r, T, price, d)` | 209 ns | 6.80 μs (32.6×) | 358 ns (1.7×) |
-
-Julia 1.13.3, AMD EPYC 9V74 80-Core Processor, FinancialToolbox 0.7.1; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.

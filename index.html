@@ -400,15 +400,9 @@ Currently blkimpv is using the rational inversion method based on <a href="http:
     <div class="row">
       <div class="col-lg-10 mx-auto">
         <h2>Performance</h2> Time to compute the price and the implied volatility, and their gradients with respect to all the inputs with a forward &#40;TaylorSeries, order one TaylorN in the six inputs&#41; and a reverse &#40;Mooncake&#41; mode AD library. The table is generated when this page is built.</p>
-<pre><code class="plaintext hljs">| Function | Value (Float64) | Gradient, TaylorSeries (TaylorN) | Gradient, Mooncake (reverse mode) |
-|:--|--:|--:|--:|
-| `blsprice(S0, K, r, T, σ, d)` | 45 ns | 4.39 μs (98.5×) | 220 ns (4.9×) |
-| `blsimpv(S0, K, r, T, price, d)` | 209 ns | 6.80 μs (32.6×) | 358 ns (1.7×) |
 
-Julia 1.13.3, AMD EPYC 9V74 80-Core Processor, FinancialToolbox 0.7.1; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.
-</code></pre>
-<p><table><tr><th align="left">Function</th><th align="right">Value &#40;Float64&#41;</th><th align="right">Gradient, TaylorSeries &#40;TaylorN&#41;</th><th align="right">Gradient, Mooncake &#40;reverse mode&#41;</th></tr><tr><td align="left"><code>blsprice&#40;S0, K, r, T, σ, d&#41;</code></td><td align="right">45 ns</td><td align="right">4.39 μs &#40;98.5×&#41;</td><td align="right">220 ns &#40;4.9×&#41;</td></tr><tr><td align="left"><code>blsimpv&#40;S0, K, r, T, price, d&#41;</code></td><td align="right">209 ns</td><td align="right">6.80 μs &#40;32.6×&#41;</td><td align="right">358 ns &#40;1.7×&#41;</td></tr></table>
-<p>Julia 1.13.3, AMD EPYC 9V74 80-Core Processor, FinancialToolbox 0.7.1; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.</p>
+<p><table><tr><th align="left">Function</th><th align="right">Value &#40;Float64&#41;</th><th align="right">Gradient, TaylorSeries &#40;TaylorN&#41;</th><th align="right">Gradient, Mooncake &#40;reverse mode&#41;</th></tr><tr><td align="left"><code>blsprice&#40;S0, K, r, T, σ, d&#41;</code></td><td align="right">54 ns</td><td align="right">5.11 μs &#40;94.2×&#41;</td><td align="right">233 ns &#40;4.3×&#41;</td></tr><tr><td align="left"><code>blsimpv&#40;S0, K, r, T, price, d&#41;</code></td><td align="right">230 ns</td><td align="right">8.25 μs &#40;35.9×&#41;</td><td align="right">402 ns &#40;1.7×&#41;</td></tr></table>
+<p>Julia 1.13.3, Intel&#40;R&#41; Xeon&#40;R&#41; Platinum 8370C CPU @ 2.80GHz, FinancialToolbox 0.7.1; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.</p>
        </div>
     </div>
   </div>
