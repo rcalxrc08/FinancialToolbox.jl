@@ -1,8 +1,8 @@
 name = "FinancialToolbox"
 uuid = "2edd74a5-e968-5e45-af77-76d29aa6a478"
 license = "MIT"
-author = ["rcalxrc08"]
 version = "0.7.1"
+author = ["rcalxrc08"]
 
 [deps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
@@ -47,7 +47,7 @@ ReverseDiff = "1"
 SpecialFunctions = "0.8, 0.9, 0.10, 1.0, 2"
 Symbolics = "7"
 TaylorDiff = "0.3"
-TaylorSeries = "0.10, 0.11, 0.12, 0.20"
+TaylorSeries = "0.10, 0.11, 0.12, 0.20, 0.23"
 julia = "1.9"
 
 [extras]
