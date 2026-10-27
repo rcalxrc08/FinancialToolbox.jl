@@ -5,13 +5,16 @@
 \begin{section}{title="About this Package", name="About"}
 
 \lead{FinancialToolbox.jl is a Julia package containing some useful Financial functions for Pricing and Risk Management under the Black and Scholes Model.}
-The syntax is the same of the Matlab Financial Toolbox.
-Currently supports classical numerical input and other less common like:
-* Complex Numbers
-* [Dual Numbers](https://github.com/JuliaDiff/DualNumbers.jl)
-* [HyperDual Numbers](https://github.com/JuliaDiff/HyperDualNumbers.jl)
-* [TaylorSeries.jl](https://github.com/JuliaDiff/TaylorSeries.jl)
-* [TaylorDiff.jl](https://github.com/JuliaDiff/TaylorDiff.jl)
+The syntax is the same of the Matlab Financial Toolbox. It provides:
+* **Pricing**: `blsprice`, `blkprice` (European options in the Black and Scholes and Black models), `blsbin` (binary options).
+* **Sensitivities**: `blsdelta`, `blsgamma`, `blstheta`, `blsvega`, `blsrho`, `blslambda`, `blspsi`, `blsvanna`.
+* **Implied volatility**: `blsimpv`, `blkimpv`, based on the 2024 version of Peter Jäckel's [Let's Be Rational](http://www.jaeckel.org/LetsBeRational.pdf): at most two Householder iterations, accurate to the attainable machine precision for any moneyness.
+* **Dates**: `yearfrac`, `daysact`, `fromExcelNumberToDate`.
+
+Every function is generic in the number type:
+* `Float64`, `Float32` (computed in single precision), `BigFloat` (computed in full precision, implied volatility included) and Complex numbers (the implied volatility returns the analytic continuation of the real one).
+* Automatic differentiation, forward and reverse, first and higher order (see [below](#AD)): [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl), [ReverseDiff.jl](https://github.com/JuliaDiff/ReverseDiff.jl), [Zygote.jl](https://github.com/FluxML/Zygote.jl), [Mooncake.jl](https://github.com/chalk-lab/Mooncake.jl), [Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl), [TaylorSeries.jl](https://github.com/JuliaDiff/TaylorSeries.jl), [TaylorDiff.jl](https://github.com/JuliaDiff/TaylorDiff.jl), [Dual Numbers](https://github.com/JuliaDiff/DualNumbers.jl), [HyperDual Numbers](https://github.com/JuliaDiff/HyperDualNumbers.jl).
+* Symbolic computations with [Symbolics.jl](https://github.com/JuliaSymbolics/Symbolics.jl).
 \end{section}
 
 
@@ -206,10 +209,13 @@ If you notice something wrong with the numerical inversion, you are strongly sug
 \end{section}
 
 \begin{section}{title="Automatic Differentiation", name="AD"}
-Pricers and sensitivities functions are differentiable as far as the AD engine is capable of differentiating the erfc function.\\
-Implied volatility computations are fully differentiable by using ChainRulesCore.jl.
-Explicit support for ForwardDiff, ReverseDiff, TaylorDiff, TaylorSeries is added.
-In case your package does not support ChainRulesCore.jl APIs, please open an issue if you need the support for implied volatility differentiation.
+Pricers and sensitivities are plain Julia code, differentiable by any AD engine capable of differentiating the erfc function (rules for erfc are provided for TaylorSeries and TaylorDiff).\\
+The implied volatility is never differentiated through the numerical solver: its derivatives are defined analytically, as shown below.
+* **ChainRulesCore** `frule` and `rrule`, used by [Zygote.jl](https://github.com/FluxML/Zygote.jl), [ReverseDiff.jl](https://github.com/JuliaDiff/ReverseDiff.jl) and [Mooncake.jl](https://github.com/chalk-lab/Mooncake.jl) (forward and reverse mode).
+* **Native rules** for [Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) (forward, reverse and batched modes), [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl), Dual and HyperDual numbers, [Symbolics.jl](https://github.com/JuliaSymbolics/Symbolics.jl).
+* **Taylor series** of any order for [TaylorSeries.jl](https://github.com/JuliaDiff/TaylorSeries.jl) (`Taylor1`, `TaylorN` and nested) and [TaylorDiff.jl](https://github.com/JuliaDiff/TaylorDiff.jl).
+
+In case your AD package is not supported, please open an issue.
 \\
 **Automatic Differentiation of Implied Volatility**: \\
 In a Black and Scholes setup, let's define $f(S,K,r,T,\sigma,d)$ as follows:
@@ -242,4 +248,57 @@ $$ f = P_{bk}(F,K,r,T,\sigma) $$
 \end{column}
 \end{columns}
 This formulation of the derivative allows to define analytically the frule and the rrule for the function blsimpv and blkimpv, without the need of differentiating the numerical solver, proving once again the superiority of automatic differentiation against numerical one.
+\\
+**Forward and reverse rules**: \\
+Denoting by $\nu = \partial_{\sigma}f$ the vega and by $\theta$ the inputs other than the price, the tangent of the implied volatility in forward mode is:
+$$ \dot{\sigma} = \frac{\dot{V} - \sum_{\theta} \partial_{\theta}f \, \dot{\theta}}{\nu} $$
+while in reverse mode the adjoint $\bar{\sigma}$ is propagated to the inputs as:
+$$ \bar{V} = \frac{\bar{\sigma}}{\nu}, \qquad \bar{\theta} = -\frac{\partial_{\theta}f}{\nu} \, \bar{\sigma} $$
+The partial derivatives $\partial_{\theta}f$ and $\nu$ are the closed form sensitivities of the Black formula, evaluated once at the solution $\sigma$: a gradient costs little more than the implied volatility itself (see the [performance](#Performance) section).
+\\
+**Taylor series of any order**: \\
+For a truncated Taylor series in the inputs (TaylorSeries.jl, TaylorDiff.jl), $\sigma$ is the solution of $f(\sigma) = V$ in the algebra of truncated series. Starting from $\sigma_0$, the implied volatility of the constant terms, Newton's method on the whole series
+$$ \sigma_{m+1} = \sigma_m + \frac{V - f(\sigma_m)}{\partial_{\sigma}f(\sigma_m)} $$
+is exact, not an approximation: the error of $\sigma_0$ is $O(t)$ and each step squares it, so after $m$ steps it is $O(t^{2^m})$. Hence $\lceil \log_2(n+1) \rceil$ steps give all the coefficients of a series of order $n$.
+\\
+**Complex numbers**: \\
+The equation $f(\sigma) = V$ has many complex solutions; the same Newton iteration in the complex plane, started from the implied volatility of the real parts, returns the analytic continuation of the real implied volatility (the one needed by the complex step method).
+\end{section}
+
+<!-- ==============================
+     PERFORMANCE
+     ============================== -->
+\begin{section}{title="Performance", name="Performance"}
+Time to compute the price and the implied volatility, and their gradients with respect to all the inputs with a forward (TaylorSeries, order one TaylorN in the six inputs) and a reverse (Mooncake) mode AD library. The table is generated when this page is built.
+```julia:performance
+# hideall
+using FinancialToolbox, BenchmarkTools, Mooncake, TaylorSeries, Printf, Logging
+S0 = 100.0; K = 100.0; r = 0.02; T = 1.2; σ = 0.2; d = 0.01
+price = blsprice(S0, K, r, T, σ, d)
+# TaylorN variables of order 1: the gradient is in the first order coefficients (set_variables before TaylorSeries 0.23)
+taylorn_variables(names; order) = isdefined(TaylorSeries, :variables!) ? TaylorSeries.variables!(names; order = order) : TaylorSeries.set_variables(names; order = order)
+dx = with_logger(NullLogger()) do
+    taylorn_variables("x1 x2 x3 x4 x5 x6", order = 1)
+end
+format_time(t) = t < 1e-6 ? @sprintf("%.0f ns", 1e9 * t) : t < 1e-3 ? @sprintf("%.2f μs", 1e6 * t) : @sprintf("%.2f ms", 1e3 * t)
+function performance_row(name, f, args)
+    t = @belapsed $f($(args)...)
+    x_taylor = args .+ dx
+    t_taylor = @belapsed $f($(x_taylor)...)
+    cache = Mooncake.prepare_gradient_cache(f, args...)
+    t_mooncake = @belapsed Mooncake.value_and_gradient!!($cache, $f, $(args)...)
+    # both gradients agree
+    g_taylor = [TaylorSeries.getcoeff(f(x_taylor...), [i == j ? 1 : 0 for j in 1:6]) for i in 1:6]
+    g_mooncake = collect(Mooncake.value_and_gradient!!(cache, f, args...)[2][2:end])
+    @assert isapprox(g_taylor, g_mooncake; rtol = 1e-8)
+    @printf("| `%s` | %s | %s (%.1f×) | %s (%.1f×) |\n", name, format_time(t), format_time(t_taylor), t_taylor / t, format_time(t_mooncake), t_mooncake / t)
+end
+println("| Function | Value (Float64) | Gradient, TaylorSeries (TaylorN) | Gradient, Mooncake (reverse mode) |")
+println("|:--|--:|--:|--:|")
+performance_row("blsprice(S0, K, r, T, σ, d)", blsprice, (S0, K, r, T, σ, d))
+performance_row("blsimpv(S0, K, r, T, price, d)", blsimpv, (S0, K, r, T, price, d))
+println()
+@printf("Julia %s, %s, FinancialToolbox %s; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.\n", VERSION, Sys.cpu_info()[1].model, pkgversion(FinancialToolbox))
+```
+\textoutput{performance}
 \end{section}

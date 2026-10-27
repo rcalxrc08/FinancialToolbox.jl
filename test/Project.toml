@@ -1,9 +1,7 @@
 [deps]
-AbstractDifferentiation = "c29ec348-61ec-40c8-8164-b8c60e9d9f3d"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-Diffractor = "9f5e2b26-1114-432f-b630-d3fe2085c51c"
 DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
 Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 FinancialToolbox = "2edd74a5-e968-5e45-af77-76d29aa6a478"
@@ -22,10 +20,8 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 path = ".."
 
 [compat]
-AbstractDifferentiation = "0.6"
 ChainRulesCore = "1"
 DifferentiationInterface = "0.7"
-Diffractor = "0.2"
 DualNumbers = "0.5, 0.6"
 Enzyme = "0.13"
 FinancialToolbox = "0.7"
