@@ -24,6 +24,8 @@ for FlagIsCall in (true, false)
     f_partial(S0, Price) = blsimpv(S0, K, r, T, Price, d, FlagIsCall, 1e-12, 4)
     @test collect(Enzyme.autodiff(Enzyme.Reverse, f_partial, Active, Active(S0), Active(price))[1]) ≈ g_ref[[1, 5]]
     @test Enzyme.autodiff(Enzyme.Forward, f_partial, Duplicated(S0, 1.0), Const(price))[1] ≈ g_ref[1]
+    # Batched forward mode with a constant argument
+    @test collect(values(Enzyme.autodiff(Enzyme.Forward, f_partial, BatchDuplicated(S0, (1.0, 2.0)), Const(price))[1])) ≈ [g_ref[1], 2 * g_ref[1]]
 
     # blsprice is differentiated directly by Enzyme
     p(x) = @views blsprice(x[1:1][], x[2:2][], x[3:3][], x[4:4][], x[5:5][], x[6:6][], FlagIsCall)
