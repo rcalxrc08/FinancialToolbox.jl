@@ -11,7 +11,7 @@ TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 [compat]
 BenchmarkTools = "1"
 DataFrames = "1"
-FinancialToolbox = "0.7"
+FinancialToolbox = "0.8"
 Franklin = "0.10"
 Mooncake = "0.5"
 NodeJS = "1, 2"
