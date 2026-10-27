@@ -1,0 +1,19 @@
+# Coefficients Aₙ(e) = (2n-1)!!·Pₙ(e) of the asymptotic expansion of the scaled normalised Black function in Region I,
+# with Pₙ integer polynomials in e (exact; the expansion of Jäckel's 2024 reference implementation). evalpoly uses muladd.
+@inline asymptotic_coefficient_0(e) = 2
+@inline asymptotic_coefficient_1(e) = evalpoly(e, (-6, -2))
+@inline asymptotic_coefficient_2(e) = 3 * evalpoly(e, (10, 20, 2))
+@inline asymptotic_coefficient_3(e) = 15 * evalpoly(e, (-14, -70, -42, -2))
+@inline asymptotic_coefficient_4(e) = 105 * evalpoly(e, (18, 168, 252, 72, 2))
+@inline asymptotic_coefficient_5(e) = 945 * evalpoly(e, (-22, -330, -924, -660, -110, -2))
+@inline asymptotic_coefficient_6(e) = 10395 * evalpoly(e, (26, 572, 2574, 3432, 1430, 156, 2))
+@inline asymptotic_coefficient_7(e) = 135135 * evalpoly(e, (-30, -910, -6006, -12870, -10010, -2730, -210, -2))
+@inline asymptotic_coefficient_8(e) = 2027025 * evalpoly(e, (34, 1360, 12376, 38896, 48620, 24752, 4760, 272, 2))
+@inline asymptotic_coefficient_9(e) = 34459425 * evalpoly(e, (-38, -1938, -23256, -100776, -184756, -151164, -54264, -7752, -342, -2))
+@inline asymptotic_coefficient_10(e) = 654729075 * evalpoly(e, (42, 2660, 40698, 232560, 587860, 705432, 406980, 108528, 11970, 420, 2))
+@inline asymptotic_coefficient_11(e) = 13749310575 * evalpoly(e, (-46, -3542, -67298, -490314, -1634380, -2704156, -2288132, -980628, -201894, -17710, -506, -2))
+@inline asymptotic_coefficient_12(e) = 316234143225 * evalpoly(e, (50, 4600, 106260, 961400, 4085950, 8914800, 10400600, 6537520, 2163150, 354200, 25300, 600, 2))
+@inline asymptotic_coefficient_13(e) = 7905853580625 * evalpoly(e, (-54, -5850, -161460, -1776060, -9373650, -26075790, -40116600, -34767720, -16872570, -4440150, -592020, -35100, -702, -2))
+@inline asymptotic_coefficient_14(e) = 213458046676875 * evalpoly(e, (58, 7308, 237510, 3121560, 20030010, 69194580, 135727830, 155117520, 103791870, 40060020, 8584290, 950040, 47502, 812, 2))
+@inline asymptotic_coefficient_15(e) = 6190283353629375 * evalpoly(e, (-62, -8990, -339822, -5259150, -40320150, -169344630, -412506150, -601080390, -530365050, -282241050, -88704330, -15777450, -1472562, -62930, -930, -2))
+@inline asymptotic_coefficient_16(e) = 191898783962510625 * evalpoly(e, (66, 10912, 474672, 8544096, 77134200, 387073440, 1146332880, 2074316640, 2333606220, 1637618400, 709634640, 185122080, 27768312, 2215136, 81840, 1056, 2))
