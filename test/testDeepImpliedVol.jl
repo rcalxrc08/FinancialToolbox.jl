@@ -6,7 +6,7 @@ inputs = loaded_obj["input"]
 outputs = loaded_obj["output"]
 N = length(inputs);
 toll = 1e-12
-toll_vol = 1e-3
+toll_vol = 1e-6
 counter_el = 0
 for i = 1:N
     r = 0.0
@@ -22,9 +22,8 @@ for i = 1:N
     if F != 0.0 && T != 0.0 && K != 0.0 && sigma != 0.0
         price_internal = blkprice(F, K, r, T, sigma, iscall)
         @test abs(price_internal - expected_res) < toll
-        xtol = eps(Float64)
+        xtol = eps(zero(Float64))
         n_iter = 5
-        #sigma_computed = blkimpv(big(F), big(K), big(r), big(T), big(price_internal), iscall,big(xtol),n_iter)
         sigma_computed = blkimpv(F, K, r, T, price_internal, iscall, xtol, n_iter)
         price_internal2 = blkprice(F, K, r, T, sigma, !iscall)
         sigma_computed2 = 0.0
@@ -32,7 +31,6 @@ for i = 1:N
             sigma_computed2 = blkimpv(F, K, r, T, price_internal2, !iscall, xtol, n_iter)
         end
 
-        #sigma_loaded = outputs[i]["implied_volatility_from_a_transformed_rational_guess_with_limited_iterations"]
         if abs(sigma_computed - sigma) > toll_vol && abs(sigma_computed2 - sigma) > toll_vol
             #This is the last trial, we switch to BigFloats to try to achieve the result
             sigma_big = big(sigma)

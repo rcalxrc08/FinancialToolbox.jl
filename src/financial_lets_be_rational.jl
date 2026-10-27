@@ -540,7 +540,7 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
                     h = x / s
                     sqr_h_s = square(h / s)
                     b_halley = s * (sqr_h_s - 1 // 4)
-                    newton = (ln_beta - ln_b) * ln_b / ln_beta / bpob
+                    newton = (ln_beta - ln_b) * ln_b / (ln_beta * bpob)
                     inv_lnb = inv(ln_b)
                     @muladd halley = b_halley - bpob * (1 + 2 * inv_lnb)
                     @muladd b_hh3 = square(b_halley) - 3 * sqr_h_s - 1 // 4
@@ -678,8 +678,9 @@ function unchecked_normalised_implied_volatility_from_a_transformed_rational_gue
         supp = sqr_x / square(sqr_s)
         halley = s * (supp - 1 // 4)
         hh3 = square(halley) - 3 * supp - 1 // 4
-        ds = max(-s / 2, newton * householder_factor(newton, halley, hh3))
-        s += ds
+        # ds = max(-s / 2, newton * householder_factor(newton, halley, hh3))
+        # s += ds
+		s = max(s / 2,s + newton * householder_factor(newton, halley, hh3))
     end
     return s
 end
