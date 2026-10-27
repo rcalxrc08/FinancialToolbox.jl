@@ -15,4 +15,7 @@ using Mooncake: @from_chainrules, DefaultCtx
     Int,
 }
 
+# Same for the Black formula, whose derivatives are known in closed form
+@from_chainrules DefaultCtx Tuple{typeof(FinancialToolbox.blprice_impl), Base.IEEEFloat, Base.IEEEFloat, Base.IEEEFloat, Base.IEEEFloat, Bool}
+
 end

@@ -40,6 +40,25 @@ _, dS0, dK, dT, dprice = pullback(1.0)
 @test dprice ≈ 1 / FinancialToolbox.blvega_impl(S0, K, T, σ_cr)
 @test dσ ≈ dS0 + 2 * dK + 3 * dT + 4 * dprice
 
+# Pricers: Mooncake uses the ChainRulesCore rules of blprice_impl
+@assert Mooncake.is_primitive(
+    Mooncake.DefaultCtx,
+    Mooncake.ReverseMode,
+    Tuple{typeof(FinancialToolbox.blprice_impl),Float64,Float64,Float64,Float64,Bool},
+    Base.get_world_counter(),
+)
+for FlagIsCall in (true, false)
+    x_price = [S0, K, r, T, σ, d]
+    p(x) = @views blsprice(x[1:1][], x[2:2][], x[3:3][], x[4:4][], x[5:5][], x[6:6][], FlagIsCall)
+    pk(x) = @views blkprice(x[1:1][], x[2:2][], x[3:3][], x[4:4][], x[5:5][], FlagIsCall)
+    for (fun, x0) in ((p, x_price), (pk, x_price[1:5]))
+        g_ref = ForwardDiff.gradient(fun, x0)
+        for backend in (DI.AutoMooncake(), DI.AutoMooncakeForward())
+            @test DI.gradient(fun, DI.prepare_gradient(fun, backend, x0), backend, x0) ≈ g_ref
+        end
+    end
+end
+
 # hess_backend_1 = DI.SecondOrder(DI.AutoMooncakeForward(), DI.AutoMooncake())
 # hess_cache_1 = DI.prepare_hessian(f, hess_backend_1, x)
 # H1 = DI.hessian(f, hess_cache_1, hess_backend_1, x)

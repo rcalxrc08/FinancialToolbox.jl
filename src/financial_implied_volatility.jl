@@ -122,14 +122,8 @@ end
 # Sensitivities of σ = blimpv(S0, K, T, price_d) via the implicit function theorem:
 # dσ/dθ = -(∂P/∂θ) / vega, with closed-form partials of blprice_impl.
 function blimpv_sensitivities(S0, K, T, σ, FlagIsCall::Bool)
-    sqrtT = sqrt(T)
-    sigma_sqrtT = σ * sqrtT
-    d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
-    inv_vega = inv(S0 * normpdf(d1) * sqrtT)
-    nd1 = normcdf(d1)
-    nd2 = normcdf(d1 - sigma_sqrtT)
-    der_S0 = ifelse(FlagIsCall, nd1, nd1 - one_internal)
-    der_K = ifelse(FlagIsCall, -nd2, one_internal - nd2)
+    _, der_S0, der_K, _, vega = blprice_and_sensitivities(S0, K, T, σ, FlagIsCall)
+    inv_vega = inv(vega)
     return -der_S0 * inv_vega, -der_K * inv_vega, -σ / (two_internal * T), inv_vega
 end
 
