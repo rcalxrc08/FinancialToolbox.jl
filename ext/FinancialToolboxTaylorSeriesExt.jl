@@ -16,10 +16,12 @@ const TaylorType = Union{Taylor1,TaylorN}
 constant_value(a::Taylor1) = a[0]
 constant_value(a::TaylorN) = a[0][1]
 constant_value(x) = x
-constant_term(::Taylor1, v) = v
-constant_term(::TaylorN, v) = HomogeneousPolynomial([v], 0)
-series(a::Taylor1, coeffs) = Taylor1(coeffs, get_order(a))
-series(a::TaylorN, coeffs) = TaylorN(coeffs, get_order(a))
+constant_coefficient(::Taylor1, v) = v
+constant_coefficient(::TaylorN, v) = HomogeneousPolynomial([v], 0)
+# The order is the number of coefficients - 1 (get_order up to TaylorSeries 0.20, order from 0.23)
+series_order(a::TaylorType) = length(a.coeffs) - 1
+series(a::Taylor1, coeffs) = Taylor1(coeffs, series_order(a))
+series(a::TaylorN, coeffs) = TaylorN(coeffs, series_order(a))
 
 # Coefficient k of a product: Σ_{j=jmin}^{k} a_j b_{k-j} (vectors are 1-based)
 convolution(a, b, k, jmin) = sum(a[j+1] * b[k-j+1] for j = jmin:k)
@@ -37,12 +39,12 @@ scale(x::HomogeneousPolynomial, num, den) = (x.coeffs.=x.coeffs .* num ./ den; x
 
 # erfc(a)' = g a' with g = -2 / √π exp(-a²), and g' = -2 a g a'
 function erfc(a::TaylorType)
-    n = get_order(a)
+    n = series_order(a)
     av = a.coeffs
     ja = [j * av[j+1] for j = 0:n] # j a_j
     a0 = constant_value(a)
-    c0 = constant_term(a, erfc(a0))
-    g0 = constant_term(a, -2 * exp(-a0^2) / sqrtπ)
+    c0 = constant_coefficient(a, erfc(a0))
+    g0 = constant_coefficient(a, -2 * exp(-a0^2) / sqrtπ)
     c = Vector{typeof(c0)}(undef, n + 1)
     g = Vector{typeof(g0)}(undef, n + 1)
     ag = Vector{typeof(av[1] * g0)}(undef, n + 1)
@@ -63,7 +65,7 @@ blcheck_impl(::TaylorType, S0, K, T, σ) = FinancialToolbox.blcheck(constant_val
 function blimpv_impl(::TaylorType, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ0 = blimpv(constant_value(S0), constant_value(K), constant_value(T), constant_value(price_d), FlagIsCall, xtol, n_iter_max)
     σ = σ0 + zero(S0) + zero(K) + zero(T) + zero(price_d)
-    return blimpv_series_newton(σ, S0, K, T, price_d, FlagIsCall, get_order(σ))
+    return blimpv_series_newton(σ, S0, K, T, price_d, FlagIsCall, series_order(σ))
 end
 
 end

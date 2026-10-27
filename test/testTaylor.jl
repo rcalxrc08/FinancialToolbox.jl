@@ -1,6 +1,9 @@
 using Test
 using FinancialToolbox, TaylorSeries
 
+# TaylorSeries 0.23 renamed set_variables to variables!
+taylorn_variables(names; order) = isdefined(TaylorSeries, :variables!) ? TaylorSeries.variables!(names; order = order) : TaylorSeries.set_variables(names; order = order)
+
 #Test Parameters
 spot = 10.0;
 K = 10;
@@ -19,7 +22,7 @@ PriceCall = blsprice(spotDual, K, r, T, sigma, d);
 gamma_opt = blsgamma(spot, K, r, T, sigma, d);
 @test(abs(gamma_opt - PriceCall[2] * 2) < toll)
 
-dS0, dr, dsigma = set_variables("dS0 dr dsigma", order = 4)
+dS0, dr, dsigma = taylorn_variables("dS0 dr dsigma", order = 4)
 PriceCall2 = blsprice(spot + dS0, K, r + dr, T, sigma + dsigma, d);
 @test(abs(1.1912013169995816 - PriceCall2[0][1]) < toll)
 @test(abs(0.5724340508103682 - PriceCall2[1][1]) < toll)
@@ -78,7 +81,7 @@ y_nested = Taylor1([Taylor1([0.8], 1), one(Taylor1([0.8], 1))], 1)
 @test(abs(normcdf(x_nested * y_nested)[1][1] - normpdf(0.4) * (1 - 0.4^2)) < 1e-15)
 
 #normcdf on TaylorN: compare with the univariate series evaluated on the (multivariate) argument
-x_n, y_n = set_variables("x y", order = 5)
+x_n, y_n = taylorn_variables("x y", order = 5)
 normcdf_n = normcdf(x0 + x_n + 2 * y_n)
 normcdf_n_ref = evaluate(normcdf(x0 + Taylor1(Float64, 5)), x_n + 2 * y_n)
 @test(all(k -> maximum(abs, (normcdf_n - normcdf_n_ref)[k].coeffs) < 1e-15, 0:5))

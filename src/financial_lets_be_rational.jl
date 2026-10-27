@@ -8,7 +8,7 @@
 # point types use them with (at most) Float64 accuracy in the initial guess and the exact formulas elsewhere.
 
 using MuladdMacro
-using IrrationalConstants: IrrationalConstants, sqrt2, invsqrt2, sqrt2π, invsqrt2π, sqrthalfπ, twoπ, log2π, sqrt3
+using IrrationalConstants: IrrationalConstants, sqrt2, invsqrt2, sqrt2π, invsqrt2π, sqrthalfπ, log2π, sqrt3
 using SpecialFunctions: erf, erfc, erfcx, erfinv
 
 IrrationalConstants.@irrational twoπ_over_sqrt27 2 * big(π) / sqrt(big(27))
@@ -218,14 +218,10 @@ end
     return t * (B0 + t² * (B1 + t² * (B2 + t² * (B3 + t² * (B4 + t² * (B5 + B6 * t²))))))
 end
 
-# Region III: b = ½·[exp(x/2)·erfc(q₁) - exp(-x/2)·erfc(q₂)] with erfc(q) = erfcx(q)·exp(-q²) where that saves exponentials.
-# The exponentials are passed in: b_max = exp(x/2) is fixed by x, and E = exp(-(h²+t²)/2) = exp(x/2-q₁²) = exp(-x/2-q₂²)
-# is shared with the vega.
-function normalised_black_with_optimal_use_of_codys_functions(x, s, b_max, E)
-    h = x / s
-    t = s / 2
-    q₁ = -(invsqrt2 * (h + t))
-    q₂ = -(invsqrt2 * (h - t))
+# Region III: b = ½·[exp(x/2)·erfc(q₁) - exp(-x/2)·erfc(q₂)], q₁ = -(h+t)/√2, q₂ = -(h-t)/√2, with erfc(q) = erfcx(q)·exp(-q²)
+# where that saves exponentials. The exponentials are passed in: b_max = exp(x/2) is fixed by x, and
+# E = exp(-(h²+t²)/2) = exp(x/2-q₁²) = exp(-x/2-q₂²) = √(2π)·∂b/∂s is shared with the vega.
+function normalised_black_with_optimal_use_of_codys_functions(q₁, q₂, b_max, E)
     threshold = typed_literal(q₁, CODY_THRESHOLD)
     if q₁ < threshold
         if q₂ < threshold
@@ -241,35 +237,36 @@ function normalised_black_with_optimal_use_of_codys_functions(x, s, b_max, E)
     return max(two_b / 2, zero(two_b))
 end
 
-# exp(-(h²+t²)/2) = √(2π)·∂b/∂s
-vega_exponential(x, s) = exp(-(square(x / s) + square(s / 2)) / 2)
 inv_normalised_vega(x, s) = sqrt2π * exp((square(x / s) + square(s / 2)) / 2)
-ln_normalised_vega(x, s) = -(log2π + square(x / s) + square(s / 2)) / 2
 
-# (b, 1/b') sharing the exponential; requires s > 0 and x < 0
-function normalised_black_and_inv_vega(x, s, b_max)
-    E = vega_exponential(x, s)
-    inv_vega = sqrt2π / E
+# b(x, s) for s > 0 and x < 0, given h = x/s, t = s/2, b_max and E (see above)
+function normalised_black(x, s, h, t, b_max, E)
     if is_region_I(x, s)
-        return asymptotic_expansion_of_scaled_normalised_black(x / s, s / 2) / inv_vega, inv_vega
+        return asymptotic_expansion_of_scaled_normalised_black(h, t) * (invsqrt2π * E)
     end
     if is_region_II(x, s)
-        return small_t_expansion_of_scaled_normalised_black(x / s, s / 2) / inv_vega, inv_vega
+        return small_t_expansion_of_scaled_normalised_black(h, t) * (invsqrt2π * E)
     end
-    return normalised_black_with_optimal_use_of_codys_functions(x, s, b_max, E), inv_vega
+    return normalised_black_with_optimal_use_of_codys_functions(-(invsqrt2 * (h + t)), -(invsqrt2 * (h - t)), b_max, E)
 end
 
-# (b/b', ln b'), so that ln(b) is available without underflow in the lowest branch
-function scaled_normalised_black_and_ln_vega(x, s, b_max)
-    ln_vega = ln_normalised_vega(x, s)
+# b/b' (so that ln(b) = ln(b/b') + ln(b') is available without underflow in the lowest branch), given h, t, b_max and
+# h² + t² = -2·ln(√(2π)·b')
+function scaled_normalised_black(x, s, h, t, b_max, h²_plus_t²)
     if is_region_I(x, s)
-        return asymptotic_expansion_of_scaled_normalised_black(x / s, s / 2), ln_vega
+        return asymptotic_expansion_of_scaled_normalised_black(h, t)
     end
     if is_region_II(x, s)
-        return small_t_expansion_of_scaled_normalised_black(x / s, s / 2), ln_vega
+        return small_t_expansion_of_scaled_normalised_black(h, t)
     end
-    E = vega_exponential(x, s)
-    return normalised_black_with_optimal_use_of_codys_functions(x, s, b_max, E) * sqrt2π / E, ln_vega
+    q₁ = -(invsqrt2 * (h + t))
+    q₂ = -(invsqrt2 * (h - t))
+    threshold = typed_literal(q₁, CODY_THRESHOLD)
+    if q₁ >= threshold && q₂ >= threshold # E cancels: b/b' = √(π/2)·(erfcx(q₁) - erfcx(q₂))
+        return max(sqrthalfπ * (erfcx(q₁) - erfcx(q₂)), zero(q₁))
+    end
+    E = exp(-h²_plus_t² / 2)
+    return normalised_black_with_optimal_use_of_codys_functions(q₁, q₂, b_max, E) * sqrt2π / E
 end
 
 ## Initial guess: maps of the lowest and highest branch, and b_l, b_u
@@ -279,12 +276,14 @@ end
     z = ax / (sqrt3 * s)
     y = square(z)
     s2 = square(s)
-    Phi = erfc(invsqrt2 * z) / 2
-    phi = normpdf(z)
-    fpp = π * y / (6 * s2 * s) * Phi * (8 * (sqrt3 * s * ax) + (3 * s2 * (s2 - 8) - 8 * square(x)) * Phi / phi) * exp(2 * y + s2 / 4)
-    Phi2 = square(Phi)
-    fp = twoπ * y * Phi2 * exp(y + s2 / 8)
-    f = twoπ_over_sqrt27 * ax * (Phi2 * Phi)
+    # With Φ := Φ(-z) = erfcx(z/√2)·exp(-y/2)/2 and Φ/φ(z) = √(π/2)·erfcx(z/√2) the exponentials partly cancel:
+    # f = (2π/√27)·|x|·Φ³, f' = 2π·y·Φ²·exp(y + s²/8), f'' = (π/6)·(y/s³)·Φ·(8√3·s·|x| + (3s²(s²-8) - 8x²)·Φ/φ)·exp(2y + s²/4)
+    ex = erfcx(invsqrt2 * z)
+    exp_y = exp(-3 * y / 2) # = (2Φ/erfcx)³
+    exp_s = exp(s2 / 8)
+    fpp = π * y / (12 * s2 * s) * ex * (8 * (sqrt3 * s * ax) + (3 * s2 * (s2 - 8) - 8 * square(x)) * (sqrthalfπ * ex)) * (square(exp_s) / exp_y)
+    fp = π * y * square(ex) * exp_s / 2
+    f = twoπ_over_sqrt27 * ax * (square(ex) * ex) * exp_y / 8
     return f, fp, fpp
 end
 
@@ -379,15 +378,19 @@ end
             end
             s = inverse_f_lower_map(x, f)
             ln_β = log(β)
+            inv_ln_β = inv(ln_β)
             while iterations < N && abs(ds) > tol * s
                 iterations += 1
-                bx, ln_vega = scaled_normalised_black_and_ln_vega(x, s, b_max)
-                ln_b = log(bx) + ln_vega
-                bpob = inv(bx)
                 h = x / s
-                x²_over_s³ = square(h) / s
+                t = s / 2
+                h² = square(h)
+                h²_plus_t² = h² + square(t)
+                bx = scaled_normalised_black(x, s, h, t, b_max, h²_plus_t²)
+                ln_b = log(bx) - (log2π + h²_plus_t²) / 2 # ln(b/b') + ln(b')
+                bpob = inv(bx)
+                x²_over_s³ = h² / s
                 b_h₂ = x²_over_s³ - s / 4
-                newton = (ln_β - ln_b) * ln_b / ln_β * bx
+                newton = (ln_β - ln_b) * ln_b * inv_ln_β * bx
                 λ = inv(ln_b)
                 otλ = 1 + 2 * λ
                 h₂ = b_h₂ - bpob * otλ
@@ -442,10 +445,13 @@ end
                     iterations += 1
                     h = x / s
                     t = s / 2
-                    gp = invsqrt2π * (2 / (erfcx((t + h) * invsqrt2) + erfcx((t - h) * invsqrt2))) # b'/b̄
-                    b_bar = invsqrt2π * vega_exponential(x, s) / gp
+                    h² = square(h)
+                    # b̄ = exp(-(h²+t²)/2)·(erfcx((t+h)/√2) + erfcx((t-h)/√2))/2 and b' = exp(-(h²+t²)/2)/√(2π)
+                    erfcx_sum = erfcx((t + h) * invsqrt2) + erfcx((t - h) * invsqrt2)
+                    gp = invsqrt2π * (2 / erfcx_sum) # b'/b̄
+                    b_bar = exp(-(h² + square(t)) / 2) * erfcx_sum / 2
                     g = log(β_bar / b_bar)
-                    x²_over_s³ = square(h) / s
+                    x²_over_s³ = h² / s
                     b_h₂ = x²_over_s³ - s / 4
                     c = 3 * (x²_over_s³ / s)
                     b_h₃ = square(b_h₂) - c - 1 // 4
@@ -467,10 +473,12 @@ end
     # Middle branches: objective g(s) = b(s) - β
     while iterations < N && abs(ds) > tol * s
         iterations += 1
-        b, inv_bp = normalised_black_and_inv_vega(x, s, b_max)
-        newton = (β - b) * inv_bp
         h = x / s
-        x²_over_s³ = square(h) / s
+        t = s / 2
+        h² = square(h)
+        E = exp(-(h² + square(t)) / 2) # √(2π)·b'
+        newton = (β - normalised_black(x, s, h, t, b_max, E)) * sqrt2π / E
+        x²_over_s³ = h² / s
         h₂ = x²_over_s³ - s / 4
         h₃ = square(h₂) - 3 * (x²_over_s³ / s) - 1 // 4
         ds = newton * householder3_factor(newton, h₂, h₃)
