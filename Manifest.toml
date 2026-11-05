@@ -48,10 +48,10 @@ version = "0.1.10"
 
 [[deps.ChainRulesCore]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "2837d5e33ebea31603bcd1b841a87eee083147dd"
+git-tree-sha1 = "295fa9b898db109bc56df62c0fc20bd105cec00e"
 registries = "General"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.26.5"
+version = "1.26.8"
 weakdeps = ["SparseArrays"]
 
     [deps.ChainRulesCore.extensions]
@@ -101,10 +101,10 @@ version = "1.5.5+2"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
-git-tree-sha1 = "d5e5fa1f0d6ca517edbbcd734efa93c6639405b0"
+git-tree-sha1 = "8e0b1057b8c3627562526304d3cc8f835fbb36c0"
 registries = "General"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
-version = "2.7.1"
+version = "2.8.0"
 
 [[deps.Crayons]]
 git-tree-sha1 = "54b76cbb40d9a0f5368c880725b2f141da77c94f"
@@ -476,10 +476,10 @@ version = "1.11.0"
 
 [[deps.Mooncake]]
 deps = ["ADTypes", "ChainRulesCore", "DispatchDoctor", "ExprTools", "LinearAlgebra", "MistyClosures", "PrecompileTools", "Random", "Test"]
-git-tree-sha1 = "fd7e7b6ccd28a8ef3ace4a756b434472d013691c"
+git-tree-sha1 = "097552f9232f785f013cf3eb0a2501499b7b1e2f"
 registries = "General"
 uuid = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
-version = "0.5.66"
+version = "0.5.68"
 
     [deps.Mooncake.extensions]
     MooncakeAllocCheckExt = "AllocCheck"
@@ -489,14 +489,12 @@ version = "0.5.66"
     MooncakeDistancesExt = "Distances"
     MooncakeDistributionsExt = "Distributions"
     MooncakeDynamicExpressionsExt = "DynamicExpressions"
-    MooncakeFluxExt = "Flux"
     MooncakeFunctionWrappersExt = "FunctionWrappers"
     MooncakeJETExt = "JET"
     MooncakeLogExpFunctionsExt = "LogExpFunctions"
     MooncakeLuxLibExt = ["LuxLib", "MLDataDevices", "Static"]
     MooncakeLuxLibNNlibExt = ["LuxLib", "NNlib"]
     MooncakeLuxLibSLEEFPiratesExtension = ["LuxLib", "SLEEFPirates"]
-    MooncakeNNlibExt = ["NNlib", "LinearAlgebra"]
     MooncakeSpecialFunctionsExt = "SpecialFunctions"
     MooncakecuDNNExt = ["CUDA", "cuDNN"]
 
@@ -556,10 +554,10 @@ version = "0.8.7+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "NetworkOptions", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "9129758d7825178aec8001e879f32c3bd15bd38e"
+git-tree-sha1 = "571a7f66ba42342ee37b46e5b927d3883983b3c1"
 registries = "General"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.9.0"
+version = "1.11.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -586,10 +584,10 @@ version = "10.47.0+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
-git-tree-sha1 = "e24b87585a307a3c3225cb9b64d03802a1e01edd"
+git-tree-sha1 = "2facd7b5863092567d54590997caf8f6db8e0b1e"
 registries = "General"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.8.10"
+version = "2.8.11"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "Zstd_jll", "p7zip_jll"]
@@ -630,10 +628,10 @@ version = "1.6.1"
 
 [[deps.PrettyTables]]
 deps = ["Crayons", "LaTeXStrings", "Markdown", "PrecompileTools", "Printf", "REPL", "Reexport", "StringManipulation", "StyledStrings", "Tables"]
-git-tree-sha1 = "99fd8f32ab6728ff205cddd24e2d9ea6cbb498d3"
+git-tree-sha1 = "eeac4c9337f876c3c32b8da732141953567f57c9"
 registries = "General"
 uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "3.5.0"
+version = "3.5.1"
 
     [deps.PrettyTables.extensions]
     PrettyTablesExcelExt = "XLSX"
@@ -802,10 +800,10 @@ version = "0.11.3"
 
 [[deps.URIs]]
 deps = ["Serialization"]
-git-tree-sha1 = "50eda8011f098869a76da69a524ff59e0298711a"
+git-tree-sha1 = "eb3b85ca904a1d1647b15acc091b113b8874b648"
 registries = "General"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.7.2"
+version = "1.7.3"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
