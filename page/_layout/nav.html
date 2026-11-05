@@ -1,12 +1,12 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-  <div class="container">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+  <div class="wrap nav-wrap">
     <span class="navbar-brand">
       {{if add_nav_logo}}
-        <img src="{{nav_logo_path}}" class="img-fluid" style="{{nav_logo_style}}" alt="{{nav_logo_alt}}"/>
+        <img src="{{nav_logo_path}}" style="{{nav_logo_style}}" alt="{{nav_logo_alt}}"/>
       {{end}}
       <a href="#page-top">{{title}}</a>
       {{if add_docs}}
-      ｜ <a href="{{docs_url}}" target="_blank">{{docs_name}}</a>
+      <span class="sep">·</span> <a href="{{docs_url}}" target="_blank">{{docs_name}}</a>
       {{end}}
     </span>
     <input type="checkbox" id="navbar-toggler-cbox" class="d-none" />
