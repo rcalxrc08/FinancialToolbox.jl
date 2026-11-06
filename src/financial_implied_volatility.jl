@@ -56,26 +56,34 @@ function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool, xtol:
 end
 
 """
-Black & Scholes Implied Volatility for European Options
+    blsimpv(S0, K, r, T, Price, d, FlagIsCall = true, xtol = 100eps(), n_iter_max = 4)
 
-		σ=blsimpv(S0,K,r,T,Price,d=0.0,FlagIsCall=true,xtol=1e-14,ytol=1e-15)
+Implied volatility of a European option in the Black and Scholes model: the `σ` such that
+`blsprice(S0, K, r, T, σ, d, FlagIsCall) == Price`.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		Price      = Price of the Option.
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
+It is computed with the 2024 version of Peter Jäckel's
+[Let's Be Rational](http://www.jaeckel.org/LetsBeRational.pdf), accurate to the attainable machine precision.
+`n_iter_max` is the maximum number of Householder iterations (two are enough for any input in `Float64`); `xtol` is the
+relative tolerance of the Newton iteration for complex inputs.
 
-		σ          = implied volatility of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `Price`: price of the option.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsimpv(10.0,10.0,0.01,2.0,2.0)
-0.3433730534290586
+```jldoctest
+julia> price = blsprice(10.0, 10.0, 0.01, 2.0, 0.2, 0.01);
+
+julia> blsimpv(10.0, 10.0, 0.01, 2.0, price, 0.01)
+0.20000000000000018
 ```
+
+See also [`blkimpv`](@ref), [`blsprice`](@ref).
 """
 function blsimpv(S0, K, r, T, Price, d, FlagIsCall::Bool=true, xtol::Real=100 * eps(Float64), n_iter_max::Integer=4)
     cv = exp(r * T)
@@ -87,24 +95,25 @@ function blsimpv(S0, K, r, T, Price, d, FlagIsCall::Bool=true, xtol::Real=100 * 
 end
 
 """
-Black Implied Volatility for European Options
+    blkimpv(F0, K, r, T, Price, FlagIsCall = true, xtol = 1e-14, n_iter_max = 4)
 
-		σ=blkimpv(F0,K,r,T,Price,FlagIsCall=true,xtol=1e-14,ytol=1e-15)
+Implied volatility of a European option on a forward in the Black model: the `σ` such that
+`blkprice(F0, K, r, T, σ, FlagIsCall) == Price`. See [`blsimpv`](@ref) for the method.
 
-Where:\n
-		F0         = Value of the Forward.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		Price      = Price of the Option.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		σ          = implied volatility of the European Option.
+# Arguments
+- `F0`: forward price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `Price`: price of the option.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blkimpv(10.0,10.0,0.01,2.0,2.0)
-0.36568658096623635
+```jldoctest
+julia> price = blkprice(10.0, 10.0, 0.01, 2.0, 0.2);
+
+julia> blkimpv(10.0, 10.0, 0.01, 2.0, price)
+0.19999999999999996
 ```
 """
 function blkimpv(F0, K, r, T, Price, FlagIsCall::Bool = true, xtol::Real = 1e-14, n_iter_max::Integer = 4)

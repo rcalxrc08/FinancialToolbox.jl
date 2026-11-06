@@ -44,7 +44,7 @@ Every function is generic in the number type:
 
 The implied volatility is never differentiated through the numerical solver: its derivatives are defined analytically via the
 implicit function theorem, $\partial_\theta \sigma = -\partial_\theta f / \partial_\sigma f$ where $f$ is the Black and Scholes price
-(ChainRulesCore `frule`/`rrule` and native rules for Enzyme, ForwardDiff and the Taylor series packages, see the [landing page](https://rcalxrc08.github.io/FinancialToolbox.jl/#AD)).
+(ChainRulesCore `frule`/`rrule` and native rules for Enzyme, ForwardDiff and the Taylor series packages, see the [documentation](https://rcalxrc08.github.io/FinancialToolbox.jl/ad/)).
 
 ## Performance
 Time to compute the price and the implied volatility, and their gradients with respect to all the inputs
@@ -56,7 +56,7 @@ with a forward (TaylorSeries, order one `TaylorN` in the six inputs) and a rever
 | `blsimpv(S0, K, r, T, price, d)` | 501 ns | 19.30 μs (38.6×) | 833 ns (1.7×) |
 
 Julia 1.13.1, Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz, FinancialToolbox 0.7.1; minimum time over the BenchmarkTools samples,
-in brackets the ratio to the value. The [landing page](https://rcalxrc08.github.io/FinancialToolbox.jl/#Performance) shows the same table
+in brackets the ratio to the value. The [documentation](https://rcalxrc08.github.io/FinancialToolbox.jl/performance/) shows the same table
 measured on the latest version of the package.
 
 ## How to Install

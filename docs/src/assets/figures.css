@@ -1,0 +1,4 @@
+/* Each figure exists in a light and a dark variant: only the one of the current theme is shown. */
+html.theme--documenter-dark img[src$="-light.svg"] { display: none; }
+html:not(.theme--documenter-dark) img[src$="-dark.svg"] { display: none; }
+img[src$="-light.svg"], img[src$="-dark.svg"] { display: block; max-width: 100%; margin: 1em auto; }

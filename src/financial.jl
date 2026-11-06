@@ -7,17 +7,12 @@ const two_internal = Int8(2)
 call_put_sign(FlagIsCall::Bool) = ifelse(FlagIsCall, one_internal, minus_one_internal)
 ChainRulesCore.@non_differentiable call_put_sign(::Bool)
 """
-Cumulative Distribution Function of a Standard Gaussian Random Variable
+    normcdf(x)
 
-		y=normcdf(x)
-
-Where:\n
-		x         = point of evaluation.
-
-		y      = probability that a standard gaussian random variable is below x.
+Cumulative distribution function of a standard Gaussian random variable at `x`, computed with `erfc`.
 
 # Example
-```julia-repl
+```jldoctest
 julia> normcdf(0.0)
 0.5
 ```
@@ -27,17 +22,12 @@ function normcdf(x)
 end
 
 """
-Probability Distribution Function of a Standard Gaussian Random Variable
+    normpdf(x)
 
-		y=normpdf(x)
-
-Where:\n
-		x         = point of evaluation.
-
-		y      = value.
+Probability density function of a standard Gaussian random variable at `x`.
 
 # Example
-```julia-repl
+```jldoctest
 julia> normpdf(0.0)
 0.3989422804014327
 ```
@@ -47,24 +37,23 @@ function normpdf(x)
 end
 
 """
-Black Price for Binary European Options
+    blsbin(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Price=blsbin(S0,K,r,T,σ,FlagIsCall=true)
+Price of a binary (cash-or-nothing) European option paying 1 in the Black and Scholes model.
 
-Where:\n
-		F0         = Value of the Forward.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Price      = price of the Binary European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsbin(10.0,10.0,0.01,2.0,0.2)
-0.4624714677292208
+```jldoctest
+julia> blsbin(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
+0.4349813361147117
 ```
 """
 function blsbin(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
@@ -80,26 +69,26 @@ function blsbin(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
 end
 
 """
-Black & Scholes Delta for European Options
+    blsdelta(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Δ=blsdelta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Delta, the derivative of the price with respect to `S0`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Δ          = delta of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsdelta(10.0,10.0,0.01,2.0,0.2,0.01)
+```jldoctest
+julia> blsdelta(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
 0.5452173371920436
 ```
+
+See also [`blsprice`](@ref).
 """
 function blsdelta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
@@ -155,26 +144,29 @@ function blprice(S0, K, T, σ, FlagIsCall::Bool = true)
     return blprice_impl(S0, K, T, σ, FlagIsCall)
 end
 """
-Black & Scholes Price for European Options
+    blsprice(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Price=blsprice(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Price of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Price      = price of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsprice(10.0,10.0,0.01,2.0,0.2,0.01)
-1.1023600107733191
+```jldoctest
+julia> blsprice(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
+1.102360010773319
+
+julia> blsprice(10.0, 10.0, 0.01, 2.0, 0.2, 0.01, false)
+1.102360010773319
 ```
+
+See also [`blkprice`](@ref), [`blsimpv`](@ref).
 """
 function blsprice(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     cv = exp(r * T)
@@ -183,51 +175,51 @@ function blsprice(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     return blprice(F, K, T, σ, FlagIsCall) / cv
 end
 """
-Black Price for European Options
+    blkprice(F0, K, r, T, σ, FlagIsCall = true)
 
-		Price=blkprice(F0,K,r,T,σ,FlagIsCall=true)
+Price of a European option on a forward in the Black model.
 
-Where:\n
-		F0         = Value of the Forward.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Price      = price of the European Option.
+# Arguments
+- `F0`: forward price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blkprice(10.0,10.0,0.01,2.0,0.2)
-1.1023600107733191
+```jldoctest
+julia> blkprice(10.0, 10.0, 0.01, 2.0, 0.2)
+1.102360010773319
 ```
+
+See also [`blsprice`](@ref), [`blkimpv`](@ref).
 """
 function blkprice(F0, K, r, T, σ, FlagIsCall::Bool = true)
     cv = exp(r * T)
     return blprice(F0, K, T, σ, FlagIsCall) / cv
 end
 """
-Black & Scholes Gamma for European Options
+    blsgamma(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Γ=blsgamma(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Gamma, the second derivative of the price with respect to `S0`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Γ          = gamma of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsgamma(10.0,10.0,0.01,2.0,0.2,0.01)
-0.13687881535712826
+```jldoctest
+julia> blsgamma(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
+0.1368788153571282
 ```
+
+See also [`blsprice`](@ref).
 """
 function blsgamma(S0, K, r, T, σ, d, ::Bool = true)
     blcheck(S0, K, T, σ)
@@ -251,26 +243,26 @@ function blvega(S0, K, T, σ)
     return blvega_impl(S0, K, T, σ)
 end
 """
-Black & Scholes Vega for European Options
+    blsvega(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		ν=blsvega(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Vega, the derivative of the price with respect to `σ`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		ν          = vega of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsvega(10.0,10.0,0.01,2.0,0.2,0.01)
-5.475152614285131
+```jldoctest
+julia> blsvega(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
+5.47515261428513
 ```
+
+See also [`blsprice`](@ref).
 """
 function blsvega(S0, K, r, T, σ, d, ::Bool = true)
     cv = exp(r * T)
@@ -280,26 +272,26 @@ function blsvega(S0, K, r, T, σ, d, ::Bool = true)
 end
 
 """
-Black & Scholes Rho for European Options
+    blsrho(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		ρ=blsrho(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Rho, the derivative of the price with respect to `r`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		ρ          = rho of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsrho(10.0,10.0,0.01,2.0,0.2,0.01)
+```jldoctest
+julia> blsrho(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
 8.699626722294234
 ```
+
+See also [`blsprice`](@ref).
 """
 function blsrho(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
@@ -314,26 +306,26 @@ function blsrho(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
 end
 
 """
-Black & Scholes Theta for European Options
+    blstheta(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Θ=blstheta(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Theta, minus the derivative of the price with respect to `T`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Θ          = theta of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blstheta(10.0,10.0,0.01,2.0,0.2,0.01)
--0.26273403060652334
+```jldoctest
+julia> blstheta(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
+-0.2627340306065233
 ```
+
+See also [`blsprice`](@ref).
 """
 function blstheta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
@@ -353,26 +345,26 @@ function blstheta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
 end
 
 """
-Black & Scholes Lambda for European Options
+    blslambda(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Λ=blslambda(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Lambda, the elasticity `Δ S0 / price`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Λ          = lambda of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blslambda(10.0,10.0,0.01,2.0,0.2,0.01)
+```jldoctest
+julia> blslambda(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
 4.945909973725978
 ```
+
+See also [`blsprice`](@ref).
 """
 function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
@@ -429,26 +421,26 @@ ChainRulesCore.@non_differentiable blcheck(::Any, ::Any, ::Any, ::Any)
 ##	ADDITIONAL Functions
 
 """
-Black & Scholes Psi for European Options
+    blspsi(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Ψ=blspsi(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Psi, the derivative of the price with respect to `d`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Ψ          = psi of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blspsi(10.0,10.0,0.01,2.0,0.2,0.01)
+```jldoctest
+julia> blspsi(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
 -10.904346743840872
 ```
+
+See also [`blsprice`](@ref).
 """
 function blspsi(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
@@ -463,26 +455,26 @@ function blspsi(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
 end
 
 """
-Black & Scholes Vanna for European Options
+    blsvanna(S0, K, r, T, σ, d, FlagIsCall = true)
 
-		Vanna=blsvanna(S0,K,r,T,σ,d=0.0,FlagIsCall=true)
+Vanna, the derivative of the delta with respect to `σ`, of a European option in the Black and Scholes model.
 
-Where:\n
-		S0         = Value of the Underlying.
-		K          = Strike Price of the Option.
-		r          = Zero Rate.
-		T          = Time to Maturity of the Option.
-		σ          = Implied Volatility
-		d          = Implied Dividend of the Underlying.
-		FlagIsCall = true for Call Options, false for Put Options.
-
-		Vanna        = vanna of the European Option.
+# Arguments
+- `S0`: spot price of the underlying.
+- `K`: strike price.
+- `r`: continuously compounded zero rate.
+- `T`: time to maturity, in years.
+- `σ`: implied volatility.
+- `d`: continuously compounded dividend yield of the underlying.
+- `FlagIsCall`: `true` for a call, `false` for a put.
 
 # Example
-```julia-repl
-julia> blsvanna(10.0,10.0,0.01,2.0,0.2,0.01)
-0.2737576307142566
+```jldoctest
+julia> blsvanna(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
+0.2737576307142565
 ```
+
+See also [`blsprice`](@ref).
 """
 function blsvanna(S0, K, r, T, σ, d, ::Bool = true)
     blcheck(S0, K, T, σ)

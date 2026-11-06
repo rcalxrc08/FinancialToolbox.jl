@@ -3,5 +3,7 @@
 *.jl.mem
 docs/build/
 Manifest.toml
-page/__site
+docs/src/assets/logo.png
+docs/src/assets/favicon.ico
+docs/src/assets/figures/
 .vscode/

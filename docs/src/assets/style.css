@@ -1,0 +1,411 @@
+/* The style of https://rcalxrc08.github.io/ and of the FinancialToolbox.jl site, on top of the Documenter themes.
+   The palette is in variables: the light one on :root, the dark one on the class Documenter gives to <html> with its dark
+   theme. Rules start with html:root, which weighs as much as html.theme--documenter-dark, and this sheet comes after
+   the themes, so it wins over both. */
+
+:root {
+  --bg: #fbfaf8;
+  --surface: #ffffff;
+  --text: #1f2328;
+  --muted: #5b6470;
+  --border: #e6e3de;
+  --link: #2f6fb3;
+  --accent: #3b6fb6;
+  --shadow: 0 1px 2px rgba(20, 20, 20, .04), 0 8px 24px rgba(20, 20, 20, .06);
+  --radius: 14px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+}
+
+html.theme--documenter-dark {
+  --bg: #111316;
+  --surface: #181b20;
+  --text: #e6e8eb;
+  --muted: #9aa3ad;
+  --border: #2a2f36;
+  --link: #7fb2ec;
+  --accent: #7fb2ec;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+}
+
+/* ---------- Page ---------- */
+
+html:root,
+html:root body,
+html:root #documenter .docs-main {
+  background: var(--bg);
+  color: var(--text);
+}
+
+html:root body {
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+html:root .content {
+  color: var(--text);
+}
+
+html:root .content a,
+html:root .content a:visited {
+  color: var(--link);
+}
+
+/* ---------- Sidebar ---------- */
+
+html:root #documenter .docs-sidebar {
+  background: var(--bg);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+}
+
+html:root #documenter .docs-sidebar .docs-package-name a,
+html:root #documenter .docs-sidebar .docs-package-name a:hover {
+  font-family: var(--mono);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Documenter fits the name to the sidebar with the width of its own font, not of this monospace one: a fixed size
+   keeps names up to about 22 characters (FinancialMonteCarlo.jl) on one line */
+html:root #documenter .docs-sidebar .docs-package-name .docs-autofit {
+  font-size: 1.2rem !important;
+  white-space: nowrap;
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu {
+  border-top: 1px solid var(--border);
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu .tocitem,
+html:root #documenter .docs-sidebar ul.docs-menu .tocitem:hover {
+  color: var(--muted);
+  background: transparent;
+  border-radius: 8px;
+  font-size: .95rem;
+  font-weight: 500;
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu a.tocitem:hover,
+html:root #documenter .docs-sidebar ul.docs-menu label.tocitem:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu li.is-active {
+  background: transparent;
+  border-top: 0;
+  border-bottom: 0;
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu li.is-active > .tocitem,
+html:root #documenter .docs-sidebar ul.docs-menu li.is-active > .tocitem:hover {
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu li.is-active ul.internal {
+  border-top: 0;
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu li.is-active ul.internal .tocitem {
+  font-weight: 400;
+  box-shadow: none;
+  background: transparent;
+}
+
+html:root #documenter .docs-sidebar #documenter-search-query {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+/* ---------- Top bar ---------- */
+
+html:root #documenter .docs-main header.docs-navbar {
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+html:root #documenter .docs-main header.docs-navbar .docs-breadcrumbs a,
+html:root #documenter .docs-main header.docs-navbar .docs-right a,
+html:root #documenter .docs-main header.docs-navbar .docs-right .docs-icon,
+html:root #documenter .docs-main header.docs-navbar .docs-right .docs-label {
+  color: var(--muted);
+}
+
+html:root #documenter .docs-main header.docs-navbar .docs-right a:hover,
+html:root #documenter .docs-main header.docs-navbar .docs-right a:hover .docs-icon,
+html:root #documenter .docs-main header.docs-navbar .docs-right a:hover .docs-label {
+  color: var(--text);
+  text-decoration: none;
+}
+
+html:root #documenter .docs-main header.docs-navbar .docs-breadcrumbs .is-active a {
+  color: var(--text);
+}
+
+/* ---------- Headings ---------- */
+
+html:root .content h1,
+html:root .content h2,
+html:root .content h3,
+html:root .content h4 {
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+html:root .content h1 {
+  font-family: var(--mono);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+html:root .content h2 {
+  margin-top: 2.2em;
+  padding-bottom: 10px;
+  font-size: 1.55rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+
+/* the accent dot of the section titles */
+html:root .content h2::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 12px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+html:root .content h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+html:root .content h1 a.docs-heading-anchor,
+html:root .content h2 a.docs-heading-anchor,
+html:root .content h3 a.docs-heading-anchor,
+html:root .content h4 a.docs-heading-anchor {
+  color: var(--text);
+}
+
+/* ---------- Code ---------- */
+
+html:root .content :not(pre) > code {
+  font-family: var(--mono);
+  font-size: .88em;
+  padding: 1px 5px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+}
+
+html:root .content a > code,
+html:root .content a:visited > code {
+  color: var(--link);
+}
+
+html:root .content pre {
+  font-family: var(--mono);
+  font-size: .9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+html:root .content pre > code {
+  font-family: var(--mono);
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* ---------- Tables ---------- */
+
+html:root .content table {
+  display: table;
+  width: 100%;
+  margin: 8px 0 16px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .95rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+html:root .content table th,
+html:root .content table td {
+  padding: 8px 12px;
+  color: var(--text);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+html:root .content table th {
+  font-weight: 600;
+  background: var(--bg);
+}
+
+html:root .content table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ---------- Docstrings and admonitions, as cards ---------- */
+
+html:root .content details.docstring {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+html:root .content details.docstring > summary {
+  color: var(--text);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+}
+
+html:root .content details.docstring > summary code,
+html:root .content details.docstring > summary a > code {
+  font-family: var(--mono);
+  font-weight: 700;
+  background: transparent;
+  border: 0;
+}
+
+html:root .content details.docstring > summary .docstring-category {
+  color: var(--muted);
+}
+
+html:root .content details.docstring > section {
+  border-top: 0;
+}
+
+html:root .content details.docstring > section + section {
+  border-top: 1px solid var(--border);
+}
+
+html:root .content .admonition {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+}
+
+html:root .content .admonition > .admonition-header {
+  color: var(--text);
+  background: transparent;
+}
+
+html:root .content .admonition > .admonition-body {
+  color: var(--text);
+  background: transparent;
+}
+
+/* ---------- Footer ---------- */
+
+html:root #documenter .docs-main .docs-footer {
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  font-size: .9rem;
+}
+
+html:root #documenter .docs-main .docs-footer a {
+  color: var(--link);
+}
+
+/* ---------- The hero of the home page, as on the landing pages ---------- */
+
+html:root .content .pkg-hero-logo {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin: 24px 0 20px;
+}
+
+/* the title of the home page is the one of the hero (the classes are pkg-…: the stylesheet is shared by the packages) */
+html:root .content:has(.pkg-hero-logo) > h1:first-of-type {
+  margin-top: 0;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  line-height: 1.1;
+}
+
+html:root .content .pkg-roles {
+  margin: 4px 0 20px;
+  font-size: 1.15rem;
+  color: var(--muted);
+}
+
+html:root .content .pkg-roles b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+html:root .content .pkg-intro {
+  max-width: 680px;
+  margin: 0 0 24px;
+  font-size: 1.08rem;
+}
+
+html:root .content .pkg-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+html:root .content .pkg-links a.pkg-btn,
+html:root .content .pkg-links a.pkg-btn:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: border-color .15s, transform .15s;
+}
+
+html:root .content .pkg-links a.pkg-btn:hover {
+  text-decoration: none;
+  border-color: var(--muted);
+  transform: translateY(-1px);
+}
+
+html:root .content .pkg-links a.pkg-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+@media (max-width: 560px) {
+  html:root body { font-size: 16px; }
+}

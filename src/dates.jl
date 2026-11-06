@@ -6,17 +6,12 @@ end
 excelcostant = 693959;
 
 """
-From Excel Number Format to Date
+    fromExcelNumberToDate(ExcelNumber::Integer)
 
-		Date=fromExcelNumberToDate(ExcelNumber)
-
-Where:\n
-		ExcelNumber = Integer representing a date in the excel format.
-
-		Date      = Date representing the input in the Julia object format.
+The `Date` of an Excel serial date number.
 
 # Example
-```julia-repl
+```jldoctest
 julia> fromExcelNumberToDate(45000)
 2023-03-15
 ```
@@ -26,19 +21,15 @@ function fromExcelNumberToDate(num::Integer)::Date
 end
 
 """
-Actual Number of days between two dates
+    daysact(Date1::Date, Date2::Date)
 
-		ndays=daysact(Date1,Date2)
-
-Where:\n
-		Date1 = Start date.
-		Date2 = End date.
-
-		ndays      = Actual Number of days between Start Date and End Date.
+Actual number of days from `Date1` to `Date2`, negative if `Date2` comes first.
 
 # Example
-```julia-repl
-julia> daysact(Date(1996,10,12),Date(1998,1,10))
+```jldoctest
+julia> using Dates
+
+julia> daysact(Date(1996, 10, 12), Date(1998, 1, 10))
 455
 ```
 """
@@ -56,28 +47,26 @@ end
 currMaxImplemented = 7;
 
 """
-Fraction of year between two Dates according the following convention
+    yearfrac(Date1::Date, Date2::Date, basis::Integer)
 
-		yfr=yearfrac(Date1,Date2,basis)
+Fraction of year from `Date1` to `Date2` with the day count convention `basis`, as in Matlab:
 
-Where:\n
-		Date1 = Start date.
-		Date2 = End date.
-		basis = Integer representing the following conventions:
-				- 0 = (ACT/ACT)
-				- 1 = (30/360 SIA)
-				- 2 = (ACT/360)
-				- 3 = (ACT/365)
-				- 4 = (30/360 PSA)
-				- 5 = (30/360 ISDA)
-				- 6 = (30E/360)
-				- 7 = (ACT/365 JPN)
-
-		yfr      = fraction of year between start and end date according to basis.
+| `basis` | Convention |
+|:--|:--|
+| 0 | ACT/ACT |
+| 1 | 30/360 SIA |
+| 2 | ACT/360 |
+| 3 | ACT/365 |
+| 4 | 30/360 PSA |
+| 5 | 30/360 ISDA |
+| 6 | 30E/360 |
+| 7 | ACT/365 JPN |
 
 # Example
-```julia-repl
-julia> yearfrac(Date(1996,10,12),Date(1998,1,10),1)
+```jldoctest
+julia> using Dates
+
+julia> yearfrac(Date(1996, 10, 12), Date(1998, 1, 10), 1)
 1.2444444444444445
 ```
 """

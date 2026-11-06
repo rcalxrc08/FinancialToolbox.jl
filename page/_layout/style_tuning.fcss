@@ -1,6 +1,0 @@
-/* Values plugged in from config.md; the rest of the style is in _css/custom.css */
-
-:root {
-  --code-radius: {{code_border_radius}};
-  --code-output-indent: {{code_output_indent}};
-}
