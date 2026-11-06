@@ -19,8 +19,6 @@ complex numbers and automatic differentiation out of the box.</p>
 </nav>
 ```
 
-![Price, delta, gamma and vega of a call and a put as functions of the spot](assets/figures/greeks-light.svg)![Price, delta, gamma and vega of a call and a put as functions of the spot](assets/figures/greeks-dark.svg)
-
 ## Features
 
 - **Pricing**: [`blsprice`](@ref), [`blkprice`](@ref) (European options in the Black and Scholes and Black models),

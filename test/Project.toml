@@ -1,4 +1,5 @@
 [deps]
+ChainRules = "082447d4-558c-5d27-93f4-14fc19e9eca2"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
@@ -20,6 +21,8 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 path = ".."
 
 [compat]
+# ChainRules 1.74.11 breaks the precompilation of TaylorDiff 0.3.5 (non-boolean Symbolics.Num in TaylorDiff/src/utils.jl)
+ChainRules = "1 - 1.74.10"
 ChainRulesCore = "1"
 DifferentiationInterface = "0.7"
 DualNumbers = "0.5, 0.6"
