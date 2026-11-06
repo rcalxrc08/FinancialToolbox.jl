@@ -104,4 +104,5 @@ is ``O(t^{2^m})``. Hence ``\lceil \log_2(n+1) \rceil`` steps give all the coeffi
 
 The equation ``f(\sigma) = V`` has many complex solutions; the same Newton iteration in the complex plane, started from
 the implied volatility of the real parts, returns the analytic continuation of the real implied volatility (the one
-needed by the complex step method).
+needed by the complex step method). The basins of attraction of the complex roots form a fractal, drawn in
+[Implied volatility](implied_volatility.md#Accuracy).

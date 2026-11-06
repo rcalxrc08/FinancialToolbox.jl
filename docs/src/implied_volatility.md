@@ -68,5 +68,20 @@ h = 1e-20
 imag(blsimpv(S, K, r, T, complex(call_price, h), d)) / h, 1 / blsvega(S, K, r, T, blsimpv(S, K, r, T, call_price, d), d)
 ```
 
+For complex inputs [`blsimpv`](@ref) solves ``f(\sigma) = V`` with Newton's method in the complex plane,
+
+```math
+\sigma_{m+1} = \sigma_m + \frac{V - f(\sigma_m)}{\partial_{\sigma}f(\sigma_m)},
+```
+
+started from the implied volatility of the real parts. The equation has infinitely many complex roots, and the
+starting point decides which one Newton's method finds. The figure runs the same iteration from every starting point
+``\sigma_0`` of a square of the complex plane and colours each point by the root it converges to: blue for the real
+implied volatility, darker the more iterations it takes; points that do not converge in 100 iterations are left in
+gray. The boundaries between the basins are fractal, as the zoom on the right shows, while the starting point of
+[`blsimpv`](@ref), on the real axis close to the solution, lies deep inside the basin of the real root.
+
+![Newton basins of the complex implied volatility](assets/figures/fractal-light.svg)![Newton basins of the complex implied volatility](assets/figures/fractal-dark.svg)
+
 Inputs outside the domain (a price below the intrinsic value or above its upper bound, a negative maturity, …) throw a
 `DomainError`.

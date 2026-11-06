@@ -1,6 +1,7 @@
 # Figures of the documentation, computed with the package at build time and saved as SVG in src/assets/figures, in a
 # light and a dark variant: the stylesheet assets/figures.css shows the one of the theme of the reader.
 using FinancialToolbox, Plots
+using Plots.Colors: RGB, HSL
 # GR draws without a display on the CI runner
 ENV["GKSwstype"] = get(ENV, "GKSwstype", "100")
 gr()
@@ -70,5 +71,50 @@ function accuracy_figure(theme)
     end
 end
 
+# Newton basins of the complex implied volatility. For complex inputs blsimpv solves f(σ) = V with Newton's method in
+# the complex plane, σ ← σ + (V - f(σ)) / ν(σ), started from the implied volatility of the real parts. Started instead
+# from every σ₀ of the plane, the same iteration converges to one of the infinitely many complex roots: each point is
+# coloured by its root (blue for the real implied volatility, 0.2), darker the more iterations it takes; points that
+# do not converge in 100 iterations are left neutral. f is the undiscounted price (r = d = 0) of FinancialToolbox,
+# without the domain checks of blsprice, which reject Re σ ≤ 0.
+function newton_root(σ, S0, K, T, V)
+    for n = 1:100
+        Δ = (V - FinancialToolbox.blprice_impl(S0, K, T, σ, true)) / FinancialToolbox.blvega_impl(S0, K, T, σ)
+        isfinite(Δ) || return σ, 0
+        σ += Δ
+        abs(Δ) <= 1e-12 * abs(σ) && return σ, n
+    end
+    return σ, 0
+end
+
+function newton_basins(xs, ys)
+    S0, K, T, σ_real = 100.0, 120.0, 1.0, 0.2
+    V = blsprice(S0, K, 0.0, T, σ_real, 0.0)
+    return [newton_root(complex(x, y), S0, K, T, V) for y in ys, x in xs]
+end
+
+const BASIN_OVERVIEW = (range(-6.0, 6.0, length = 700), range(-6.0, 6.0, length = 700))
+const BASIN_ZOOM = (range(1.5, 3.5, length = 700), range(1.5, 3.5, length = 700))
+const BASINS = (newton_basins(BASIN_OVERVIEW...), newton_basins(BASIN_ZOOM...))
+
+function basin_colour(theme, (σ, n))
+    neutral = parse(RGB, theme.grid)
+    (n == 0 || !isfinite(abs(σ))) && return neutral
+    hue = abs(σ - 0.2) < 1e-6 ? 213.0 : mod(137.5 * round(Int, 4 * abs(σ)) + 30 * sign(imag(σ)), 360)
+    return convert(RGB, HSL(hue, 0.7, clamp(0.68 - 0.03 * n, 0.12, 0.68)))
+end
+
+function fractal_figure(theme)
+    panels = map(zip((BASIN_OVERVIEW, BASIN_ZOOM), BASINS, ("Starting points in [-6, 6]²", "Zoom on [1.5, 3.5]²"))) do ((xs, ys), basins, title)
+        p = base_plot(theme; title = title, xlabel = "Re σ₀", ylabel = "Im σ₀", aspect_ratio = :equal, xlims = extrema(xs), ylims = extrema(ys), left_margin = 2Plots.mm, bottom_margin = 2Plots.mm)
+        plot!(p, xs, ys, basin_colour.(Ref(theme), basins); yflip = false)
+        return p
+    end
+    rectangle = Shape([1.5, 3.5, 3.5, 1.5], [1.5, 1.5, 3.5, 3.5])
+    plot!(panels[1], rectangle; fillalpha = 0, linecolor = theme.text, linewidth = 1.5, label = nothing)
+    return plot(panels...; layout = (1, 2), size = (900, 470), plot_title = "Newton basins of the complex implied volatility, S0 = 100, K = 120, T = 1, σ = 0.2", plot_titlefontsize = 12, plot_titlefontcolor = theme.text, background_color = :transparent)
+end
+
 save_themes(greeks_figure, "greeks")
 save_themes(accuracy_figure, "accuracy")
+save_themes(fractal_figure, "fractal")
