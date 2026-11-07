@@ -6,10 +6,16 @@ const two_internal = Int8(2)
 # which costs Zygote tens of microseconds per call.
 call_put_sign(FlagIsCall::Bool) = ifelse(FlagIsCall, one_internal, minus_one_internal)
 ChainRulesCore.@non_differentiable call_put_sign(::Bool)
+# sqrt of the maturity. Plain sqrt; the extensions of DualNumbers and HyperDualNumbers add methods that keep the
+# element type, since their own sqrt promotes Float32 to Float64 (Float64 constants in their derivative rules).
+internal_sqrt(x) = sqrt(x)
 """
     normcdf(x)
 
 Cumulative distribution function of a standard Gaussian random variable at `x`, computed with `erfc`.
+
+# Arguments
+- `x`: point of evaluation, of any number type supported by the package.
 
 # Example
 ```jldoctest
@@ -25,6 +31,9 @@ end
     normpdf(x)
 
 Probability density function of a standard Gaussian random variable at `x`.
+
+# Arguments
+- `x`: point of evaluation, of any number type supported by the package.
 
 # Example
 ```jldoctest
@@ -60,7 +69,7 @@ function blsbin(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
     rt = r * T
     dt = -d * T
-    sqrtT = sqrt(T)
+    sqrtT = internal_sqrt(T)
     sigma_sqrtT = σ * sqrtT
     d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / two_internal
     iscall = call_put_sign(FlagIsCall)
@@ -94,7 +103,7 @@ function blsdelta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
     rt = r * T
     dt = -d * T
-    sigma_sqrtT = σ * sqrt(T)
+    sigma_sqrtT = σ * internal_sqrt(T)
     S0_K = S0 / K
     d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     iscall = call_put_sign(FlagIsCall)
@@ -104,7 +113,7 @@ end
 
 function blprice_impl(S0, K, T, σ, FlagIsCall::Bool = true)
     iscall = call_put_sign(FlagIsCall)
-    sigma_sqrtT = σ * sqrt(T)
+    sigma_sqrtT = σ * internal_sqrt(T)
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
     Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * (d1 - sigma_sqrtT)))
     return Price
@@ -114,7 +123,7 @@ end
 # ∂S0 = ±N(±d1), ∂K = ∓N(±d2), ∂σ = S0 φ(d1) √T (vega) and ∂T = vega σ / (2T)
 function blprice_and_sensitivities(S0, K, T, σ, FlagIsCall::Bool)
     iscall = call_put_sign(FlagIsCall)
-    sqrtT = sqrt(T)
+    sqrtT = internal_sqrt(T)
     sigma_sqrtT = σ * sqrtT
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
     der_S0 = iscall * normcdf(iscall * d1)
@@ -134,7 +143,7 @@ function ChainRulesCore.rrule(::typeof(blprice_impl), S0, K, T, σ, FlagIsCall::
     return Price, blprice_impl_pullback
 end
 
-function ChainRulesCore.frule((_, dS0, dK, dT, dσ, _), ::typeof(blprice_impl), S0, K, T, σ, FlagIsCall::Bool)
+function ChainRulesCore.frule((_, dS0, dK, dT, dσ, _)::Tuple, ::typeof(blprice_impl), S0, K, T, σ, FlagIsCall::Bool)
     Price, der_S0, der_K, der_T, der_σ = blprice_and_sensitivities(S0, K, T, σ, FlagIsCall)
     return Price, dS0 * der_S0 + dK * der_K + dT * der_T + dσ * der_σ
 end
@@ -211,7 +220,7 @@ Gamma, the second derivative of the price with respect to `S0`, of a European op
 - `T`: time to maturity, in years.
 - `σ`: implied volatility.
 - `d`: continuously compounded dividend yield of the underlying.
-- `FlagIsCall`: `true` for a call, `false` for a put.
+- `FlagIsCall`: `true` for a call, `false` for a put; the gamma is the same for both.
 
 # Example
 ```jldoctest
@@ -225,14 +234,14 @@ function blsgamma(S0, K, r, T, σ, d, ::Bool = true)
     blcheck(S0, K, T, σ)
     rt = r * T
     dt = -d * T
-    sigma_sqrtT = σ * sqrt(T)
+    sigma_sqrtT = σ * internal_sqrt(T)
     S0_K = S0 / K
     d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     Γ = exp(dt) * normpdf(d1) / (S0 * sigma_sqrtT)
     return Γ
 end
 function blvega_impl(S0, K, T, σ)
-    sqrtT = sqrt(T)
+    sqrtT = internal_sqrt(T)
     sigma_sqrtT = σ * sqrtT
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
     ν = S0 * normpdf(d1) * sqrtT
@@ -254,7 +263,7 @@ Vega, the derivative of the price with respect to `σ`, of a European option in 
 - `T`: time to maturity, in years.
 - `σ`: implied volatility.
 - `d`: continuously compounded dividend yield of the underlying.
-- `FlagIsCall`: `true` for a call, `false` for a put.
+- `FlagIsCall`: `true` for a call, `false` for a put; the vega is the same for both.
 
 # Example
 ```jldoctest
@@ -298,7 +307,7 @@ function blsrho(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     iscall = call_put_sign(FlagIsCall)
     rt = r * T
     dt = -d * T
-    sqrtT = sqrt(T)
+    sqrtT = internal_sqrt(T)
     sigma_sqrtT = σ * sqrtT
     d2 = (log(S0 / K) + rt + dt) / sigma_sqrtT - sigma_sqrtT / two_internal
     ρ = iscall * K * exp(-rt) * normcdf(iscall * d2) * T
@@ -331,7 +340,7 @@ function blstheta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
     rt = r * T
     dt = -d * T
-    sqrtT = sqrt(T)
+    sqrtT = internal_sqrt(T)
     sigma_sqrtT = σ * sqrtT
     d1 = (log(S0 / K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     d2 = d1 - sigma_sqrtT
@@ -370,7 +379,7 @@ function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
     rt = r * T
     dt = -d * T
-    sigma_sqrtT = σ * sqrt(T)
+    sigma_sqrtT = σ * internal_sqrt(T)
     S0_K = S0 / K
     d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     d2 = d1 - sigma_sqrtT
@@ -446,7 +455,7 @@ function blspsi(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     blcheck(S0, K, T, σ)
     rt = r * T
     dt = -d * T
-    sigma_sqrtT = σ * sqrt(T)
+    sigma_sqrtT = σ * internal_sqrt(T)
     S0_K = S0 / K
     d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     iscall = call_put_sign(FlagIsCall)
@@ -466,7 +475,7 @@ Vanna, the derivative of the delta with respect to `σ`, of a European option in
 - `T`: time to maturity, in years.
 - `σ`: implied volatility.
 - `d`: continuously compounded dividend yield of the underlying.
-- `FlagIsCall`: `true` for a call, `false` for a put.
+- `FlagIsCall`: `true` for a call, `false` for a put; the vanna is the same for both.
 
 # Example
 ```jldoctest
@@ -480,7 +489,7 @@ function blsvanna(S0, K, r, T, σ, d, ::Bool = true)
     blcheck(S0, K, T, σ)
     rt = r * T
     dt = -d * T
-    sigma_sqrtT = σ * sqrt(T)
+    sigma_sqrtT = σ * internal_sqrt(T)
     S0_K = S0 / K
     d1 = (log(S0_K) + rt + dt) / sigma_sqrtT + sigma_sqrtT / two_internal
     d2 = d1 - sigma_sqrtT

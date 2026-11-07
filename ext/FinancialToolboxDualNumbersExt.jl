@@ -2,7 +2,21 @@ module FinancialToolboxDualNumbersExt
 
 using DualNumbers
 using FinancialToolbox: blimpv, blprice_diff_impl, blvega_impl
-import FinancialToolbox: blimpv_impl
+import FinancialToolbox: blimpv_impl, normcdf, normpdf, internal_sqrt
+
+# normcdf through erfc and sqrt would promote: DualNumbers takes their derivatives from Calculus.jl, with Float64
+# constants (sqrt(pi), 0.5), so Dual{Float32} became Dual{Float64}. The derivative of normcdf is normpdf.
+normcdf(x::Dual) = Dual(normcdf(DualNumbers.value(x)), normpdf(DualNumbers.value(x)) * DualNumbers.epsilon(x))
+# x^2 of a Dual goes through the generic power of DualNumbers, 6 times slower than x * x: normpdf' = -x normpdf
+function normpdf(x::Dual)
+    a = DualNumbers.value(x)
+    φ = normpdf(a)
+    return Dual(φ, -a * φ * DualNumbers.epsilon(x))
+end
+function internal_sqrt(x::Dual)
+    root = sqrt(DualNumbers.value(x))
+    return Dual(root, DualNumbers.epsilon(x) / (2 * root))
+end
 
 value_dual(x::Dual) = x.value
 value_dual(x) = x

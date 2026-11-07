@@ -7,6 +7,7 @@ include("dates.jl")
 include("financial.jl")
 include("financial_implied_volatility.jl")
 include("financial_lets_be_rational.jl")
+include("financial_value_and_partials.jl")
 export normcdf,
     normpdf,
     blsprice,

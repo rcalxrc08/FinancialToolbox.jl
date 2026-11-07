@@ -1,0 +1,20 @@
+[deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
+Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
+FinancialToolbox = "2edd74a5-e968-5e45-af77-76d29aa6a478"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
+
+[sources]
+FinancialToolbox = {path = "../.."}
+
+[compat]
+CUDA = "5, 6"
+DualNumbers = "0.5, 0.6"
+Enzyme = "0.13"
+ForwardDiff = "0.10, 1"
+Mooncake = "0.5"
+Zygote = "0.6, 0.7"

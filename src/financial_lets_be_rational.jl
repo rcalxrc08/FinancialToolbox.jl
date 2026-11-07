@@ -11,13 +11,12 @@ using MuladdMacro
 using IrrationalConstants: IrrationalConstants, sqrt2, invsqrt2, sqrt2π, invsqrt2π, sqrthalfπ, log2π, sqrt3
 using SpecialFunctions: erf, erfc, erfcx, erfinv
 
-IrrationalConstants.@irrational twoπ_over_sqrt27 2 * big(π) / sqrt(big(27))
+IrrationalConstants.@irrational π_over_12sqrt3 big(π) / (12 * sqrt(big(3)))
 IrrationalConstants.@irrational sqrt3_over_cbrt2π sqrt(big(3)) / cbrt(2 * big(π))
 IrrationalConstants.@irrational twoinvsqrtπ 2 / sqrt(big(π))
 IrrationalConstants.@irrational erf_half_sqrtπ erf(sqrt(big(π)) / 2) # b_u/b_max for x → 0
 IrrationalConstants.@irrational Φ1_minus_half erf(1 / sqrt(big(2))) / 2 Phi1MinusHalf # Φ(1) - ½
 
-square(x) = x * x
 dbl_min(::T) where {T <: Number} = eps(zero(T))
 dbl_max(::T) where {T <: Number} = prevfloat(typemax(T))
 dbl_epsilon(::T) where {T <: Number} = eps(T)
@@ -35,7 +34,7 @@ include("financial_lets_be_rational_coefficients.jl")
 ## Rational cubic interpolation (rationalcubic.cpp)
 
 minimum_rational_cubic_control_parameter_value(x) = -(1 - sqrt(dbl_epsilon(x)))
-maximum_rational_cubic_control_parameter_value(x) = 2 / square(dbl_epsilon(x))
+maximum_rational_cubic_control_parameter_value(x) = 2 / dbl_epsilon(x)^2
 is_zero(x) = abs(x) < dbl_min(x)
 
 function rational_cubic_interpolation(x, x_l, x_r, y_l, y_r, d_l, d_r, r)
@@ -46,7 +45,7 @@ function rational_cubic_interpolation(x, x_l, x_r, y_l, y_r, d_l, d_r, r)
     t = (x - x_l) / h
     omt = 1 - t
     if !(r >= maximum_rational_cubic_control_parameter_value(r))
-        t2 = square(t)
+        t2 = t^2
         return @muladd (y_r * t2 * t + omt * ((r * y_r - h * d_r) * t2 + omt * ((r * y_l + h * d_l) * t + y_l * omt))) / (1 + (r - 3) * t * omt)
     end
     return y_r * t + y_l * omt
@@ -167,9 +166,9 @@ is_region_II(x, s) = uses_double_approximations(s) ? s * (s - 2 * tau(s)) - x / 
 # Asymptotic expansion of the scaled normalised Black function b/(∂b/∂s) = Y(h+t) - Y(h-t), Y(z) := Φ(z)/φ(z), in Region I.
 # The number of terms depends on the distance from the upper border of the region (thresholds from the reference implementation).
 @muladd function asymptotic_expansion_of_scaled_normalised_black(h, t)
-    e = square(t / h)
+    e = (t / h)^2
     r = (h + t) * (h - t)
-    q = square(h / r)
+    q = (h / r)^2
     d = -h - t + tau(h) + 1 // 2
     k = count(≤(d), map(c -> typed_literal(d, c), (12.347, 12.958, 13.729, 14.718, 16.016, 17.769, 20.221, 23.816, 29.419, 38.93, 57.171, 99.347)))
     ω = zero(q)
@@ -193,7 +192,7 @@ end
 function Yprime(h)
     if uses_double_approximations(h)
         if h < -4
-            w = inv(square(h))
+            w = inv(h^2)
             return @muladd w * (1 + w * rational_function(w, (-2.9999999999994663866, -1.7556263323542206288E2, -3.4735035445495633334E3, -2.7805745693864308643E4, -8.3836021460741980839E4, -6.6818249032616849037E4), (1, 6.3520877744831739102E1, 1.4404389037604337538E3, 1.4562545638507033944E4, 6.6886794165651675684E4, 1.2569970380923908488E5, 6.9286518679803751694E4)))
         end
         if h <= -typed_literal(h, CODY_THRESHOLD)
@@ -206,8 +205,8 @@ end
 # Small-t expansion of the scaled normalised Black function in Region II (only odd orders in t, seven terms)
 @muladd function small_t_expansion_of_scaled_normalised_black(h, t)
     a = Yprime(h)
-    h² = square(h)
-    t² = square(t)
+    h² = h^2
+    t² = t^2
     B0 = 2 * a
     B1 = (-1 + a * (3 + h²)) / 3
     B2 = (-7 - h² + a * (15 + h² * (10 + h²))) / 60
@@ -237,7 +236,7 @@ function normalised_black_with_optimal_use_of_codys_functions(q₁, q₂, b_max,
     return max(two_b / 2, zero(two_b))
 end
 
-inv_normalised_vega(x, s) = sqrt2π * exp((square(x / s) + square(s / 2)) / 2)
+inv_normalised_vega(x, s) = sqrt2π * exp(((x / s)^2 + (s / 2)^2) / 2)
 
 # b(x, s) for s > 0 and x < 0, given h = x/s, t = s/2, b_max and E (see above)
 function normalised_black(x, s, h, t, b_max, E)
@@ -274,16 +273,16 @@ end
 @muladd function compute_f_lower_map_and_first_two_derivatives(x, s)
     ax = abs(x)
     z = ax / (sqrt3 * s)
-    y = square(z)
-    s2 = square(s)
+    y = z^2
+    s2 = s^2
     # With Φ := Φ(-z) = erfcx(z/√2)·exp(-y/2)/2 and Φ/φ(z) = √(π/2)·erfcx(z/√2) the exponentials partly cancel:
     # f = (2π/√27)·|x|·Φ³, f' = 2π·y·Φ²·exp(y + s²/8), f'' = (π/6)·(y/s³)·Φ·(8√3·s·|x| + (3s²(s²-8) - 8x²)·Φ/φ)·exp(2y + s²/4)
     ex = erfcx(invsqrt2 * z)
     exp_y = exp(-3 * y / 2) # = (2Φ/erfcx)³
     exp_s = exp(s2 / 8)
-    fpp = π * y / (12 * s2 * s) * ex * (8 * (sqrt3 * s * ax) + (3 * s2 * (s2 - 8) - 8 * square(x)) * (sqrthalfπ * ex)) * (square(exp_s) / exp_y)
-    fp = π * y * square(ex) * exp_s / 2
-    f = twoπ_over_sqrt27 * ax * (square(ex) * ex) * exp_y / 8
+    fpp = π * y / (12 * s2 * s) * ex * (8 * (sqrt3 * s * ax) + (3 * s2 * (s2 - 8) - 8 * x^2) * (sqrthalfπ * ex)) * (exp_s^2 / exp_y)
+    fp = π * y * ex^2 * exp_s / 2
+    f = π_over_12sqrt3 * ax * (ex^2 * ex) * exp_y # (2π/√27)/8: the 8 of (erfcx/2)³
     return f, fp, fpp
 end
 
@@ -291,9 +290,9 @@ inverse_f_lower_map(x, f) = abs(x / (sqrt3 * inverse_norm_cdf(sqrt3_over_cbrt2π
 
 @muladd function compute_f_upper_map_and_first_two_derivatives(x, s)
     f = erfc(invsqrt2 * s / 2) / 2
-    w = square(x / s)
+    w = (x / s)^2
     fp = -exp(w / 2) / 2
-    fpp = sqrthalfπ * exp(w + square(s) / 8) * w / s
+    fpp = sqrthalfπ * exp(w + s^2 / 8) * w / s
     return f, fp, fpp
 end
 
@@ -310,7 +309,7 @@ end
 # b_l(x)/b_max(x) and b_u(x)/b_max(x) as functions of s_c = √(2|x|), Remez-optimised in four branches each.
 # The branches are bounded by square roots of rationals, compared as s_c² against the rationals.
 function bl_over_bmax(s_c)
-    s_c² = square(s_c)
+    s_c² = s_c^2
     if 10 * s_c² < 69 # s_c < √6.9
         if 125 * s_c² < 63 # s_c < √0.504
             g = rational_function(s_c, (8.0741072372882856924E-2, 9.8078911786358897272E-2, 3.9760631445677058375E-2, 5.9716928459589189876E-3, -6.4036399341479799981E-6, 4.5425102093616062245E-7), (1, 1.8594977672287664353, 1.3658801475711790419, 4.6132707108655653215E-1, 6.1254597049831720643E-2))
@@ -325,7 +324,7 @@ function bl_over_bmax(s_c)
 end
 
 function bu_over_bmax(s_c)
-    s_c² = square(s_c)
+    s_c² = s_c^2
     if 5 * s_c² < 16 # s_c < 4/√5
         if 5 * s_c² < 3 # s_c < √(3/5)
             g = rational_function(s_c, (-6.063099881233561706E-2, -8.1011946637120604985E-2, -4.2505564862438753828E-2, -8.9880000946868691788E-3, -7.5603072110443268356E-6, 4.3879556621540147458E-7), (1, 1.8400371530721828756, 1.5709283443886143691, 6.8913245453611400484E-1, 1.4703173061720980923E-1))
@@ -343,7 +342,7 @@ end
 
 # Householder factors of order 3 and 4 for the Newton step n and the ratios h₂, h₃, h₄ of the derivatives of the objective
 @muladd householder3_factor(n, h₂, h₃) = (1 + h₂ * n / 2) / (1 + n * (h₂ + h₃ * n / 6))
-@muladd householder4_factor(n, h₂, h₃, h₄) = (1 + n * (h₂ + n * h₃ / 6)) / (1 + n * (3 * h₂ / 2 + n * (square(h₂) / 4 + h₃ / 3 + n * h₄ / 24)))
+@muladd householder4_factor(n, h₂, h₃, h₄) = (1 + n * (h₂ + n * h₃ / 6)) / (1 + n * (3 * h₂ / 2 + n * (h₂^2 / 4 + h₃ / 3 + n * h₄ / 24)))
 
 # erfinv of SpecialFunctions is wrong for Float16 (erfinv(Float16(0.08)) == 0.9727, JuliaMath/SpecialFunctions.jl#571):
 # computed in Float32
@@ -388,8 +387,8 @@ erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
                 iterations += 1
                 h = x / s
                 t = s / 2
-                h² = square(h)
-                h²_plus_t² = h² + square(t)
+                h² = h^2
+                h²_plus_t² = h² + t^2
                 bx = scaled_normalised_black(x, s, h, t, b_max, h²_plus_t²)
                 ln_b = log(bx) - (log2π + h²_plus_t²) / 2 # ln(b/b') + ln(b')
                 bpob = inv(bx)
@@ -400,8 +399,8 @@ erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
                 otλ = 1 + 2 * λ
                 h₂ = b_h₂ - bpob * otλ
                 c = 3 * (x²_over_s³ / s)
-                b_h₃ = square(b_h₂) - c - 1 // 4
-                sq_bpob = square(bpob)
+                b_h₃ = b_h₂^2 - c - 1 // 4
+                sq_bpob = bpob^2
                 bppob = b_h₂ * bpob
                 μ = 6 * λ * (1 + λ)
                 h₃ = b_h₃ + sq_bpob * (2 + μ) - bppob * 3 * otλ
@@ -450,21 +449,21 @@ erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
                     iterations += 1
                     h = x / s
                     t = s / 2
-                    h² = square(h)
+                    h² = h^2
                     # b̄ = exp(-(h²+t²)/2)·(erfcx((t+h)/√2) + erfcx((t-h)/√2))/2 and b' = exp(-(h²+t²)/2)/√(2π)
                     erfcx_sum = erfcx((t + h) * invsqrt2) + erfcx((t - h) * invsqrt2)
                     gp = invsqrt2π * (2 / erfcx_sum) # b'/b̄
-                    b_bar = exp(-(h² + square(t)) / 2) * erfcx_sum / 2
+                    b_bar = exp(-(h² + t^2) / 2) * erfcx_sum / 2
                     g = log(β_bar / b_bar)
                     x²_over_s³ = h² / s
                     b_h₂ = x²_over_s³ - s / 4
                     c = 3 * (x²_over_s³ / s)
-                    b_h₃ = square(b_h₂) - c - 1 // 4
+                    b_h₃ = b_h₂^2 - c - 1 // 4
                     newton = -g / gp
                     h₂ = b_h₂ + gp
                     h₃ = b_h₃ + gp * (2 * gp + 3 * b_h₂)
                     if x < -580 # Householder(4) for extreme moneyness
-                        h₄ = (b_h₂ * (b_h₃ - 1 // 2) - (b_h₂ - 2 / s) * 2 * c) + gp * (6 * gp * (gp + 2 * b_h₂) + 3 * square(b_h₂) + 4 * b_h₃)
+                        h₄ = (b_h₂ * (b_h₃ - 1 // 2) - (b_h₂ - 2 / s) * 2 * c) + gp * (6 * gp * (gp + 2 * b_h₂) + 3 * b_h₂^2 + 4 * b_h₃)
                         ds = newton * householder4_factor(newton, h₂, h₃, h₄)
                     else
                         ds = newton * householder3_factor(newton, h₂, h₃)
@@ -480,12 +479,12 @@ erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
         iterations += 1
         h = x / s
         t = s / 2
-        h² = square(h)
-        E = exp(-(h² + square(t)) / 2) # √(2π)·b'
+        h² = h^2
+        E = exp(-(h² + t^2) / 2) # √(2π)·b'
         newton = (β - normalised_black(x, s, h, t, b_max, E)) * sqrt2π / E
         x²_over_s³ = h² / s
         h₂ = x²_over_s³ - s / 4
-        h₃ = square(h₂) - 3 * (x²_over_s³ / s) - 1 // 4
+        h₃ = h₂^2 - 3 * (x²_over_s³ / s) - 1 // 4
         ds = newton * householder3_factor(newton, h₂, h₃)
         s += ds
     end
@@ -497,6 +496,13 @@ function blimpv_lets_be_rational(F, K, T, price, FlagIsCall::Bool, ::Real, niter
     intrinsic = ifelse(FlagIsCall, F - K, K - F)
     β = (intrinsic > 0 ? price - intrinsic : price) / (sqrt(F) * sqrt(K))
     σ = lets_be_rational(β, -abs(log(F / K)), niter) / sqrt(T)
-    # Types other than Float32 and Float64 (e.g. Float16) may be promoted by the Float64 approximations
+    # Types other than Float32 and Float64 (e.g. Float16 mixed with other types) may be promoted by the Float64
+    # approximations
     return convert(typeof(β / sqrt(T)), σ)
+end
+
+# Float16 is solved in Float32: some approximations of the solver return Float64 for Float16 arguments, which made
+# their types unstable (runtime dispatch, allocations), and CPUs emulate Float16 arithmetic through Float32 anyway.
+function blimpv_lets_be_rational(F::Float16, K::Float16, T::Float16, price::Float16, FlagIsCall::Bool, xtol::Real, niter::Integer)
+    return Float16(blimpv_lets_be_rational(Float32(F), Float32(K), Float32(T), Float32(price), FlagIsCall, xtol, niter))
 end

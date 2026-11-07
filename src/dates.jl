@@ -3,12 +3,16 @@ function dayNumber(inDate::Date)
     return Dates.date2epochdays(inDate)::Integer
 end
 
-excelcostant = 693959;
+const excelcostant = 693959
 
 """
     fromExcelNumberToDate(ExcelNumber::Integer)
 
 The `Date` of an Excel serial date number.
+
+# Arguments
+- `ExcelNumber`: number of days since December 30, 1899, the date system of Excel on Windows (45000 is
+  March 15, 2023).
 
 # Example
 ```jldoctest
@@ -24,6 +28,10 @@ end
     daysact(Date1::Date, Date2::Date)
 
 Actual number of days from `Date1` to `Date2`, negative if `Date2` comes first.
+
+# Arguments
+- `Date1`: start date.
+- `Date2`: end date.
 
 # Example
 ```jldoctest
@@ -44,7 +52,7 @@ function isLastOfFebruary(inDate::Date)::Bool
     return (Dates.isleapyear(Dates.year(inDate)) && (Dates.day(inDate) == 29) && (Dates.month(inDate) == 2)) || ((!Dates.isleapyear(Dates.year(inDate))) && (Dates.day(inDate) == 28) && (Dates.month(inDate) == 2))
 end
 
-currMaxImplemented = 7;
+const currMaxImplemented = 7
 
 """
     yearfrac(Date1::Date, Date2::Date, basis::Integer)
@@ -61,6 +69,11 @@ Fraction of year from `Date1` to `Date2` with the day count convention `basis`, 
 | 5 | 30/360 ISDA |
 | 6 | 30E/360 |
 | 7 | ACT/365 JPN |
+
+# Arguments
+- `Date1`: start date.
+- `Date2`: end date. If it comes before `Date1`, the result is negative.
+- `basis`: day count convention, an integer from 0 to 7 (see the table above).
 
 # Example
 ```jldoctest

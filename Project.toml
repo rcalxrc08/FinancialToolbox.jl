@@ -10,7 +10,6 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 IrrationalConstants = "92d709cd-6900-40b7-9082-c6be49f344b6"
 MuladdMacro = "46d2c3a1-f734-5fdb-9937-b9b9aeba4221"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [weakdeps]
 DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
@@ -36,6 +35,7 @@ FinancialToolboxTaylorSeriesExt = "TaylorSeries"
 
 [compat]
 ChainRulesCore = "1"
+Dates = "1"
 DualNumbers = "0.5, 0.6"
 EnzymeCore = "0.8"
 ForwardDiff = "0.10, 1"
@@ -49,6 +49,3 @@ Symbolics = "7"
 TaylorDiff = "0.3"
 TaylorSeries = "0.10, 0.11, 0.12, 0.20, 0.23"
 julia = "1.9"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

@@ -39,10 +39,12 @@ end
 function blimpv_impl(::Complex, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ = complex(blimpv(real(S0), real(K), real(T), real(price_d), FlagIsCall, xtol, n_iter_max))
     max_iter = 100
+    # floor for a tolerance passed below the precision of the type (the defaults are already above it)
+    tol = max(xtol, 8 * eps(real(typeof(σ))))
     for _ = 1:max_iter
         Δ = (price_d - blprice_impl(S0, K, T, σ, FlagIsCall)) / blvega_impl(S0, K, T, σ)
         σ += Δ
-        if abs(Δ) <= xtol * abs(σ)
+        if abs(Δ) <= tol * abs(σ)
             return σ
         end
     end
@@ -55,16 +57,25 @@ function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool, xtol:
     return σ
 end
 
+# Default relative tolerance of the Newton iteration for complex inputs: `float64_default` when the inputs are in
+# Float64 or wider (BigFloat, ...), 8 ulps for Float32 and Float16 inputs, which cannot resolve steps of 1e-14.
+base_float_type(::Type{T}) where {T <: AbstractFloat} = T
+base_float_type(::Type{Complex{T}}) where {T} = base_float_type(T)
+base_float_type(::Type) = Float64
+default_xtol_for(::Type{T}, float64_default) where {T <: Union{Float16, Float32}} = 8 * eps(T)
+default_xtol_for(::Type, float64_default) = float64_default
+default_xtol(float64_default, args...) = default_xtol_for(promote_type(map(x -> base_float_type(typeof(x)), args)...), float64_default)
+ChainRulesCore.@non_differentiable default_xtol(::Any...)
+
 """
-    blsimpv(S0, K, r, T, Price, d, FlagIsCall = true, xtol = 100eps(), n_iter_max = 4)
+    blsimpv(S0, K, r, T, Price, d, FlagIsCall = true, xtol = 100eps(Float64), n_iter_max = 4)
 
 Implied volatility of a European option in the Black and Scholes model: the `σ` such that
 `blsprice(S0, K, r, T, σ, d, FlagIsCall) == Price`.
 
 It is computed with the 2024 version of Peter Jäckel's
-[Let's Be Rational](http://www.jaeckel.org/LetsBeRational.pdf), accurate to the attainable machine precision.
-`n_iter_max` is the maximum number of Householder iterations (two are enough for any input in `Float64`); `xtol` is the
-relative tolerance of the Newton iteration for complex inputs.
+[Let's Be Rational](http://www.jaeckel.org/LetsBeRational.pdf), accurate to the attainable machine precision for any
+moneyness, maturity and volatility.
 
 # Arguments
 - `S0`: spot price of the underlying.
@@ -74,6 +85,14 @@ relative tolerance of the Newton iteration for complex inputs.
 - `Price`: price of the option.
 - `d`: continuously compounded dividend yield of the underlying.
 - `FlagIsCall`: `true` for a call, `false` for a put.
+- `xtol`: relative tolerance of the Newton iteration that computes the implied volatility of complex inputs: it stops
+  when a step is smaller than `xtol` times the volatility. It is not used for real inputs, nor for dual numbers and
+  Taylor series, whose implied volatility is computed from the one of their real values. Must be positive. The
+  default is `100eps(Float64)`, or `8eps` of the element type when the inputs are in `Float32` or `Float16`, which
+  cannot resolve smaller steps.
+- `n_iter_max`: maximum number of Householder iterations of Let's Be Rational, for real inputs and for the real
+  values of the other number types. Two are enough for any input in `Float64`; more refine the result for wider types
+  such as `BigFloat`. Must be positive.
 
 # Example
 ```jldoctest
@@ -85,7 +104,7 @@ julia> blsimpv(10.0, 10.0, 0.01, 2.0, price, 0.01)
 
 See also [`blkimpv`](@ref), [`blsprice`](@ref).
 """
-function blsimpv(S0, K, r, T, Price, d, FlagIsCall::Bool=true, xtol::Real=100 * eps(Float64), n_iter_max::Integer=4)
+function blsimpv(S0, K, r, T, Price, d, FlagIsCall::Bool = true, xtol::Real = default_xtol(100 * eps(Float64), S0, K, r, T, Price, d), n_iter_max::Integer = 4)
     cv = exp(r * T)
     cv2 = exp(-d * T)
     adj_S0 = S0 * cv * cv2
@@ -98,7 +117,7 @@ end
     blkimpv(F0, K, r, T, Price, FlagIsCall = true, xtol = 1e-14, n_iter_max = 4)
 
 Implied volatility of a European option on a forward in the Black model: the `σ` such that
-`blkprice(F0, K, r, T, σ, FlagIsCall) == Price`. See [`blsimpv`](@ref) for the method.
+`blkprice(F0, K, r, T, σ, FlagIsCall) == Price`, computed as in [`blsimpv`](@ref).
 
 # Arguments
 - `F0`: forward price of the underlying.
@@ -107,6 +126,11 @@ Implied volatility of a European option on a forward in the Black model: the `σ
 - `T`: time to maturity, in years.
 - `Price`: price of the option.
 - `FlagIsCall`: `true` for a call, `false` for a put.
+- `xtol`: relative tolerance of the Newton iteration for complex inputs, not used for the other number types (see
+  [`blsimpv`](@ref)). Must be positive. The default is `1e-14`, or `8eps` of the element type when the inputs are in
+  `Float32` or `Float16`.
+- `n_iter_max`: maximum number of Householder iterations of Let's Be Rational (see [`blsimpv`](@ref)). Must be
+  positive.
 
 # Example
 ```jldoctest
@@ -115,8 +139,10 @@ julia> price = blkprice(10.0, 10.0, 0.01, 2.0, 0.2);
 julia> blkimpv(10.0, 10.0, 0.01, 2.0, price)
 0.19999999999999996
 ```
+
+See also [`blsimpv`](@ref), [`blkprice`](@ref).
 """
-function blkimpv(F0, K, r, T, Price, FlagIsCall::Bool = true, xtol::Real = 1e-14, n_iter_max::Integer = 4)
+function blkimpv(F0, K, r, T, Price, FlagIsCall::Bool = true, xtol::Real = default_xtol(1e-14, F0, K, r, T, Price), n_iter_max::Integer = 4)
     adj_price = Price * exp(r * T)
     σ = blimpv(F0, K, T, adj_price, FlagIsCall, xtol, n_iter_max)
     return σ
@@ -159,7 +185,7 @@ function rrule(::typeof(blimpv), S0, K, T, price_d, FlagIsCall, xtol, n_iter_max
     return σ, update_pullback
 end
 
-function frule((_, dS, dK, dT, dprice, _, _, _), ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
+function frule((_, dS, dK, dT, dprice, _, _, _)::Tuple, ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     der_S0, der_K, der_T, der_price = blimpv_sensitivities(S0, K, T, σ, FlagIsCall)
     return σ, dS * der_S0 + dK * der_K + dT * der_T + dprice * der_price
