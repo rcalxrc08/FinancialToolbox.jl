@@ -2,7 +2,7 @@
 
 Time to compute the price and the implied volatility, and their gradients with respect to all the six inputs with
 the AD backends the package is tested with (DualNumbers, HyperDualNumbers and TaylorDiff aside): forward mode with ForwardDiff, TaylorSeries (order one `TaylorN` in the
-six inputs) and Enzyme, reverse mode with Zygote, ReverseDiff (compiled tape), Mooncake and Enzyme. Caches, tapes and
+six inputs) and Enzyme (batched, the six tangents in one pass), reverse mode with Zygote, ReverseDiff (compiled tape), Mooncake and Enzyme. Caches, tapes and
 configurations are prepared once, outside the timings, and every gradient is checked against ForwardDiff. The table is
 generated when this documentation is built, on the machine that builds it.
 
@@ -26,10 +26,12 @@ function gradients(f, args)
     reversediff_tape = ReverseDiff.compile(ReverseDiff.GradientTape(f_vector, x))
     reversediff_out = similar(x)
     mooncake_cache = Mooncake.prepare_gradient_cache(f, args...)
+    # batched forward mode: the six one-hot tangents in one pass
+    enzyme_tangents = ntuple(i -> BatchDuplicated(args[i], ntuple(j -> Float64(i == j), 6)), 6)
     return [
         "ForwardDiff" => (() -> ForwardDiff.gradient(f_vector, x, forwarddiff_config), identity),
         "TaylorSeries" => (() -> f(x_taylor...), y -> [TaylorSeries.getcoeff(y, [i == j ? 1 : 0 for j = 1:6]) for i = 1:6]),
-        "Enzyme forward" => (() -> Enzyme.gradient(Enzyme.Forward, f_vector, x), y -> collect(y[1])),
+        "Enzyme forward" => (() -> Enzyme.autodiff(Enzyme.Forward, Const(f), enzyme_tangents...), y -> collect(values(y[1]))),
         "Zygote" => (() -> Zygote.gradient(f, args...), collect),
         "ReverseDiff" => (() -> ReverseDiff.gradient!(reversediff_out, reversediff_tape, x), identity),
         "Mooncake" => (() -> Mooncake.value_and_gradient!!(mooncake_cache, f, args...), y -> collect(y[2][2:end])),
