@@ -1,0 +1,16 @@
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+FinancialToolbox = "2edd74a5-e968-5e45-af77-76d29aa6a478"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
+
+[sources]
+FinancialToolbox = {path = "../.."}
+
+[compat]
+BenchmarkTools = "1"
+CUDA = "5, 6"
+ForwardDiff = "0.10, 1"
+Zygote = "0.6, 0.7"

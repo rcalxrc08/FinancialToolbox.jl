@@ -1,0 +1,109 @@
+# CLAUDE.md
+
+Guidance for working in this repository.
+
+## What this is
+
+`FinancialToolbox.jl` prices European options under the Black and Black & Scholes models, with the Greeks, the implied
+volatility (Peter Jäckel's *Let's Be Rational*, 2024 version) and Matlab-style day counts, with the syntax of the
+Matlab Financial Toolbox (`blsprice`, `blsimpv`, `yearfrac`, ...). Everything is generic in the number type: `Float16`,
+`Float32`, `Float64`, `BigFloat`, complex numbers (complex step), every AD backend in [ext/](ext/), and GPU arrays.
+
+Registered in General. FinancialFFT, FinancialMonteCarlo and VibratoMonteCarlo depend on it.
+
+## Commands
+
+```bash
+julia --project -e 'import Pkg; Pkg.test()'      # test/runtests.jl: every file of test_list, about 15 minutes
+julia --project=test -e 'include("test/testElementTypes.jl")'   # a single test file
+julia --project=test/cuda -e 'import Pkg; Pkg.instantiate(); include("test/cuda/runtests.jl")'  # needs an NVIDIA GPU
+julia benchmark/run.jl                           # benchmark suite (BenchmarkCI runs it on CI); benchmark/tune.jl retunes tune.json
+julia --project=benchmark/gpu -e 'import Pkg; Pkg.instantiate(); include("benchmark/gpu/run.jl")'  # GPU vs CPU table of docs/src/gpu.md
+julia --project=docs docs/make.jl                # Documenter site, into docs/build
+julia -e 'using JuliaFormatter; format(".")'     # .JuliaFormatter.toml
+```
+
+CI tests Julia 1.10 and 1. The default branch is `master`. The docs are deployed by DeployPage.yml with GitHub Pages
+from Actions (no gh-pages branch).
+
+## Architecture
+
+- [src/financial.jl](src/financial.jl): `normcdf`, `normpdf`, the pricers and the Greeks. All of them reduce to
+  `blprice_impl(F, K, T, σ, FlagIsCall)`, the undiscounted Black formula, which has ChainRules `frule`/`rrule` with
+  closed form partials (`blprice_and_sensitivities`).
+- [src/financial_implied_volatility.jl](src/financial_implied_volatility.jl): `blsimpv`/`blkimpv` reduce to
+  `blimpv(F, K, T, price, ...)`, which dispatches on `zero(promote_type(inputs...))` through `blimpv_impl`: real
+  floats run the domain checks and Let's Be Rational, `Complex` runs Newton from the real solution (analytic
+  continuation, for the complex step), and the extensions add methods for their number types. The derivatives of
+  the implied volatility never go through the solver: they come from the implicit function theorem
+  (`blimpv_sensitivities`), in the ChainRules rules here and in every extension.
+- [src/financial_lets_be_rational.jl](src/financial_lets_be_rational.jl): the solver. Constants are `@irrational`
+  (exact for `BigFloat`, no promotion for `Float32`); keep them so. `Float16` is solved in `Float32` (some
+  approximations return `Float64` for it, which made it type-unstable).
+- [src/financial_value_and_partials.jl](src/financial_value_and_partials.jl): `value_and_partials(f, inputs...,
+  parameters)`, the value and all the partials in closed form of `blsprice`, `blkprice`, `blsimpv`, `blkimpv`,
+  `blprice_impl` and `blimpv`. Used by the ReverseDiff extension and by the ChainRules `rrule`s of the broadcasts of
+  the four public functions: one fused pass, partials as thunks, gradients reduced over the broadcast dimensions.
+  Without them Zygote reruns a GPU broadcast once per argument with duals (5-8 times slower than the CPU in Float64).
+- [src/dates.jl](src/dates.jl): `yearfrac` (Matlab bases 0-7), `daysact`, `fromExcelNumberToDate`.
+- [ext/](ext/): one extension per AD backend or number type. ForwardDiff, DualNumbers, HyperDualNumbers and
+  Mooncake's `Nfwd.NDual` (Mooncake inside GPU broadcasts) solve on the values and add
+  `(price - blprice(σ)) / vega`. ReverseDiff records `blsprice`, `blkprice`, `blsimpv`, `blkimpv`, `blprice_impl` and
+  `blimpv` as single tape instructions written by hand (with `value_and_partials`): `ReverseDiff.@grad` keeps the pullback of the point where a
+  compiled tape was recorded, so its gradients elsewhere are wrong. Enzyme has `forward`/`augmented_primal`/`reverse`
+  rules for `blimpv`. DualNumbers also defines `normcdf`, `normpdf` and `internal_sqrt` of a `Dual` (its own `erfc`,
+  `sqrt` promote to Float64 and its `x^2` is slow); HyperDualNumbers `normcdf` and `internal_sqrt`. TaylorSeries/TaylorDiff define `erfc` of a series (a coefficient recurrence) and the implied
+  volatility by Newton on the whole series.
+- [docs/](docs/): Documenter, in the style of the other packages of rcalxrc08 (`docs/src/assets/style.css` is shared,
+  copy changes across). `docs/figures.jl` computes the figures at build time, a light and a dark SVG each; the
+  performance table is measured at build time too; the GPU page (`gpu.md`) has a static table measured on an MX150,
+  since CI has no GPU. Markdown tables need `|:--|` columns.
+
+## Benchmarks
+
+`benchmark/benchmarks.jl` is the suite of BenchmarkCI (CI compares each PR with master): scalar calls in Float64,
+Float32, Float16, DualNumbers and the gradients of Zygote, Mooncake and ReverseDiff, and a smile of 1000 options
+(broadcast rules). After adding or renaming a benchmark, rerun `benchmark/tune.jl` and commit `tune.json`.
+`benchmark/gpu/run.jl` regenerates the GPU table of the docs (static, CI has no GPU).
+
+## Tests
+
+`test/runtests.jl` includes every file of `test_list`; a new file must be added there. Notable ones:
+- `testElementTypes.jl`: Float32 in, Float32 out, for every function, input position and number type. Type-stability
+  checks do not catch a promotion to a well-defined wider type (#74), this test does.
+- `testGPU.jl` runs `gpu_suite.jl` on JLArrays (GPU code path without a GPU, on CI); `test/cuda/` runs the same suite
+  and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme in kernels) on CUDA, locally only.
+- `testAqua.jl`: Aqua (ambiguities, stale dependencies, compat, piracy, ...).
+
+The test environment caps ChainRules at 1.74.10: 1.74.11 breaks the precompilation of TaylorDiff
+(JuliaDiff/TaylorDiff.jl#113). Lift the cap once that is fixed, and close CompatHelper PRs that remove it before.
+
+## Conventions
+
+- Optimize: measure (BenchmarkTools, `@allocated`) and keep the faster version, unless it breaks a supported number
+  type (e.g. `sqrt(F * K)` overflows `Float16`).
+- No `Float64` constants or buffers in generic code: use `@irrational`, integer literals or `one`/`zero` of the input
+  type. Upstream rules that promote are wrapped in the extensions (`normcdf`, `internal_sqrt` for DualNumbers and
+  HyperDualNumbers).
+- Code reachable from GPU kernels must not allocate and must not index arrays element by element.
+- Prefer `x^2` to `x * x` in generic code: the same for hardware floats, faster for BigFloat, complex and Taylor
+  series.
+- Every exported function documents all its arguments in its docstring.
+- Formatting: JuliaFormatter, `margin = 1200`.
+
+## Known upstream issues
+
+- SpecialFunctions `erfinv(::Float16)` is wrong for `|x| <= 0.75` (JuliaMath/SpecialFunctions.jl#571): `erfinv_accurate`
+  computes it in Float32.
+- ForwardDiff `gradient`/`jacobian` do not support GPU arrays (JuliaDiff/ForwardDiff.jl#759): broadcast
+  `ForwardDiff.derivative` per element instead.
+- Enzyme custom rules miss CUDA's device overrides inside kernels (EnzymeAD/Enzyme.jl#3962): `blsimpv` cannot be
+  differentiated with Enzyme in kernels (`@test_broken` in `test/cuda/ad_suite.jl`).
+
+## Releasing
+
+Bump `version` in `Project.toml`, push to `master`, wait for CI, then comment `@JuliaRegistrator register` on the
+commit. TagBot creates the tag and the release; if it opens a "manual intervention" issue, create the release at the
+registered commit with `gh release create vX.Y.Z --target <full sha> --latest=false` (for an old version).
+
+Keep this file up to date at every push.

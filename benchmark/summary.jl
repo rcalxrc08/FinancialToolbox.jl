@@ -7,7 +7,7 @@ minimum_time(x::BenchmarkTools.Trial) = time(minimum(x))
 minimum_time(x::BenchmarkTools.TrialEstimate) = time(x)
 
 function summary_table(io::IO, results::BenchmarkGroup)
-    inputs = ("Float64", "Float32", "DualNumbers ∂/∂S0", "Zygote gradient", "Mooncake gradient")
+    inputs = ("Float64", "Float32", "Float16", "DualNumbers ∂/∂S0", "Zygote gradient", "Mooncake gradient", "ReverseDiff gradient")
     println(io, "| Function | ", join(inputs, " | "), " |")
     println(io, "|:--", repeat("|--:", length(inputs)), "|")
     for name in sort(collect(keys(results)))
@@ -16,7 +16,7 @@ function summary_table(io::IO, results::BenchmarkGroup)
         cells = map(inputs) do input
             haskey(group, input) || return "-"
             t = minimum_time(group[input])
-            input in ("Float64", "Float32") ? format_time(t) : @sprintf("%s (%.1f×)", format_time(t), t / t_value)
+            input in ("Float64", "Float32", "Float16") ? format_time(t) : @sprintf("%s (%.1f×)", format_time(t), t / t_value)
         end
         println(io, "| `", name, "` | ", join(cells, " | "), " |")
     end
