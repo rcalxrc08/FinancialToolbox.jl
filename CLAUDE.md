@@ -38,18 +38,18 @@ from Actions (no gh-pages branch).
   the implied volatility never go through the solver: they come from the implicit function theorem
   (`blimpv_sensitivities`), in the ChainRules rules here and in every extension.
 - [src/financial_lets_be_rational.jl](src/financial_lets_be_rational.jl): the solver. Constants are `@irrational`
-  (exact for `BigFloat`, no promotion for `Float32`); keep them so. `Float16` is solved in `Float32` (some
-  approximations return `Float64` for it, which made it type-unstable).
+  (exact for `BigFloat`, no promotion for `Float32`); keep them so. `blimpv_lets_be_rational` promotes its inputs to a
+  common type first (`sqrt` of an `Int` strike is a `Float64`), and solves `Float16` in `Float32` (some approximations
+  return `Float64` for it, and `erfinv(::Float16)` is wrong).
 - [src/financial_value_and_partials.jl](src/financial_value_and_partials.jl): `value_and_partials(f, inputs...,
-  parameters)`, the value and all the partials in closed form of `blsprice`, `blkprice`, `blsimpv`, `blkimpv`,
-  `blprice_impl` and `blimpv`. Used by the ReverseDiff extension and by the ChainRules `rrule`s of the broadcasts of
+  parameters)`, the value and all the partials in closed form of `blsprice`, `blkprice`, `blsimpv` and `blkimpv`. Used by the ReverseDiff extension and by the ChainRules `rrule`s of the broadcasts of
   the four public functions: one fused pass, partials as thunks, gradients reduced over the broadcast dimensions.
   Without them Zygote reruns a GPU broadcast once per argument with duals (5-8 times slower than the CPU in Float64).
 - [src/dates.jl](src/dates.jl): `yearfrac` (Matlab bases 0-7), `daysact`, `fromExcelNumberToDate`.
 - [ext/](ext/): one extension per AD backend or number type. ForwardDiff, DualNumbers, HyperDualNumbers and
   Mooncake's `Nfwd.NDual` (Mooncake inside GPU broadcasts) solve on the values and add
-  `(price - blprice(σ)) / vega`. ReverseDiff records `blsprice`, `blkprice`, `blsimpv`, `blkimpv`, `blprice_impl` and
-  `blimpv` as single tape instructions written by hand (with `value_and_partials`): `ReverseDiff.@grad` keeps the pullback of the point where a
+  `(price - blprice(σ)) / vega`. ReverseDiff records `blsprice`, `blkprice`, `blsimpv` and `blkimpv`
+  as single tape instructions written by hand (with `value_and_partials`): `ReverseDiff.@grad` keeps the pullback of the point where a
   compiled tape was recorded, so its gradients elsewhere are wrong. Enzyme has `forward`/`augmented_primal`/`reverse`
   rules for `blimpv`. DualNumbers also defines `normcdf`, `normpdf` and `internal_sqrt` of a `Dual` (its own `erfc`,
   `sqrt` promote to Float64 and its `x^2` is slow); HyperDualNumbers `normcdf` and `internal_sqrt`. TaylorSeries/TaylorDiff define `erfc` of a series (a coefficient recurrence) and the implied
@@ -58,6 +58,13 @@ from Actions (no gh-pages branch).
   copy changes across). `docs/figures.jl` computes the figures at build time, a light and a dark SVG each; the
   performance table is measured at build time too; the GPU page (`gpu.md`) has a static table measured on an MX150,
   since CI has no GPU. Markdown tables need `|:--|` columns.
+  The calibration example of `gpu.md` runs at build time on the CPU (the same code runs on CUDA inside a function):
+  a smile fitted by Gauss-Newton with `Zygote.jacobian`, on quotes with deterministic noise (`0.05 sin(i)`) so that
+  the residuals do not vanish and the Hessian differs from `JᵀJ`. The sensitivities `∂θ*/∂m = H⁻¹Jᵀ` (implicit
+  function theorem, `H` from `ForwardDiff.hessian`) are checked against recalibrating after a bump of one quote and
+  against the pseudo-inverse; keep the noise, without it the check cannot tell the two apart. In `@example` blocks
+  update globals in place (`θ .-= ...`): `θ -= ...` in a top-level loop fails with Documenter's soft scope.
+  `references.md` holds the bibliography; cite from the text with links to its sections.
 
 ## Benchmarks
 
@@ -68,9 +75,16 @@ Float32, Float16, DualNumbers and the gradients of Zygote, Mooncake and ReverseD
 
 ## Tests
 
+Coverage is on codecov (100% before the GPU work): code reached only on GPUs (Mooncake's `NDual`) or by
+compiled tapes needs a CPU test that calls it directly.
+
+
 `test/runtests.jl` includes every file of `test_list`; a new file must be added there. Notable ones:
 - `testElementTypes.jl`: Float32 in, Float32 out, for every function, input position and number type. Type-stability
   checks do not catch a promotion to a well-defined wider type (#74), this test does.
+- `testReverseDiff.jl` evaluates compiled tapes away from the recording point: it is the only test of the forward
+  pass of the hand-written instructions.
+- `testBroadcastRules.jl`: the broadcast rules against ForwardDiff, for every argument and broadcast shape.
 - `testGPU.jl` runs `gpu_suite.jl` on JLArrays (GPU code path without a GPU, on CI); `test/cuda/` runs the same suite
   and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme in kernels) on CUDA, locally only.
 - `testAqua.jl`: Aqua (ambiguities, stale dependencies, compat, piracy, ...).
@@ -93,8 +107,8 @@ The test environment caps ChainRules at 1.74.10: 1.74.11 breaks the precompilati
 
 ## Known upstream issues
 
-- SpecialFunctions `erfinv(::Float16)` is wrong for `|x| <= 0.75` (JuliaMath/SpecialFunctions.jl#571): `erfinv_accurate`
-  computes it in Float32.
+- SpecialFunctions `erfinv(::Float16)` is wrong for `|x| <= 0.75` (JuliaMath/SpecialFunctions.jl#571): Float16 is
+  solved in Float32.
 - ForwardDiff `gradient`/`jacobian` do not support GPU arrays (JuliaDiff/ForwardDiff.jl#759): broadcast
   `ForwardDiff.derivative` per element instead.
 - Enzyme custom rules miss CUDA's device overrides inside kernels (EnzymeAD/Enzyme.jl#3962): `blsimpv` cannot be

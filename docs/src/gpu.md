@@ -44,27 +44,49 @@ Two limitations come from the AD packages, not from this one:
 
 ## A calibration
 
-A smile with a quadratic implied volatility in the log-moneyness, `σ(K) = a + b log(K / F)^2`, fitted to market prices
-by least squares with Gauss–Newton: Zygote gives the Jacobian of the pricing errors with respect to `(a, b)`, through
-the broadcast rule of `blsprice`, and each iteration solves a small least squares problem. The example runs on the
-CPU, so that it runs when this documentation is built; on a GPU, move the strikes and the market prices with `cu`, and
-nothing else changes.
+A smile with an implied volatility quadratic in the log-moneyness,
+
+```math
+\sigma_\theta(K) = a + b \log^2\frac{K}{F}, \qquad \theta = (a, b), \qquad F = S_0 e^{(r - d)T},
+```
+
+is fitted to the market prices ``m_1, \dots, m_n`` of calls with strikes ``K_1, \dots, K_n`` by least squares on the
+pricing errors
+
+```math
+e_i(\theta) = C_{bs}(S_0, K_i, r, T, \sigma_\theta(K_i), d) - m_i, \qquad
+L(\theta, m) = \frac{1}{2} \sum_{i=1}^n e_i(\theta)^2 .
+```
+
+Gauss–Newton ([Nocedal and Wright](references.md#Calibration)) linearises the errors around the current parameters, ``e(\theta + \delta) \approx e(\theta) + J \delta``
+with ``J = \partial_\theta e`` the ``n \times 2`` Jacobian, and takes the step that minimises the linearised loss, the
+least squares solution of
+
+```math
+J \, \delta = -e(\theta).
+```
+
+Zygote computes ``J`` through the broadcast rule of `blsprice`, and `J \ e` solves the least squares problem. The
+quotes are generated from ``a = 0.18``, ``b = 0.4``, plus some noise that no smile of this family fits exactly.
 
 ```@example calibration
-using FinancialToolbox, Zygote
+using FinancialToolbox, Zygote, ForwardDiff
 S0, r, T, d = 100.0, 0.02, 1.0, 0.01
 F = S0 * exp((r - d) * T)
 strikes = collect(range(70.0, 140.0, length = 200))
 smile(a, b, K) = a + b * log(K / F)^2
-market = blsprice.(S0, strikes, r, T, smile.(0.18, 0.4, strikes), d)  # quotes from a known smile
+market = blsprice.(S0, strikes, r, T, smile.(0.18, 0.4, strikes), d) .+ 0.05 .* sin.(1:200)
 
-pricing_errors(θ) = blsprice.(S0, strikes, r, T, smile.(θ[1], θ[2], strikes), d) .- market
-θ = [0.25, 0.0]
-for _ in 1:5
-    J = only(Zygote.jacobian(pricing_errors, θ))
-    θ .-= J \ pricing_errors(θ)
+pricing_errors(θ, m) = blsprice.(S0, strikes, r, T, smile.(θ[1], θ[2], strikes), d) .- m
+function calibrate(m)
+    θ = [0.25, 0.0]
+    for _ in 1:8
+        J = only(Zygote.jacobian(t -> pricing_errors(t, m), θ))
+        θ -= J \ pricing_errors(θ, m)
+    end
+    return θ
 end
-θ, sum(abs2, pricing_errors(θ))
+θ = calibrate(market)
 ```
 
 The implied volatilities of the quotes, and their sensitivities to the prices (the inverse of the vegas), on the
@@ -75,6 +97,51 @@ vols = blsimpv.(S0, strikes, r, T, market, d)
 dvols = only(Zygote.gradient(p -> sum(blsimpv.(S0, strikes, r, T, p, d)), market))
 extrema(vols), dvols[1:3] ≈ inv.(blsvega.(S0, strikes[1:3], r, T, vols[1:3], d))
 ```
+
+### Sensitivity of the calibrated parameters to the quotes
+
+How do the calibrated parameters ``\theta^*(m)`` move when a quote moves? At the optimum the gradient of the loss
+vanishes,
+
+```math
+g(\theta^*, m) = \partial_\theta L(\theta^*, m) = J^\top e(\theta^*) = 0 .
+```
+
+By the implicit function theorem ([Dini's theorem](references.md#Implicit-function-theorem)), where ``\partial_\theta g`` is invertible this defines
+``\theta^*(m)``, with
+
+```math
+\frac{\partial \theta^*}{\partial m} = -\left(\partial_\theta g\right)^{-1} \partial_m g = H^{-1} J^\top,
+\qquad H = \partial^2_\theta L = J^\top J + \sum_{i=1}^n e_i \, \partial^2_\theta e_i ,
+```
+
+since ``\partial_m g = -J^\top`` (each ``e_i`` depends on ``m_i`` with derivative ``-1``). ``H`` is the Hessian of the
+loss: ForwardDiff computes it through the broadcasts. When the quotes are fitted exactly the errors vanish, ``H =
+J^\top J`` and the sensitivities are the pseudo-inverse ``(J^\top J)^{-1} J^\top``; with fitting errors the second
+term counts. No recalibration is needed: the ``2 \times n`` matrix of sensitivities comes from the derivatives at the
+optimum.
+
+```@example calibration
+J = only(Zygote.jacobian(t -> pricing_errors(t, market), θ))
+H = ForwardDiff.hessian(t -> sum(abs2, pricing_errors(t, market)) / 2, θ)
+sensitivities = H \ transpose(J)    # ∂θ*/∂m, 2 × 200
+size(sensitivities)
+```
+
+A check on one quote, against recalibrating after bumping it, and against the pseudo-inverse, which ignores the
+fitting errors:
+
+```@example calibration
+i, h = 120, 1e-5
+bumped = copy(market)
+bumped[i] += h
+(implicit = sensitivities[:, i], recalibrated = (calibrate(bumped) - θ) / h, pseudo_inverse = ((transpose(J) * J) \ transpose(J))[:, i])
+```
+
+The example runs on the CPU, so that it runs when this documentation is built. On a GPU, move the strikes and the
+quotes with `cu` and put the code in a function (closures over global variables cannot be compiled for the GPU): the
+Jacobian, the Hessian and the broadcasts run there unchanged.
+
 
 ## Performance
 

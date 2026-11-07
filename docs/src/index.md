@@ -81,6 +81,6 @@ blsimpv(Float32.((S0, K, r, T, price, d))...), blsimpv(big.((S0, K, r, T, price,
 ## Contents
 
 ```@contents
-Pages = ["pricing.md", "implied_volatility.md", "ad.md", "gpu.md", "performance.md", "dates.md", "api.md"]
+Pages = ["pricing.md", "implied_volatility.md", "ad.md", "gpu.md", "performance.md", "dates.md", "api.md", "references.md"]
 Depth = 2
 ```

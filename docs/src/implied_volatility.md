@@ -40,7 +40,7 @@ blkimpv(F, K, r, T, 7.659923984582901), blkimpv(F, K, r, T, 9.612495404098706, f
 ## Accuracy
 
 The implied volatility is computed with the 2024 version of Peter Jäckel's
-[Let's Be Rational](http://www.jaeckel.org/LetsBeRational.pdf): a rational initial guess on four branches of the
+[Let's Be Rational](http://www.jaeckel.org/LetsBeRational.pdf) ([Jäckel](references.md#Implied-volatility)): a rational initial guess on four branches of the
 normalised price, then at most two Householder iterations of order four. The result is accurate to the attainable
 machine precision for any moneyness, maturity and volatility.
 
@@ -62,6 +62,7 @@ blsimpv(big(S), big(K), big(r), big(T), price, big(d)) - big"0.2"
 ## Complex numbers
 
 Complex inputs return the analytic continuation of the real implied volatility, the one needed by the complex step
+([Squire and Trapp](references.md#Automatic-differentiation))
 method: the derivative of the implied volatility with respect to the price is the imaginary part of a single
 evaluation, divided by the step.
 

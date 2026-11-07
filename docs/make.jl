@@ -16,5 +16,5 @@ makedocs(
     sitename = "FinancialToolbox.jl",
     modules = [FinancialToolbox],
     checkdocs = :exports,
-    pages = ["index.md", "pricing.md", "implied_volatility.md", "ad.md", "gpu.md", "performance.md", "dates.md", "api.md"],
+    pages = ["index.md", "pricing.md", "implied_volatility.md", "ad.md", "gpu.md", "performance.md", "dates.md", "api.md", "references.md"],
 )

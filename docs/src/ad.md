@@ -53,7 +53,8 @@ In the Black and Scholes model let ``f(S, K, r, T, \sigma, d)`` be the price of 
 f(S, K, r, T, \sigma(S, K, r, T, V, d), d) = V.
 ```
 
-Differentiating both sides with respect to a generic parameter ``\theta`` gives
+Differentiating both sides with respect to a generic parameter ``	heta`` (the implicit function theorem,
+[Dini's theorem](references.md#Implicit-function-theorem)) gives
 
 ```math
 \partial_{\theta}\sigma = \frac{\partial_{\theta}\left(V - f(S, K, r, T, \sigma, d)\right)}{\partial_{\sigma}f(S, K, r, T, \sigma, d)}.

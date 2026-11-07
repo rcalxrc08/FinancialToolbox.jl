@@ -2,7 +2,8 @@
 
 ## Black and Scholes model
 
-In the Black and Scholes model the prices of a European call and of a European put are
+In the Black and Scholes model ([Black and Scholes](references.md#Option-pricing)) the prices of a European call and
+of a European put are
 
 ```math
 C_{bs}(S, K, r, T, \sigma, d) = S e^{-d T} N(d_1) - K e^{-r T} N(d_2), \qquad
@@ -52,7 +53,7 @@ blsbin(S, K, r, T, σ, d), blsbin(S, K, r, T, σ, d, false)
 
 ## Black model
 
-The Black model prices options on a forward ``F``:
+The Black model ([Black](references.md#Option-pricing)) prices options on a forward ``F``:
 
 ```math
 C_{bk}(F, K, r, T, \sigma) = e^{-r T} \left(F N(d_1) - K N(d_2)\right), \qquad
