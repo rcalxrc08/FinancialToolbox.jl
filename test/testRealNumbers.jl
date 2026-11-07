@@ -71,6 +71,13 @@ print_colored("-----Testing Implied Volatility\n", :blue);
 assert_real(SigmaCall - 0.2, testToll)
 print_colored("-----Testing Implied Volatility Black\n", :blue);
 assert_real(SigmaCallBlack - 0.2, testToll)
+print_colored("-----Testing Implied Volatility Float16
+", :blue);
+# at the money (inverse error function) and away from it, against Float32
+for K16 in (100, 110)
+    price16 = blsprice(Float16.((100, K16, 0, 1, 0.2, 0))...)
+    @test blsimpv(Float16.((100, K16, 0, 1))..., price16, Float16(0)) ≈ blsimpv(Float32.((100, K16, 0, 1, price16, 0))...) rtol = 1e-2
+end
 print_colored("---  European Put: Price and Sensitivities\n", :yellow)
 #Standard Test European Put Option
 print_colored("-----Testing Price\n", :blue);

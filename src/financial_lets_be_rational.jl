@@ -345,6 +345,10 @@ end
 @muladd householder3_factor(n, h₂, h₃) = (1 + h₂ * n / 2) / (1 + n * (h₂ + h₃ * n / 6))
 @muladd householder4_factor(n, h₂, h₃, h₄) = (1 + n * (h₂ + n * h₃ / 6)) / (1 + n * (3 * h₂ / 2 + n * (square(h₂) / 4 + h₃ / 3 + n * h₄ / 24)))
 
+# erfinv of SpecialFunctions is wrong for Float16 (erfinv(Float16(0.08)) == 0.9727): computed in Float32
+erfinv_accurate(β) = erfinv(β)
+erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
+
 # Normalised implied volatility for an out-of-the-money normalised price β (x ≤ 0), with at most N Householder iterations
 @muladd function lets_be_rational(β, x, N)
     zero_typed = zero(β * x)
@@ -353,7 +357,7 @@ end
     end
     b_max = exp(x / 2)
     if x == 0 # at the money: b(0,s) = erf(s/√8)
-        return sqrt2 * (2 * erfinv(β))
+        return sqrt2 * (2 * erfinv_accurate(β))
     end
     tol = cbrt(dbl_epsilon(zero_typed)) # Householder(3) is 4th order: after a step ds the error is O(ds^4)
     iterations = 0
