@@ -3,9 +3,9 @@ module FinancialToolboxReverseDiffExt
 using ReverseDiff
 using ReverseDiff: TrackedReal, SpecialInstruction, istracked, value, deriv, increment_deriv!, pull_value!, value!, unseed!
 using FinancialToolbox
-using FinancialToolbox: blimpv, blprice_impl, value_and_partials
+using FinancialToolbox: value_and_partials
 
-# blsprice, blkprice, blsimpv, blkimpv, the Black formula and the implied volatility are recorded on the tape as one instruction each,
+# blsprice, blkprice, blsimpv and blkimpv are recorded on the tape as one instruction each,
 # with their closed form partial derivatives, instead of the 10-30 scalar operations ReverseDiff would trace through
 # them (about 50 ns each on a compiled tape).
 # The instructions are written by hand rather than with ReverseDiff.@grad: a compiled tape reruns only the forward
@@ -23,12 +23,12 @@ function record_instruction(f, inputs, parameters)
     return out
 end
 
-const RECORDED = Union{typeof(blprice_impl), typeof(blsprice), typeof(blkprice), typeof(blimpv), typeof(blsimpv), typeof(blkimpv)}
+const RECORDED = Union{typeof(blsprice), typeof(blkprice), typeof(blsimpv), typeof(blkimpv)}
 
 refresh_value!(x::TrackedReal) = (pull_value!(x); nothing)
-refresh_value!(x) = nothing
+refresh_value!(_) = nothing
 add_adjoint!(x::TrackedReal, adjoint) = (istracked(x) && increment_deriv!(x, adjoint); nothing)
-add_adjoint!(x, adjoint) = nothing
+add_adjoint!(_, _) = nothing
 
 @noinline function ReverseDiff.special_forward_exec!(instruction::SpecialInstruction{<:RECORDED})
     foreach(refresh_value!, instruction.input)
@@ -54,13 +54,9 @@ function tracked_methods(f, inputs, parameters)
         @eval FinancialToolbox.$f($(args...), $(parameters...)) = record_instruction($f, ($(inputs...),), $(length(parameters) == 1 ? parameter_names[1] : :(($(parameter_names...),))))
     end
 end
-tracked_methods(:blprice_impl, (:S0, :K, :T, :σ), (:(FlagIsCall::Bool),))
 tracked_methods(:blsprice, (:S0, :K, :r, :T, :σ, :d), (:(FlagIsCall::Bool),))
 tracked_methods(:blkprice, (:F0, :K, :r, :T, :σ), (:(FlagIsCall::Bool),))
 tracked_methods(:blsimpv, (:S0, :K, :r, :T, :Price, :d), (:(FlagIsCall::Bool), :(xtol::Real), :(n_iter_max::Integer)))
 tracked_methods(:blkimpv, (:F0, :K, :r, :T, :Price), (:(FlagIsCall::Bool), :(xtol::Real), :(n_iter_max::Integer)))
-
-# Implied volatility reached through other paths: dispatched on the promoted type of the inputs (see blimpv)
-FinancialToolbox.blimpv_impl(::TrackedReal, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max) = record_instruction(blimpv, (S0, K, T, price_d), (FlagIsCall, xtol, n_iter_max))
 
 end

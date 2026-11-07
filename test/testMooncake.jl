@@ -68,3 +68,17 @@ end
 # hess_cache_2 = DI.prepare_hessian(f, hess_backend_2, x)
 # H2 = DI.hessian(f, hess_cache_2, hess_backend_2, x)
 # @show H2
+# Mooncake differentiates GPU broadcasts with its own dual numbers (Nfwd.NDual): the extension solves on the values and
+# adds the derivatives. Called directly here, on the CPU.
+if isdefined(Mooncake, :Nfwd) && isdefined(Mooncake.Nfwd, :NDual)
+    @testset "Mooncake NDual" begin
+        S0, K, r, T, σ, d = 100.0, 95.0, 0.02, 1.2, 0.2, 0.01
+        price = blsprice(S0, K, r, T, σ, d)
+        y = blsimpv(S0, K, r, T, Mooncake.Nfwd.NDual{Float64, 2}(price, (1.0, 2.0)), d)
+        @test y.value ≈ σ
+        @test y.partials[1] ≈ inv(blsvega(S0, K, r, T, σ, d))
+        @test y.partials[2] ≈ 2 * inv(blsvega(S0, K, r, T, σ, d))
+        y = blsimpv(Mooncake.Nfwd.NDual{Float64, 1}(S0, (1.0,)), K, r, T, price, d)
+        @test y.partials[1] ≈ ForwardDiff.derivative(s -> blsimpv(s, K, r, T, price, d), S0)
+    end
+end

@@ -45,3 +45,14 @@ lifts = (
         end
     end
 end
+
+# Float16 mixed with integers: the inputs of the solver are promoted to Float16 (sqrt of an Int strike is a Float64),
+# then solved in Float32 (erfinv is wrong for Float16, JuliaMath/SpecialFunctions.jl#571)
+@testset "Float16 mixed with integers" begin
+    for K in (100, 95, 110), FlagIsCall in (true, false)
+        price = blsprice(Float16(100), K, Float16(0), Float16(1), Float16(0.2), Float16(0), FlagIsCall)
+        σ = blsimpv(Float16(100), K, Float16(0), Float16(1), price, Float16(0), FlagIsCall)
+        @test σ isa Float16
+        @test σ ≈ 0.2 rtol = 2e-2
+    end
+end

@@ -344,10 +344,6 @@ end
 @muladd householder3_factor(n, h₂, h₃) = (1 + h₂ * n / 2) / (1 + n * (h₂ + h₃ * n / 6))
 @muladd householder4_factor(n, h₂, h₃, h₄) = (1 + n * (h₂ + n * h₃ / 6)) / (1 + n * (3 * h₂ / 2 + n * (h₂^2 / 4 + h₃ / 3 + n * h₄ / 24)))
 
-# erfinv of SpecialFunctions is wrong for Float16 (erfinv(Float16(0.08)) == 0.9727, JuliaMath/SpecialFunctions.jl#571):
-# computed in Float32
-erfinv_accurate(β) = erfinv(β)
-erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
 
 # Normalised implied volatility for an out-of-the-money normalised price β (x ≤ 0), with at most N Householder iterations
 @muladd function lets_be_rational(β, x, N)
@@ -357,7 +353,7 @@ erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
     end
     b_max = exp(x / 2)
     if x == 0 # at the money: b(0,s) = erf(s/√8)
-        return sqrt2 * (2 * erfinv_accurate(β))
+        return sqrt2 * (2 * erfinv(β))
     end
     tol = cbrt(dbl_epsilon(zero_typed)) # Householder(3) is 4th order: after a step ds the error is O(ds^4)
     iterations = 0
@@ -492,17 +488,19 @@ erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
 end
 
 # In the money options are mapped to out of the money ones (price - intrinsic is the price of the opposite option)
-function blimpv_lets_be_rational(F, K, T, price, FlagIsCall::Bool, ::Real, niter::Integer)
+# Inputs of different types (e.g. Float16 with an Int strike, whose sqrt is a Float64) are promoted to a common type
+blimpv_lets_be_rational(F, K, T, price, FlagIsCall::Bool, xtol::Real, niter::Integer) = blimpv_lets_be_rational_promoted(promote(F, K, T, price)..., FlagIsCall, xtol, niter)
+function blimpv_lets_be_rational_promoted(F, K, T, price, FlagIsCall::Bool, ::Real, niter::Integer)
     intrinsic = ifelse(FlagIsCall, F - K, K - F)
     β = (intrinsic > 0 ? price - intrinsic : price) / (sqrt(F) * sqrt(K))
     σ = lets_be_rational(β, -abs(log(F / K)), niter) / sqrt(T)
-    # Types other than Float32 and Float64 (e.g. Float16 mixed with other types) may be promoted by the Float64
-    # approximations
+    # Types other than Float32 and Float64 may be promoted by the Float64 approximations
     return convert(typeof(β / sqrt(T)), σ)
 end
 
 # Float16 is solved in Float32: some approximations of the solver return Float64 for Float16 arguments, which made
-# their types unstable (runtime dispatch, allocations), and CPUs emulate Float16 arithmetic through Float32 anyway.
-function blimpv_lets_be_rational(F::Float16, K::Float16, T::Float16, price::Float16, FlagIsCall::Bool, xtol::Real, niter::Integer)
-    return Float16(blimpv_lets_be_rational(Float32(F), Float32(K), Float32(T), Float32(price), FlagIsCall, xtol, niter))
+# their types unstable (runtime dispatch, allocations), erfinv of SpecialFunctions is wrong for Float16
+# (JuliaMath/SpecialFunctions.jl#571), and CPUs emulate Float16 arithmetic through Float32 anyway.
+function blimpv_lets_be_rational_promoted(F::Float16, K::Float16, T::Float16, price::Float16, FlagIsCall::Bool, xtol::Real, niter::Integer)
+    return Float16(blimpv_lets_be_rational_promoted(Float32(F), Float32(K), Float32(T), Float32(price), FlagIsCall, xtol, niter))
 end

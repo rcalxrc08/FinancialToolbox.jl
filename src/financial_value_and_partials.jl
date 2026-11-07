@@ -3,11 +3,6 @@
 # broadcasts below. `parameters` is FlagIsCall for the pricers and (FlagIsCall, xtol, n_iter_max) for the implied
 # volatilities.
 
-# Black formula: partials with respect to S0, K, T and σ
-value_and_partials(::typeof(blprice_impl), S0, K, T, σ, FlagIsCall) = let (Price, partials...) = blprice_and_sensitivities(S0, K, T, σ, FlagIsCall)
-    Price, partials
-end
-
 # blsprice = blprice(F, K, T, σ) / cv with F = S0 e^((r - d) T) and cv = e^(r T)
 function value_and_partials(::typeof(blsprice), S0, K, r, T, σ, d, FlagIsCall)
     inv_cv = exp(-r * T)
@@ -26,12 +21,6 @@ function value_and_partials(::typeof(blkprice), F0, K, r, T, σ, FlagIsCall)
     B, ∂F, ∂K, ∂T, ∂σ = blprice_and_sensitivities(F0, K, T, σ, FlagIsCall)
     Price = B * inv_cv
     return Price, (∂F * inv_cv, ∂K * inv_cv, -T * Price, muladd(∂T, inv_cv, -r * Price), ∂σ * inv_cv)
-end
-
-# Implied volatility of the Black formula: partials with respect to S0, K, T and the price
-function value_and_partials(::typeof(blimpv), S0, K, T, price_d, (FlagIsCall, xtol, n_iter_max))
-    σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
-    return σ, blimpv_sensitivities(S0, K, T, σ, FlagIsCall)
 end
 
 # blsimpv = blimpv(S0 e^((r - d) T), K, T, Price e^(r T))
