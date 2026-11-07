@@ -21,8 +21,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 path = ".."
 
 [compat]
-# ChainRules 1.74.11 breaks the precompilation of TaylorDiff 0.3.5 (non-boolean Symbolics.Num in TaylorDiff/src/utils.jl)
-ChainRules = "1 - 1.74.10"
+ChainRules = "1 - 1.74.10, 1"
 ChainRulesCore = "1"
 DifferentiationInterface = "0.7"
 DualNumbers = "0.5, 0.6"
