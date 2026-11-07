@@ -69,19 +69,16 @@ This formulation defines analytically the `frule` and the `rrule` of [`blsimpv`]
 without differentiating the numerical solver.
 
 The figure shows these derivatives for a call whose price corresponds to ``\sigma = 20\%``, as functions of the
-strike, computed with ForwardDiff through [`blsimpv`](@ref). Each input ``x`` is scaled as ``x \, \partial_x \sigma``,
-the change of the implied volatility in volatility points for a 1% relative bump of ``x``, so that all of them share
-the same unit. The implied volatility does not change when spot, strike and price are multiplied by the same
-factor, hence
+strike, computed with ForwardDiff through [`blsimpv`](@ref), one panel per input. All of them are proportional to the
+inverse of the vega, so they grow in magnitude where the vega is small: deep in the money for spot, strike, rate,
+dividend and maturity, and deep out of the money for the price. The implied volatility does not change when spot,
+strike and price are multiplied by the same factor, hence
 
 ```math
-S \, \partial_S \sigma + K \, \partial_K \sigma + V \, \partial_V \sigma = 0,
+S \, \partial_S \sigma + K \, \partial_K \sigma + V \, \partial_V \sigma = 0.
 ```
 
-the dashed line, while the sensitivities to spot and strike grow quickly as the call moves in the money, where the
-vega is small.
-
-![Sensitivities of the implied volatility of a call](assets/figures/impv_derivatives-light.svg)![Sensitivities of the implied volatility of a call](assets/figures/impv_derivatives-dark.svg)
+![Derivatives of the implied volatility of a call](assets/figures/impv_derivatives-light.svg)![Derivatives of the implied volatility of a call](assets/figures/impv_derivatives-dark.svg)
 
 ### Forward and reverse rules
 
@@ -115,9 +112,5 @@ terms, Newton's method on the whole series
 is exact, not an approximation: the error of ``\sigma_0`` is ``O(t)`` and each step squares it, so after ``m`` steps it
 is ``O(t^{2^m})``. Hence ``\lceil \log_2(n+1) \rceil`` steps give all the coefficients of a series of order ``n``.
 
-### Complex numbers
-
-The equation ``f(\sigma) = V`` has many complex solutions; the same Newton iteration in the complex plane, started from
-the implied volatility of the real parts, returns the analytic continuation of the real implied volatility (the one
-needed by the complex step method). The basins of attraction of the complex roots form a fractal, drawn in
-[Implied volatility](implied_volatility.md#Accuracy).
+Complex numbers, for the complex step method, are covered in
+[Implied volatility](implied_volatility.md#Complex-numbers).

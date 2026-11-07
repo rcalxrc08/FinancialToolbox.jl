@@ -115,29 +115,25 @@ function fractal_figure(theme)
     return plot(panels...; layout = (1, 2), size = (900, 470), plot_title = "Newton basins of the complex implied volatility, S0 = 100, K = 120, T = 1, σ = 0.2", plot_titlefontsize = 12, plot_titlefontcolor = theme.text, background_color = :transparent)
 end
 
-# Sensitivities of the implied volatility of a call to its inputs, from ForwardDiff through blsimpv, against the
-# strike. The price is the one of σ = 20%, so σ itself does not move; each input x is shown as x ∂σ/∂x, the change of
-# σ in volatility points for a 1% relative bump of x, which puts all of them in the same unit. σ is homogeneous of
-# degree zero in (S0, K, V), hence S0 ∂σ/∂S0 + K ∂σ/∂K + V ∂σ/∂V = 0 (dashed).
+# Derivatives of the implied volatility of a call with respect to each input, from ForwardDiff through blsimpv, against
+# the strike. The price is the one of σ = 20%, so σ itself does not move. One panel per input, each with its own scale.
 function implied_volatility_derivatives_figure(theme)
     S0 = 100.0
-    strikes = collect(range(90.0, 200.0, length = 111))
-    marked = 1:10:length(strikes)
-    sensitivities = map(strikes) do strike
+    strikes = collect(range(80.0, 200.0, length = 121))
+    marked = 1:12:length(strikes)
+    gradients = map(strikes) do strike
         V = blsprice(S0, strike, r, T, σ, d)
-        x = [S0, strike, r, T, V, d]
-        x .* ForwardDiff.gradient(y -> blsimpv(y...), x)
+        ForwardDiff.gradient(y -> blsimpv(y...), [S0, strike, r, T, V, d])
     end
-    series = ["S0 ∂σ/∂S0" => 1, "K ∂σ/∂K" => 2, "V ∂σ/∂V" => 5, "T ∂σ/∂T" => 4]
-    p = base_plot(theme; title = "Sensitivities of the implied volatility of a call, σ = 20%, T = 1", xlabel = "strike", ylabel = "x ∂σ/∂x, vol points per 1% bump of x", legend = :outerright, size = (900, 430), xlims = extrema(strikes))
-    for (j, (label, i)) in enumerate(series)
-        values = getindex.(sensitivities, i)
-        plot!(p, strikes, values; label = nothing, color = theme.series[j], linewidth = 2)
-        scatter!(p, strikes[marked], values[marked]; label = label, color = theme.series[j], marker = MARKERS[j], markersize = 5, markerstrokewidth = 0)
+    panels = ["∂σ/∂S0" => 1, "∂σ/∂K" => 2, "∂σ/∂V" => 5, "∂σ/∂T" => 4, "∂σ/∂r" => 3, "∂σ/∂d" => 6]
+    plots = map(enumerate(panels)) do (j, (name, i))
+        values = getindex.(gradients, i)
+        p = base_plot(theme; title = name, xlabel = j > 3 ? "strike" : "", legend = false, xlims = extrema(strikes), left_margin = 3Plots.mm, bottom_margin = 2Plots.mm)
+        plot!(p, strikes, values; color = theme.series[j], linewidth = 2)
+        scatter!(p, strikes[marked], values[marked]; color = theme.series[j], marker = MARKERS[j], markersize = 4, markerstrokewidth = 0)
+        return p
     end
-    homogeneity = [s[1] + s[2] + s[5] for s in sensitivities]
-    plot!(p, strikes, homogeneity; label = "sum of the first three", color = theme.muted, linewidth = 1.5, linestyle = :dash)
-    return p
+    return plot(plots...; layout = (2, 3), size = (900, 560), plot_title = "Derivatives of the implied volatility of a call, S0 = 100, σ = 20%, T = 1", plot_titlefontsize = 12, plot_titlefontcolor = theme.text, background_color = :transparent)
 end
 
 save_themes(greeks_figure, "greeks")

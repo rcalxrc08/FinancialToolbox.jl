@@ -41,6 +41,9 @@ Every function is generic in the number type:
   [TaylorDiff.jl](https://github.com/JuliaDiff/TaylorDiff.jl), [DualNumbers.jl](https://github.com/JuliaDiff/DualNumbers.jl),
   [HyperDualNumbers.jl](https://github.com/JuliaDiff/HyperDualNumbers.jl).
 - Symbolic computations with [Symbolics.jl](https://github.com/JuliaSymbolics/Symbolics.jl).
+- GPU arrays: every function broadcasts over `CuArray`s (and the other GPU arrays) in a single kernel, with Zygote,
+  Mooncake, ForwardDiff and DualNumbers differentiating the broadcasts, for calibrations over many options, see
+  [GPU and calibration](gpu.md).
 
 ## Installation
 
@@ -78,6 +81,6 @@ blsimpv(Float32.((S0, K, r, T, price, d))...), blsimpv(big.((S0, K, r, T, price,
 ## Contents
 
 ```@contents
-Pages = ["pricing.md", "implied_volatility.md", "ad.md", "performance.md", "dates.md", "api.md"]
+Pages = ["pricing.md", "implied_volatility.md", "ad.md", "gpu.md", "performance.md", "dates.md", "api.md"]
 Depth = 2
 ```

@@ -59,6 +59,8 @@ price = blsprice(big(S), big(K), big(r), big(T), big"0.2", big(d))
 blsimpv(big(S), big(K), big(r), big(T), price, big(d)) - big"0.2"
 ```
 
+## Complex numbers
+
 Complex inputs return the analytic continuation of the real implied volatility, the one needed by the complex step
 method: the derivative of the implied volatility with respect to the price is the imaginary part of a single
 evaluation, divided by the step.
@@ -74,14 +76,17 @@ For complex inputs [`blsimpv`](@ref) solves ``f(\sigma) = V`` with Newton's meth
 \sigma_{m+1} = \sigma_m + \frac{V - f(\sigma_m)}{\partial_{\sigma}f(\sigma_m)},
 ```
 
-started from the implied volatility of the real parts. The equation has infinitely many complex roots, and the
-starting point decides which one Newton's method finds. The figure runs the same iteration from every starting point
+started from the implied volatility of the real parts, which returns the analytic continuation of the real implied
+volatility. The equation has infinitely many complex roots, and the starting point decides which one Newton's method
+finds. The figure runs the same iteration from every starting point
 ``\sigma_0`` of a square of the complex plane and colours each point by the root it converges to: blue for the real
 implied volatility, darker the more iterations it takes; points that do not converge in 100 iterations are left in
 gray. The boundaries between the basins are fractal, as the zoom on the right shows, while the starting point of
 [`blsimpv`](@ref), on the real axis close to the solution, lies deep inside the basin of the real root.
 
 ![Newton basins of the complex implied volatility](assets/figures/fractal-light.svg)![Newton basins of the complex implied volatility](assets/figures/fractal-dark.svg)
+
+## Domain
 
 Inputs outside the domain (a price below the intrinsic value or above its upper bound, a negative maturity, …) throw a
 `DomainError`.

@@ -3,6 +3,7 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://rcalxrc08.github.io/FinancialToolbox.jl/)
 [![CI](https://github.com/rcalxrc08/FinancialToolbox.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/rcalxrc08/FinancialToolbox.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/rcalxrc08/FinancialToolbox.jl?branch=master)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 ##### This is a Julia package containing some useful Financial functions for Pricing and Risk Management under the Black and Scholes Model.
 ###### The syntax is the same of the Matlab Financial Toolbox.
 It currently contains the following functions:
