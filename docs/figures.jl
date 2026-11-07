@@ -1,6 +1,6 @@
 # Figures of the documentation, computed with the package at build time and saved as SVG in src/assets/figures, in a
 # light and a dark variant: the stylesheet assets/figures.css shows the one of the theme of the reader.
-using FinancialToolbox, Plots
+using FinancialToolbox, ForwardDiff, Plots
 using Plots.Colors: RGB, HSL
 # GR draws without a display on the CI runner
 ENV["GKSwstype"] = get(ENV, "GKSwstype", "100")
@@ -115,6 +115,32 @@ function fractal_figure(theme)
     return plot(panels...; layout = (1, 2), size = (900, 470), plot_title = "Newton basins of the complex implied volatility, S0 = 100, K = 120, T = 1, σ = 0.2", plot_titlefontsize = 12, plot_titlefontcolor = theme.text, background_color = :transparent)
 end
 
+# Sensitivities of the implied volatility of a call to its inputs, from ForwardDiff through blsimpv, against the
+# strike. The price is the one of σ = 20%, so σ itself does not move; each input x is shown as x ∂σ/∂x, the change of
+# σ in volatility points for a 1% relative bump of x, which puts all of them in the same unit. σ is homogeneous of
+# degree zero in (S0, K, V), hence S0 ∂σ/∂S0 + K ∂σ/∂K + V ∂σ/∂V = 0 (dashed).
+function implied_volatility_derivatives_figure(theme)
+    S0 = 100.0
+    strikes = collect(range(90.0, 200.0, length = 111))
+    marked = 1:10:length(strikes)
+    sensitivities = map(strikes) do strike
+        V = blsprice(S0, strike, r, T, σ, d)
+        x = [S0, strike, r, T, V, d]
+        x .* ForwardDiff.gradient(y -> blsimpv(y...), x)
+    end
+    series = ["S0 ∂σ/∂S0" => 1, "K ∂σ/∂K" => 2, "V ∂σ/∂V" => 5, "T ∂σ/∂T" => 4]
+    p = base_plot(theme; title = "Sensitivities of the implied volatility of a call, σ = 20%, T = 1", xlabel = "strike", ylabel = "x ∂σ/∂x, vol points per 1% bump of x", legend = :outerright, size = (900, 430), xlims = extrema(strikes))
+    for (j, (label, i)) in enumerate(series)
+        values = getindex.(sensitivities, i)
+        plot!(p, strikes, values; label = nothing, color = theme.series[j], linewidth = 2)
+        scatter!(p, strikes[marked], values[marked]; label = label, color = theme.series[j], marker = MARKERS[j], markersize = 5, markerstrokewidth = 0)
+    end
+    homogeneity = [s[1] + s[2] + s[5] for s in sensitivities]
+    plot!(p, strikes, homogeneity; label = "sum of the first three", color = theme.muted, linewidth = 1.5, linestyle = :dash)
+    return p
+end
+
 save_themes(greeks_figure, "greeks")
 save_themes(accuracy_figure, "accuracy")
 save_themes(fractal_figure, "fractal")
+save_themes(implied_volatility_derivatives_figure, "impv_derivatives")

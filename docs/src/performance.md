@@ -1,11 +1,13 @@
 # Performance
 
-Time to compute the price and the implied volatility, and their gradients with respect to all the inputs, with a
-forward (TaylorSeries, order one `TaylorN` in the six inputs) and a reverse (Mooncake) mode AD library. The table is
+Time to compute the price and the implied volatility, and their gradients with respect to all the six inputs with
+the AD backends the package is tested with (DualNumbers, HyperDualNumbers and TaylorDiff aside): forward mode with ForwardDiff, TaylorSeries (order one `TaylorN` in the
+six inputs) and Enzyme, reverse mode with Zygote, ReverseDiff (compiled tape), Mooncake and Enzyme. Caches, tapes and
+configurations are prepared once, outside the timings, and every gradient is checked against ForwardDiff. The table is
 generated when this documentation is built, on the machine that builds it.
 
 ```@eval
-using FinancialToolbox, BenchmarkTools, Mooncake, TaylorSeries, Printf, Logging, Markdown
+using FinancialToolbox, BenchmarkTools, Enzyme, ForwardDiff, Mooncake, ReverseDiff, TaylorSeries, Zygote, Printf, Logging, Markdown
 S0 = 100.0; K = 100.0; r = 0.02; T = 1.2; σ = 0.2; d = 0.01
 price = blsprice(S0, K, r, T, σ, d)
 # TaylorN variables of order 1: the gradient is in the first order coefficients (set_variables before TaylorSeries 0.23)
@@ -14,23 +16,45 @@ dx = with_logger(NullLogger()) do
     taylorn_variables("x1 x2 x3 x4 x5 x6", order = 1)
 end
 format_time(t) = t < 1e-6 ? @sprintf("%.0f ns", 1e9 * t) : t < 1e-3 ? @sprintf("%.2f μs", 1e6 * t) : @sprintf("%.2f ms", 1e3 * t)
-function performance_row(io, name, f, args)
-    t = @belapsed $f($(args)...)
+format_ratio(x) = x < 10 ? @sprintf("%.1f×", x) : @sprintf("%.0f×", x)
+# Each backend: a gradient with respect to the six inputs, prepared once (cache, tape, configuration) and timed
+function gradients(f, args)
+    x = collect(args)
+    f_vector = x -> f(x...)
+    forwarddiff_config = ForwardDiff.GradientConfig(f_vector, x, ForwardDiff.Chunk{6}())
     x_taylor = args .+ dx
-    t_taylor = @belapsed $f($(x_taylor)...)
-    cache = Mooncake.prepare_gradient_cache(f, args...)
-    t_mooncake = @belapsed Mooncake.value_and_gradient!!($cache, $f, $(args)...)
-    # both gradients agree
-    g_taylor = [TaylorSeries.getcoeff(f(x_taylor...), [i == j ? 1 : 0 for j in 1:6]) for i in 1:6]
-    g_mooncake = collect(Mooncake.value_and_gradient!!(cache, f, args...)[2][2:end])
-    @assert isapprox(g_taylor, g_mooncake; rtol = 1e-8)
-    @printf(io, "| `%s` | %s | %s (%.1f×) | %s (%.1f×) |\n", name, format_time(t), format_time(t_taylor), t_taylor / t, format_time(t_mooncake), t_mooncake / t)
+    reversediff_tape = ReverseDiff.compile(ReverseDiff.GradientTape(f_vector, x))
+    reversediff_out = similar(x)
+    mooncake_cache = Mooncake.prepare_gradient_cache(f, args...)
+    return [
+        "ForwardDiff" => (() -> ForwardDiff.gradient(f_vector, x, forwarddiff_config), identity),
+        "TaylorSeries" => (() -> f(x_taylor...), y -> [TaylorSeries.getcoeff(y, [i == j ? 1 : 0 for j = 1:6]) for i = 1:6]),
+        "Enzyme forward" => (() -> Enzyme.gradient(Enzyme.Forward, f_vector, x), y -> collect(y[1])),
+        "Zygote" => (() -> Zygote.gradient(f, args...), collect),
+        "ReverseDiff" => (() -> ReverseDiff.gradient!(reversediff_out, reversediff_tape, x), identity),
+        "Mooncake" => (() -> Mooncake.value_and_gradient!!(mooncake_cache, f, args...), y -> collect(y[2][2:end])),
+        "Enzyme reverse" => (() -> Enzyme.autodiff(Enzyme.Reverse, Const(f), Active, Active.(args)...), y -> collect(y[1])),
+    ]
+end
+function performance_row(f, args)
+    t = @belapsed $f($(args)...)
+    reference = ForwardDiff.gradient(x -> f(x...), collect(args))
+    cells = String[format_time(t)]
+    for (name, (run, to_vector)) in gradients(f, args)
+        # every gradient agrees with ForwardDiff
+        @assert isapprox(to_vector(run()), reference; rtol = 1e-8) name
+        t_gradient = @belapsed $run()
+        push!(cells, "$(format_time(t_gradient)) ($(format_ratio(t_gradient / t)))")
+    end
+    return cells
 end
 io = IOBuffer()
-println(io, "| Function | Value (Float64) | Gradient, TaylorSeries (TaylorN) | Gradient, Mooncake (reverse mode) |")
-println(io, "|:--|--:|--:|--:|")
-performance_row(io, "blsprice(S0, K, r, T, σ, d)", blsprice, (S0, K, r, T, σ, d))
-performance_row(io, "blsimpv(S0, K, r, T, price, d)", blsimpv, (S0, K, r, T, price, d))
+backends = first.(gradients(blsprice, (S0, K, r, T, σ, d)))
+println(io, "| Function | Value | ", join(backends, " | "), " |")
+println(io, "|:--|", repeat("--:|", length(backends) + 1))
+for (name, f, args) in (("blsprice", blsprice, (S0, K, r, T, σ, d)), ("blsimpv", blsimpv, (S0, K, r, T, price, d)))
+    println(io, "| `", name, "` | ", join(performance_row(f, args), " | "), " |")
+end
 println(io)
 @printf(io, "Julia %s, %s, FinancialToolbox %s; minimum time over the BenchmarkTools samples, in brackets the ratio to the value.\n", VERSION, strip(Sys.cpu_info()[1].model), pkgversion(FinancialToolbox))
 Markdown.parse(String(take!(io)))

@@ -68,6 +68,21 @@ The same applies to the Black model, with ``f`` the price ``C_{bk}`` or ``P_{bk}
 This formulation defines analytically the `frule` and the `rrule` of [`blsimpv`](@ref) and [`blkimpv`](@ref),
 without differentiating the numerical solver.
 
+The figure shows these derivatives for a call whose price corresponds to ``\sigma = 20\%``, as functions of the
+strike, computed with ForwardDiff through [`blsimpv`](@ref). Each input ``x`` is scaled as ``x \, \partial_x \sigma``,
+the change of the implied volatility in volatility points for a 1% relative bump of ``x``, so that all of them share
+the same unit. The implied volatility does not change when spot, strike and price are multiplied by the same
+factor, hence
+
+```math
+S \, \partial_S \sigma + K \, \partial_K \sigma + V \, \partial_V \sigma = 0,
+```
+
+the dashed line, while the sensitivities to spot and strike grow quickly as the call moves in the money, where the
+vega is small.
+
+![Sensitivities of the implied volatility of a call](assets/figures/impv_derivatives-light.svg)![Sensitivities of the implied volatility of a call](assets/figures/impv_derivatives-dark.svg)
+
 ### Forward and reverse rules
 
 Denoting by ``\nu = \partial_{\sigma}f`` the vega and by ``\theta`` the inputs other than the price, the tangent of the
