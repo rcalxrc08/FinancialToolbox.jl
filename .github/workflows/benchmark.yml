@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the baseline commit of a push is HEAD~1
       # BenchmarkCI 0.1.9 fails on Julia >= 1.12 (world age error in BenchmarkCI.julia_info)
       - uses: julia-actions/setup-julia@latest
         with:
@@ -21,9 +23,13 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
       - name: Install dependencies
         run: julia -e 'using Pkg; pkg"add PkgBenchmark BenchmarkCI@0.1 BenchmarkTools"'
-      # Runs benchmark/benchmarks.jl on this commit and on origin/master, with the parameters in benchmark/tune.json
+      # Runs benchmark/benchmarks.jl on this commit and on a baseline, with the parameters in benchmark/tune.json: for a
+      # pull request the baseline is origin/master; for a push it is the previous commit (origin/master is the pushed
+      # commit itself, which would compare a commit with itself)
       - name: Run benchmarks
-        run: julia -e 'using BenchmarkCI; BenchmarkCI.judge()'
+        run: >
+          julia -e 'using BenchmarkCI;
+          BenchmarkCI.judge(baseline = get(ENV, "GITHUB_EVENT_NAME", "") == "pull_request" ? "origin/master" : "HEAD~1")'
       - name: Print judgement
         run: julia -e 'using BenchmarkCI; BenchmarkCI.displayjudgement()'
       - name: Summary of the results

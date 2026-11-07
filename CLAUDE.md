@@ -69,7 +69,8 @@ from Actions (no gh-pages branch).
 
 ## Benchmarks
 
-`benchmark/benchmarks.jl` is the suite of BenchmarkCI (CI compares each PR with master): scalar calls in Float64,
+`benchmark/benchmarks.jl` is the suite of BenchmarkCI (CI compares a pull request with master, a push with the
+previous commit): scalar calls in Float64,
 Float32, Float16, DualNumbers and the gradients of Zygote, Mooncake and ReverseDiff, and a smile of 1000 options
 (broadcast rules). After adding or renaming a benchmark, rerun `benchmark/tune.jl` and commit `tune.json`.
 `benchmark/gpu/run.jl` regenerates the GPU table of the docs (static, CI has no GPU).
