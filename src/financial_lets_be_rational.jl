@@ -345,7 +345,8 @@ end
 @muladd householder3_factor(n, h₂, h₃) = (1 + h₂ * n / 2) / (1 + n * (h₂ + h₃ * n / 6))
 @muladd householder4_factor(n, h₂, h₃, h₄) = (1 + n * (h₂ + n * h₃ / 6)) / (1 + n * (3 * h₂ / 2 + n * (square(h₂) / 4 + h₃ / 3 + n * h₄ / 24)))
 
-# erfinv of SpecialFunctions is wrong for Float16 (erfinv(Float16(0.08)) == 0.9727): computed in Float32
+# erfinv of SpecialFunctions is wrong for Float16 (erfinv(Float16(0.08)) == 0.9727, JuliaMath/SpecialFunctions.jl#571):
+# computed in Float32
 erfinv_accurate(β) = erfinv(β)
 erfinv_accurate(β::Float16) = Float16(erfinv(Float32(β)))
 
