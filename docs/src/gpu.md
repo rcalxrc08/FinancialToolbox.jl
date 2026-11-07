@@ -44,104 +44,117 @@ Two limitations come from the AD packages, not from this one:
 
 ## A calibration
 
-A smile with an implied volatility quadratic in the log-moneyness,
+Smiles are usually calibrated on implied volatilities rather than on prices: the errors of all the strikes are then on
+the same scale. The market quotes prices ``m_1, \dots, m_n`` of calls with strikes ``K_1, \dots, K_n``; their implied
+volatilities ``v_i`` are a single broadcast of [`blsimpv`](@ref). The model is a smile of the SVI family, in total
+variance ``w = \sigma^2 T`` as a function of the log-moneyness ``k = \log(K / F)``,
 
 ```math
-\sigma_\theta(K) = a + b \log^2\frac{K}{F}, \qquad \theta = (a, b), \qquad F = S_0 e^{(r - d)T},
+w_\theta(k) = a + b \left(\rho \, k + \sqrt{k^2 + s^2}\right), \qquad \sigma_\theta(K) = \sqrt{\frac{w_\theta(k)}{T}},
+\qquad \theta = (a, b, \rho), \qquad F = S_0 e^{(r - d)T},
 ```
 
-is fitted to the market prices ``m_1, \dots, m_n`` of calls with strikes ``K_1, \dots, K_n`` by least squares on the
-pricing errors
+with ``s = 0.1`` fixed, and it is fitted by least squares on the volatility errors
 
 ```math
-e_i(\theta) = C_{bs}(S_0, K_i, r, T, \sigma_\theta(K_i), d) - m_i, \qquad
-L(\theta, m) = \frac{1}{2} \sum_{i=1}^n e_i(\theta)^2 .
+e_i(\theta) = \sigma_\theta(K_i) - v_i, \qquad L(\theta, v) = \frac{1}{2} \sum_{i=1}^n e_i(\theta)^2 .
 ```
 
-Gauss–Newton ([Nocedal and Wright](references.md#Calibration)) linearises the errors around the current parameters, ``e(\theta + \delta) \approx e(\theta) + J \delta``
-with ``J = \partial_\theta e`` the ``n \times 2`` Jacobian, and takes the step that minimises the linearised loss, the
-least squares solution of
+Gauss–Newton ([Nocedal and Wright](references.md#Calibration)) linearises the errors around the current parameters,
+``e(\theta + \delta) \approx e(\theta) + J \delta`` with ``J = \partial_\theta e`` the ``n \times 3`` Jacobian, and
+takes the least squares solution of
 
 ```math
 J \, \delta = -e(\theta).
 ```
 
-Zygote computes ``J`` through the broadcast rule of `blsprice`, and `J \ e` solves the least squares problem. The
-quotes are generated from ``a = 0.18``, ``b = 0.4``, plus some noise that no smile of this family fits exactly.
+Zygote computes ``J``, and `J \ e` solves the least squares problem. The quotes are generated from
+``\theta = (0.02, 0.1, -0.4)``, with prices off by up to 1%, which no smile of the family fits exactly.
 
 ```@example calibration
 using FinancialToolbox, Zygote, ForwardDiff
 S0, r, T, d = 100.0, 0.02, 1.0, 0.01
 F = S0 * exp((r - d) * T)
 strikes = collect(range(70.0, 140.0, length = 200))
-smile(a, b, K) = a + b * log(K / F)^2
-market = blsprice.(S0, strikes, r, T, smile.(0.18, 0.4, strikes), d) .+ 0.05 .* sin.(1:200)
+smile_vol(a, b, ρ, K) = sqrt((a + b * (ρ * log(K / F) + sqrt(log(K / F)^2 + 0.01))) / T)
+market_prices = blsprice.(S0, strikes, r, T, smile_vol.(0.02, 0.1, -0.4, strikes), d) .* (1 .+ 0.01 .* sin.(1:200))
 
-pricing_errors(θ, m) = blsprice.(S0, strikes, r, T, smile.(θ[1], θ[2], strikes), d) .- m
-function calibrate(m)
-    θ = [0.25, 0.0]
-    for _ in 1:8
-        J = only(Zygote.jacobian(t -> pricing_errors(t, m), θ))
-        θ -= J \ pricing_errors(θ, m)
+market_vols(m) = blsimpv.(S0, strikes, r, T, m, d)
+vol_errors(θ, v) = smile_vol.(θ[1], θ[2], θ[3], strikes) .- v
+function calibrate(v)
+    θ = [0.03, 0.05, 0.0]
+    for _ in 1:15
+        J = only(Zygote.jacobian(t -> vol_errors(t, v), θ))
+        θ -= J \ vol_errors(θ, v)
     end
     return θ
 end
-θ = calibrate(market)
-```
-
-The implied volatilities of the quotes, and their sensitivities to the prices (the inverse of the vegas), on the
-same footing:
-
-```@example calibration
-vols = blsimpv.(S0, strikes, r, T, market, d)
-dvols = only(Zygote.gradient(p -> sum(blsimpv.(S0, strikes, r, T, p, d)), market))
-extrema(vols), dvols[1:3] ≈ inv.(blsvega.(S0, strikes[1:3], r, T, vols[1:3], d))
+v = market_vols(market_prices)
+θ = calibrate(v)
 ```
 
 ### Sensitivity of the calibrated parameters to the quotes
 
-How do the calibrated parameters ``\theta^*(m)`` move when a quote moves? At the optimum the gradient of the loss
-vanishes,
+How do the calibrated parameters ``\theta^*`` move when a quoted price moves? Two functions are defined implicitly
+here, and the implicit function theorem ([Dini's theorem](references.md#Implicit-function-theorem)) gives the
+derivatives of both without differentiating either solver.
+
+The parameters, as functions of the volatilities: at the optimum the gradient of the loss vanishes,
 
 ```math
-g(\theta^*, m) = \partial_\theta L(\theta^*, m) = J^\top e(\theta^*) = 0 .
+g(\theta^*, v) = \partial_\theta L(\theta^*, v) = J^\top e(\theta^*) = 0,
 ```
 
-By the implicit function theorem ([Dini's theorem](references.md#Implicit-function-theorem)), where ``\partial_\theta g`` is invertible this defines
-``\theta^*(m)``, with
+and where ``\partial_\theta g`` is invertible
 
 ```math
-\frac{\partial \theta^*}{\partial m} = -\left(\partial_\theta g\right)^{-1} \partial_m g = H^{-1} J^\top,
+\frac{\partial \theta^*}{\partial v} = -\left(\partial_\theta g\right)^{-1} \partial_v g = H^{-1} J^\top,
 \qquad H = \partial^2_\theta L = J^\top J + \sum_{i=1}^n e_i \, \partial^2_\theta e_i ,
 ```
 
-since ``\partial_m g = -J^\top`` (each ``e_i`` depends on ``m_i`` with derivative ``-1``). ``H`` is the Hessian of the
-loss: ForwardDiff computes it through the broadcasts. When the quotes are fitted exactly the errors vanish, ``H =
-J^\top J`` and the sensitivities are the pseudo-inverse ``(J^\top J)^{-1} J^\top``; with fitting errors the second
-term counts. No recalibration is needed: the ``2 \times n`` matrix of sensitivities comes from the derivatives at the
-optimum.
+since ``\partial_v g = -J^\top``. ``H`` is the Hessian of the loss, from ForwardDiff. When the volatilities are fitted
+exactly the errors vanish, ``H = J^\top J``, and the sensitivities are the pseudo-inverse ``(J^\top J)^{-1} J^\top``;
+with fitting errors the second term counts.
 
-```@example calibration
-J = only(Zygote.jacobian(t -> pricing_errors(t, market), θ))
-H = ForwardDiff.hessian(t -> sum(abs2, pricing_errors(t, market)) / 2, θ)
-sensitivities = H \ transpose(J)    # ∂θ*/∂m, 2 × 200
-size(sensitivities)
+The volatilities, as functions of the prices: ``v_i`` solves ``C_{bs}(S_0, K_i, r, T, v_i, d) = m_i``, so
+
+```math
+\frac{\partial v_i}{\partial m_i} = \frac{1}{\nu_i}, \qquad \nu_i = \partial_\sigma C_{bs}(S_0, K_i, r, T, v_i, d),
 ```
 
-A check on one quote, against recalibrating after bumping it, and against the pseudo-inverse, which ignores the
-fitting errors:
+the inverse of the vega, and ``\partial v_i / \partial m_j = 0`` for ``i \neq j``. This is how the AD rules of
+[`blsimpv`](@ref) differentiate it ([Automatic differentiation](ad.md#Derivatives-of-the-implied-volatility)), so
+Zygote returns the ``1/\nu_i`` through the broadcast. By the chain rule,
+
+```math
+\frac{\partial \theta^*}{\partial m} = H^{-1} J^\top \operatorname{diag}\left(\frac{1}{\nu_1}, \dots, \frac{1}{\nu_n}\right).
+```
+
+No recalibration is needed: the ``3 \times n`` matrix of sensitivities comes from derivatives at the optimum.
 
 ```@example calibration
-i, h = 120, 1e-5
-bumped = copy(market)
+J = only(Zygote.jacobian(t -> vol_errors(t, v), θ))
+H = ForwardDiff.hessian(t -> sum(abs2, vol_errors(t, v)) / 2, θ)
+∂v_∂m = only(Zygote.gradient(m -> sum(market_vols(m)), market_prices))  # the diagonal, 1 ./ vegas
+∂θ_∂m = (H \ transpose(J)) .* transpose(∂v_∂m)                       # 3 × 200
+∂v_∂m[1:3] ≈ inv.(blsvega.(S0, strikes[1:3], r, T, v[1:3], d))
+```
+
+A check on one quote, against bumping its price, implying the volatilities again and recalibrating, and against the
+pseudo-inverse, which ignores the fitting errors:
+
+```@example calibration
+i, h = 120, 1e-6
+bumped = copy(market_prices)
 bumped[i] += h
-(implicit = sensitivities[:, i], recalibrated = (calibrate(bumped) - θ) / h, pseudo_inverse = ((transpose(J) * J) \ transpose(J))[:, i])
+(implicit = ∂θ_∂m[:, i], recalibrated = (calibrate(market_vols(bumped)) - θ) / h, pseudo_inverse = (((transpose(J) * J) \ transpose(J)) .* transpose(∂v_∂m))[:, i])
 ```
 
 The example runs on the CPU, so that it runs when this documentation is built. On a GPU, move the strikes and the
-quotes with `cu` and put the code in a function (closures over global variables cannot be compiled for the GPU): the
-Jacobian, the Hessian and the broadcasts run there unchanged.
-
+quotes with `cu`, put the code in a function (closures over global variables cannot be compiled for the GPU), and bring
+the small results back with `Array`: the step `Array(J \ vol_errors(θ, v))` and `Array(∂v_∂m)`. The implied
+volatilities, the broadcasts and their derivatives run on the GPU; the ``3 \times 3`` and ``3 \times n`` algebra on
+the CPU.
 
 ## Performance
 

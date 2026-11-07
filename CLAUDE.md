@@ -59,11 +59,12 @@ from Actions (no gh-pages branch).
   performance table is measured at build time too; the GPU page (`gpu.md`) has a static table measured on an MX150,
   since CI has no GPU. Markdown tables need `|:--|` columns.
   The calibration example of `gpu.md` runs at build time on the CPU (the same code runs on CUDA inside a function):
-  a smile fitted by Gauss-Newton with `Zygote.jacobian`, on quotes with deterministic noise (`0.05 sin(i)`) so that
-  the residuals do not vanish and the Hessian differs from `JᵀJ`. The sensitivities `∂θ*/∂m = H⁻¹Jᵀ` (implicit
-  function theorem, `H` from `ForwardDiff.hessian`) are checked against recalibrating after a bump of one quote and
-  against the pseudo-inverse; keep the noise, without it the check cannot tell the two apart. In `@example` blocks
-  update globals in place (`θ .-= ...`): `θ -= ...` in a top-level loop fails with Documenter's soft scope.
+  an SVI-type smile (nonlinear in its parameters) fitted on implied volatilities by Gauss-Newton with
+  `Zygote.jacobian`, on prices with deterministic 1% noise so that the residuals do not vanish and the Hessian differs
+  from `JᵀJ`. The sensitivities to the quoted prices chain two implicit function theorems: `∂θ*/∂v = H⁻¹Jᵀ` (`H` from
+  `ForwardDiff.hessian`) and `∂v/∂m = 1/vega` (the AD rules of `blsimpv`). They are checked against bumping a price,
+  re-implying and recalibrating, and against the pseudo-inverse; keep the noise, without it the check cannot tell the
+  two apart. In top-level loops of `@example` blocks update globals in place (`θ .-= ...`, Documenter's soft scope).
   `references.md` holds the bibliography; cite from the text with links to its sections.
 
 ## Benchmarks
