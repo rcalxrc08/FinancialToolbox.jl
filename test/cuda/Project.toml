@@ -8,13 +8,14 @@ Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
-[sources]
-FinancialToolbox = {path = "../.."}
+[sources.FinancialToolbox]
+path = "../.."
 
 [compat]
 CUDA = "5, 6"
 DualNumbers = "0.5, 0.6"
 Enzyme = "0.13"
+FinancialToolbox = "0.8"
 ForwardDiff = "0.10, 1"
 Mooncake = "0.5"
 Zygote = "0.6, 0.7"
