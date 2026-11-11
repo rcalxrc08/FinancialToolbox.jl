@@ -21,7 +21,7 @@ end
 value_dual(x::Dual) = x.value
 value_dual(x) = x
 
-function blimpv_impl(::Dual, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+function blimpv_impl(::Type{<:Dual}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     S0_r = value_dual(S0)
     K_r = value_dual(K)
     T_r = value_dual(T)

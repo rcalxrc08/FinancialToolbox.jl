@@ -20,7 +20,7 @@ function internal_sqrt(x::Hyper)
     return Hyper(root, d1 * eps1(x), d1 * eps2(x), d1 * eps1eps2(x) - eps1(x) * eps2(x) / (4 * a * root))
 end
 
-function blimpv_impl(::Hyper, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+function blimpv_impl(::Type{<:Hyper}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     S0_r = HyperDualNumbers.value(S0)
     K_r = HyperDualNumbers.value(K)
     T_r = HyperDualNumbers.value(T)

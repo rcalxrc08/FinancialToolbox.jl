@@ -3,7 +3,7 @@ module FinancialToolboxTaylorSeriesExt
 using TaylorSeries
 using FinancialToolbox
 using FinancialToolbox: blimpv, blimpv_series_newton
-import FinancialToolbox: blimpv_impl, blcheck_impl
+import FinancialToolbox: blimpv_impl, domain_value
 
 import SpecialFunctions: erfc
 using IrrationalConstants: sqrtπ
@@ -111,12 +111,12 @@ function erfc(a::TaylorType)
     return series(a, c)
 end
 
-# Domain checks on the constant terms (comparisons of nested series with zero(type) are not supported)
-blcheck_impl(::TaylorType, S0, K, T, σ) = FinancialToolbox.blcheck(constant_value(S0), constant_value(K), constant_value(T), constant_value(σ))
+# Domain checks on the constant terms, recursively for nested series (comparisons of series with zero are not supported)
+domain_value(x::TaylorType) = domain_value(constant_value(x))
 
 # Implied volatility of Taylor series (Taylor1, TaylorN, nested): Newton on the whole series, started from
 # the implied volatility of the constant terms (see blimpv_series_newton)
-function blimpv_impl(::TaylorType, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+function blimpv_impl(::Type{<:TaylorType}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ0 = blimpv(constant_value(S0), constant_value(K), constant_value(T), constant_value(price_d), FlagIsCall, xtol, n_iter_max)
     σ = σ0 + zero(S0) + zero(K) + zero(T) + zero(price_d)
     return blimpv_series_newton(σ, S0, K, T, price_d, FlagIsCall, series_order(σ))

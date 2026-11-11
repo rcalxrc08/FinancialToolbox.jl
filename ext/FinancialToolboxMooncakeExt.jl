@@ -28,7 +28,7 @@ using Mooncake: @from_chainrules, DefaultCtx
     const NDual = Mooncake.Nfwd.NDual
     primal_value(x::NDual) = x.value
     primal_value(x) = x
-    function FinancialToolbox.blimpv_impl(::NDual, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+    function FinancialToolbox.blimpv_impl(::Type{<:NDual}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
         S0_v, K_v, T_v = primal_value(S0), primal_value(K), primal_value(T)
         σ = blimpv(S0_v, K_v, T_v, primal_value(price_d), FlagIsCall, xtol, n_iter_max)
         return σ + blprice_diff_impl(S0, K, T, σ, price_d, FlagIsCall) / blvega_impl(S0_v, K_v, T_v, σ)

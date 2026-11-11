@@ -1,32 +1,11 @@
-function blimpv_check(S0::num1, K::num2, T::num4) where {num1, num2, num4}
-    lesseq(x::Complex, y::Complex) = real(x) <= real(y)
-    lesseq(x, y) = x <= y
-    if (lesseq(S0, zero(num1)))
-        throw(DomainError(S0, "Spot Price Cannot Be Negative"))
-    elseif (lesseq(K, zero(num2)))
-        throw(DomainError(K, "Strike Price Cannot Be Negative"))
-    elseif (lesseq(T, zero(num4)))
-        throw(DomainError(T, "Time to Maturity Cannot Be Negative"))
-    end
-    return
-end
-
-function blimpv_impl(::AbstractFloat, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+function blimpv_impl(::Type{<:AbstractFloat}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     ChainRulesCore.ignore_derivatives() do
-        FinancialToolbox.blimpv_check(S0, K, T)
-        if xtol <= 0.0
-            throw(DomainError(xtol, "x tollerance cannot be negative"))
-        end
-        if n_iter_max <= 0
-            throw(DomainError(n_iter_max, "maximum number of iterations must be positive"))
-        end
-        max_price = ifelse(FlagIsCall, S0, K)
-        if max_price <= price_d
-            throw(DomainError(price_d, "Price is reaching maximum value"))
-        end
-        min_price = eps(zero(price_d))
-        if min_price >= price_d
-            throw(DomainError(price_d, "Price is reaching minimum value"))
+        blcheck(S0, K, T)
+        check_positive(xtol, "x tolerance must be positive")
+        check_positive(n_iter_max, "maximum number of iterations must be positive")
+        check_positive(price_d, "Price must be positive")
+        if ifelse(FlagIsCall, S0, K) <= price_d
+            throw(DomainError(price_d, "Price must be below the spot price (call) or the strike price (put)"))
         end
     end
     return blimpv_lets_be_rational(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
@@ -36,7 +15,7 @@ end
 # real implied volatility (the root used by the complex step approximation): Newton in the complex plane,
 # σ ← σ + (price - blprice(σ)) / vega(σ), started from the implied volatility of the real parts.
 # Newton converges quadratically, in one or two steps for complex step perturbations.
-function blimpv_impl(::Complex, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+function blimpv_impl(::Type{<:Complex}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ = complex(blimpv(real(S0), real(K), real(T), real(price_d), FlagIsCall, xtol, n_iter_max))
     max_iter = 100
     # floor for a tolerance passed below the precision of the type (the defaults are already above it)
@@ -51,10 +30,10 @@ function blimpv_impl(::Complex, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     throw(DomainError(price_d, "Newton for the complex implied volatility did not converge in $max_iter iterations, the imaginary parts may be too large"))
 end
 
+# Dispatch on the common type of the inputs: blimpv_impl(::Type{<:AbstractFloat}, ...) solves with Let's Be Rational,
+# the other methods (complex numbers here, number types of the extensions) reduce to it.
 function blimpv(S0::num1, K::num2, T::num4, Price::num5, FlagIsCall::Bool, xtol::Real, n_iter_max::Integer) where {num1, num2, num4, num5}
-    zero_typed = ChainRulesCore.@ignore_derivatives(zero(promote_type(num1, num2, num4, num5)))
-    σ = blimpv_impl(zero_typed, S0, K, T, Price, FlagIsCall, xtol, n_iter_max)
-    return σ
+    return blimpv_impl(promote_type(num1, num2, num4, num5), S0, K, T, Price, FlagIsCall, xtol, n_iter_max)
 end
 
 # Default relative tolerance of the Newton iteration for complex inputs: `float64_default` when the inputs are in

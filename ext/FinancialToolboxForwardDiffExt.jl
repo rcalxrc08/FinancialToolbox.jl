@@ -7,7 +7,7 @@ import FinancialToolbox: blimpv_impl
 value_fwd_diff(x::ForwardDiff.Dual) = x.value
 value_fwd_diff(x) = x
 
-function blimpv_impl(::ForwardDiff.Dual, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+function blimpv_impl(::Type{<:ForwardDiff.Dual}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     S0_r = value_fwd_diff(S0)
     K_r = value_fwd_diff(K)
     T_r = value_fwd_diff(T)

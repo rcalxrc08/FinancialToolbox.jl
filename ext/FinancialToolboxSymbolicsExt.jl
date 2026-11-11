@@ -2,12 +2,10 @@ module FinancialToolboxSymbolicsExt
 
 using Symbolics
 using FinancialToolbox: blimpv_sensitivities
-import FinancialToolbox: blimpv, blcheck_impl
+import FinancialToolbox: blimpv, domain_value
 
-
-function blcheck_impl(::num0, S0::num1, K::num2, T::num4, σ::num5) where {num0 <: Num, num1, num2, num4, num5}
-    return
-end
+# symbolic values are not checked (the numeric arguments still are)
+domain_value(::Num) = nothing
 
 @register_symbolic blimpv(S0, K, T, Price, FlagIsCall::Bool, xtol::Float64, n_iter_max::Int64)
 

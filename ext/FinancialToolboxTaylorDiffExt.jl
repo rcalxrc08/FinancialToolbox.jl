@@ -31,7 +31,7 @@ end
 
 # Implied volatility of TaylorScalar: Newton on the whole polynomial, started from the implied volatility of
 # the constant terms (see blimpv_series_newton)
-function blimpv_impl(::TaylorScalar, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
+function blimpv_impl(::Type{<:TaylorScalar}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     σ0 = blimpv(constant_value(S0), constant_value(K), constant_value(T), constant_value(price_d), FlagIsCall, xtol, n_iter_max)
     σ = σ0 + zero(S0) + zero(K) + zero(T) + zero(price_d)
     return blimpv_series_newton(σ, S0, K, T, price_d, FlagIsCall, order(σ))

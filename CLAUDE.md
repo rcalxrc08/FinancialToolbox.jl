@@ -32,7 +32,7 @@ from Actions (no gh-pages branch).
   `blprice_impl(F, K, T, σ, FlagIsCall)`, the undiscounted Black formula, which has ChainRules `frule`/`rrule` with
   closed form partials (`blprice_and_sensitivities`).
 - [src/financial_implied_volatility.jl](src/financial_implied_volatility.jl): `blsimpv`/`blkimpv` reduce to
-  `blimpv(F, K, T, price, ...)`, which dispatches on `zero(promote_type(inputs...))` through `blimpv_impl`: real
+  `blimpv(F, K, T, price, ...)`, which dispatches on `promote_type` of the inputs (a type, not a value) through `blimpv_impl`: real
   floats run the domain checks and Let's Be Rational, `Complex` runs Newton from the real solution (analytic
   continuation, for the complex step), and the extensions add methods for their number types. The derivatives of
   the implied volatility never go through the solver: they come from the implicit function theorem
@@ -45,6 +45,9 @@ from Actions (no gh-pages branch).
   parameters)`, the value and all the partials in closed form of `blsprice`, `blkprice`, `blsimpv` and `blkimpv`. Used by the ReverseDiff extension and by the ChainRules `rrule`s of the broadcasts of
   the four public functions: one fused pass, partials as thunks, gradients reduced over the broadcast dimensions.
   Without them Zygote reruns a GPU broadcast once per argument with duals (5-8 times slower than the CPU in Float64).
+- Domain checks: `blcheck(S0, K, T[, σ])` and `check_positive(x, message)` (src/financial.jl), argument by argument
+  through `domain_value` (real part of a complex, constant term of a Taylor series, `nothing` for symbolic values: the
+  extensions add methods). Reuse `check_positive` for new checks; messages are constant strings (GPU kernels).
 - [src/dates.jl](src/dates.jl): `yearfrac` (Matlab bases 0-7), `daysact`, `fromExcelNumberToDate`.
 - [ext/](ext/): one extension per AD backend or number type. ForwardDiff, DualNumbers, HyperDualNumbers and
   Mooncake's `Nfwd.NDual` (Mooncake inside GPU broadcasts) solve on the values and add
