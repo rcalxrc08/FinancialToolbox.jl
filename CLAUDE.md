@@ -101,6 +101,9 @@ file's directory, inside a testset. Each file includes `test/setup.jl` (Test, Fi
   of the hand-written instructions), `mooncake.jl`, `enzyme.jl`.
 - `gpu/jlarrays.jl` runs `gpu/gpu_suite.jl` on JLArrays (GPU code path without a GPU, on CI); `test/cuda/` runs the same
   suite and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme in kernels) on CUDA, locally only.
+  CI has no GPU: run the CUDA tests locally (this machine has an NVIDIA GPU) before pushing any change to `src/` or
+  `ext/`, together with the CPU suite. JLArrays does not catch everything CUDA rejects (allocations, dynamic dispatch,
+  strings built at run time in kernels).
 - `aqua.jl`: Aqua (ambiguities, stale dependencies, compat, piracy, ...).
 
 Keep the tests lean: a property checked once per code path, not once per number type (input validation is generic
