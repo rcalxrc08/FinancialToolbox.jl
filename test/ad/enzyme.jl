@@ -1,12 +1,9 @@
-using FinancialToolbox, Enzyme, ForwardDiff
-using Test
+# Enzyme: rules of blimpv (forward, reverse, batched, mixed activity), blsprice differentiated by Enzyme itself, the
+# Jacobian of a strike strip. Against ForwardDiff.
+include(joinpath(@__DIR__, "..", "setup.jl"))
+using Enzyme, ForwardDiff
 
-S0 = 100.0;
-K = 95.0;
-r = 0.02;
-T = 1.2;
-σ = 0.25;
-d = 0.01;
+const S0, K, r, T, σ, d = 100.0, 95.0, 0.02, 1.2, 0.25, 0.01
 
 @test Base.get_extension(FinancialToolbox, :FinancialToolboxEnzymeCoreExt) !== nothing
 

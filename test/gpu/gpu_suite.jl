@@ -1,6 +1,6 @@
 # Pricing, sensitivities and implied volatilities broadcast over GPU arrays, compared with the CPU. `to_device` moves
 # a Vector to the device; scalar indexing must be disabled by the caller, so that every function runs inside the
-# broadcast kernel. Run with JLArrays in testGPU.jl (CI) and with CUDA in cuda/runtests.jl.
+# broadcast kernel. Run with JLArrays in gpu/jlarrays.jl (CI) and with CUDA in test/cuda/runtests.jl.
 using FinancialToolbox, Test
 
 function test_gpu(to_device, element_types)

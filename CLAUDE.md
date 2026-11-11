@@ -14,8 +14,8 @@ Registered in General. FinancialFFT, FinancialMonteCarlo and VibratoMonteCarlo d
 ## Commands
 
 ```bash
-julia --project -e 'import Pkg; Pkg.test()'      # test/runtests.jl: every file of test_list, about 15 minutes
-julia --project=test -e 'include("test/testElementTypes.jl")'   # a single test file
+julia --project -e 'import Pkg; Pkg.test()'      # test/runtests.jl: every file of TEST_FILES, prints the time of each
+julia --project=test -e 'include("test/core/element_types.jl")'   # a single test file
 julia --project=test/cuda -e 'import Pkg; Pkg.instantiate(); include("test/cuda/runtests.jl")'  # needs an NVIDIA GPU
 julia benchmark/run.jl                           # benchmark suite (BenchmarkCI runs it on CI); benchmark/tune.jl retunes tune.json
 julia --project=benchmark/gpu -e 'import Pkg; Pkg.instantiate(); include("benchmark/gpu/run.jl")'  # GPU vs CPU table of docs/src/gpu.md
@@ -81,15 +81,27 @@ Coverage is on codecov (100% before the GPU work): code reached only on GPUs (Mo
 compiled tapes needs a CPU test that calls it directly.
 
 
-`test/runtests.jl` includes every file of `test_list`; a new file must be added there. Notable ones:
-- `testElementTypes.jl`: Float32 in, Float32 out, for every function, input position and number type. Type-stability
-  checks do not catch a promotion to a well-defined wider type (#74), this test does.
-- `testReverseDiff.jl` evaluates compiled tapes away from the recording point: it is the only test of the forward
-  pass of the hand-written instructions.
-- `testBroadcastRules.jl`: the broadcast rules against ForwardDiff, for every argument and broadcast shape.
-- `testGPU.jl` runs `gpu_suite.jl` on JLArrays (GPU code path without a GPU, on CI); `test/cuda/` runs the same suite
-  and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme in kernels) on CUDA, locally only.
-- `testAqua.jl`: Aqua (ambiguities, stale dependencies, compat, piracy, ...).
+`test/runtests.jl` runs every file of `TEST_FILES` (a new file must be added there) in a module of its own, from the
+file's directory, inside a testset. Each file includes `test/setup.jl` (Test, FinancialToolbox, the reference option
+`REFERENCE`, the Matlab values `MATLAB`, `closed_form_greeks`), so it also runs alone. Layout:
+- `core/`: `pricing.jl` (Matlab values, BigFloat/Float32/Float16, input validation), `implied_volatility.jl` (round
+  trips, accuracy grids in Float64 and Float32 against BigFloat), `implied_volatility_dataset.jl` with its `.json`
+  (prices and implied volatilities of a reference dataset, round trips; it reads the JSON by a relative path, hence
+  the `cd`), `dates.jl`, `element_types.jl`: Float32 in, Float32 out,
+  for every function, input position and number type. Type-stability checks do not catch a promotion to a
+  well-defined wider type (#74), this test does.
+- `numbers/`: `complex.jl` (complex step), `dual_numbers.jl` (ForwardDiff, DualNumbers, HyperDualNumbers in one loop
+  against the closed form Greeks), `taylor_series.jl`, `taylor_diff.jl`, `symbolics.jl` (derivatives not simplified:
+  simplification is slow).
+- `ad/`: `zygote.jl`, `broadcast_rules.jl` (the broadcast rules against ForwardDiff, for every argument and broadcast
+  shape), `reversediff.jl` (evaluates compiled tapes away from the recording point: the only test of the forward pass
+  of the hand-written instructions), `mooncake.jl`, `enzyme.jl`.
+- `gpu/jlarrays.jl` runs `gpu/gpu_suite.jl` on JLArrays (GPU code path without a GPU, on CI); `test/cuda/` runs the same
+  suite and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme in kernels) on CUDA, locally only.
+- `aqua.jl`: Aqua (ambiguities, stale dependencies, compat, piracy, ...).
+
+Keep the tests lean: a property checked once per code path, not once per number type (input validation is generic
+code, the Greeks are checked against Matlab once, the number types against `closed_form_greeks`).
 
 The test environment caps ChainRules at 1.74.10: 1.74.11 breaks the precompilation of TaylorDiff
 (JuliaDiff/TaylorDiff.jl#113). Lift the cap once that is fixed, and close CompatHelper PRs that remove it before.

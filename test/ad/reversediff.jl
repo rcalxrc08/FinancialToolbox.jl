@@ -1,29 +1,10 @@
-using Test
-using FinancialToolbox, ReverseDiff
+# ReverseDiff: blsprice, blkprice, blsimpv and blkimpv are single tape instructions written by hand. Compiled tapes are
+# evaluated away from the point where they were recorded: the instructions recompute their partials in the forward
+# pass (an @grad rule would keep the ones of the recording point). Against ForwardDiff.
+include(joinpath(@__DIR__, "..", "setup.jl"))
+using ReverseDiff, ForwardDiff
 
-#Test Parameters
-spot = 10.0;
-K = 10;
-r = 0.02;
-T = 2.0;
-sigma = 0.2;
-d = 0.01;
-
-toll = 1e-4
-
-#EuropeanCall Option
-f_rv(S0) = blsprice(S0[1], K, r, T, sigma, d);
-delta_1 = blsdelta(spot, K, r, T, sigma, d);
-delta_v = ReverseDiff.gradient(f_rv, [spot])
-@test(abs(delta_v[1] - delta_1) < toll)
-price = f_rv(spot)
-f_rv2(S0) = blsimpv(S0[1], K, r, T, price, d);
-delta_v = ReverseDiff.gradient(f_rv2, [spot])
-@test(abs(delta_v[1] + 0.10586634302510232) < toll)
-# Compiled tapes evaluated away from the point where they were recorded: the instructions of the extension recompute
-# their partials in the forward pass (an @grad rule would keep the ones of the recording point)
-using ForwardDiff
-@testset "ReverseDiff compiled tapes" begin
+@testset "ReverseDiff" begin
     x1 = [100.0, 95.0, 0.02, 1.2, 0.2, 0.01]
     x2 = [90.0, 110.0, 0.03, 2.0, 0.3, 0.0]
     p(x, FlagIsCall) = blsprice(x..., FlagIsCall)
@@ -37,10 +18,12 @@ using ForwardDiff
         # only some inputs tracked
         "blsimpv, spot and price" => (y -> blsimpv(y[1], 95.0, 0.02, 1.2, y[2], 0.01), [100.0, p(x1, true)], [105.0, blsprice(105.0, 95.0, 0.02, 1.2, 0.25, 0.01)]),
     )
-    for (name, (f, a, b)) in cases
+    @testset "$name" for (name, (f, a, b)) in cases
+        g_a, g_b = ForwardDiff.gradient(f, a), ForwardDiff.gradient(f, b)
+        @test ReverseDiff.gradient(f, a) ≈ g_a
         tape = ReverseDiff.compile(ReverseDiff.GradientTape(f, a))
         gradient = similar(a)
-        @test ReverseDiff.gradient!(gradient, tape, b) ≈ ForwardDiff.gradient(f, b)
-        @test ReverseDiff.gradient!(gradient, tape, a) ≈ ForwardDiff.gradient(f, a)
+        @test ReverseDiff.gradient!(gradient, tape, b) ≈ g_b
+        @test ReverseDiff.gradient!(gradient, tape, a) ≈ g_a
     end
 end

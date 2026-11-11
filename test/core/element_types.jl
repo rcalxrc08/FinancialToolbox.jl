@@ -1,7 +1,8 @@
 # Every function keeps the element type of its inputs: Float32 in, Float32 out, also through the dual, hyperdual,
 # Taylor and complex numbers of the extensions, for each input in turn. The code being type-stable, a promotion to a
 # wider type is not caught by type-stability checks (see #74: DualNumbers promoted erfc and sqrt to Float64).
-using FinancialToolbox, Test, ForwardDiff, DualNumbers, HyperDualNumbers, TaylorSeries
+include(joinpath(@__DIR__, "..", "setup.jl"))
+using ForwardDiff, DualNumbers, HyperDualNumbers, TaylorSeries
 
 const S0_32, K_32, r_32, T_32, σ_32, d_32 = 100.0f0, 95.0f0, 0.02f0, 1.2f0, 0.2f0, 0.01f0
 const PRICE_32 = blsprice(S0_32, K_32, r_32, T_32, σ_32, d_32)

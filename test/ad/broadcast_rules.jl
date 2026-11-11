@@ -1,6 +1,7 @@
 # The ChainRules rules of the broadcasts of blsprice, blkprice, blsimpv and blkimpv (src/financial_value_and_partials.jl),
 # through Zygote, against ForwardDiff: every argument, flags as arrays, broadcasts along different dimensions.
-using FinancialToolbox, Test, Zygote, ForwardDiff
+include(joinpath(@__DIR__, "..", "setup.jl"))
+using Zygote, ForwardDiff
 
 @testset "Broadcast rules" begin
     S0, r, T, d = 100.0, 0.02, 1.2, 0.01
