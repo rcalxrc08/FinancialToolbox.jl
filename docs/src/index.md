@@ -17,10 +17,9 @@
 <span class="k">Γ</span>     = blsgamma.(spots, K, r, T, σ, d)  <span class="c"># broadcast</span></code></pre>
 </div>
 <figure class="fc-hero-figure">
-<img src="assets/figures/hero-surface-dark.svg" alt="Gamma of a European option across spot and maturity, computed with blsgamma">
-<img src="assets/figures/hero-surface-light.svg" alt="Gamma of a European option across spot and maturity, computed with blsgamma">
-<figcaption><span class="fc-legend"><i class="fc-ramp"></i>gamma of a European option, <code>blsgamma</code></span>
-Computed with FinancialToolbox.jl when this site was built: one broadcast of blsgamma over 46 spots and 34 maturities.</figcaption>
+<img src="assets/figures/hero-fractal-dark.svg" alt="Basins of Newton's method for the complex implied volatility">
+<img src="assets/figures/hero-fractal-light.svg" alt="Basins of Newton's method for the complex implied volatility">
+<figcaption>Where Newton's method on the implied volatility goes, from each starting point in the complex plane: a fractal. <code>blsimpv</code> uses <i>Let's Be Rational</i>, which converges from everywhere in at most two steps. Computed when this site was built.</figcaption>
 </figure>
 </div>
 ```

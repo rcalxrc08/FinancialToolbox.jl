@@ -140,14 +140,13 @@ save_themes(greeks_figure, "greeks")
 save_themes(accuracy_figure, "accuracy")
 save_themes(fractal_figure, "fractal")
 save_themes(implied_volatility_derivatives_figure, "impv_derivatives")
-# The hero of the home page: the gamma of a European option across spot and maturity, one broadcast of blsgamma, drawn
-# in perspective by surface.jl.
-include(joinpath(@__DIR__, "surface.jl"))
-let spots = collect(range(60.0, 140.0; length = 46)), maturities = collect(range(0.15, 2.0; length = 34))
-    gammas = blsgamma.(permutedims(spots), K, r, maturities, σ, d)
-    hi = ceil(maximum(gammas) / 0.01) * 0.01
-    write_surface(FIGURES, "hero-surface", spots, maturities, gammas; zlims = (0.0, hi), xticks = [s => string(round(Int, s)) for s = 60:20:140], yticks = [0.5 => "6M", 1.0 => "1Y", 1.5 => "18M", 2.0 => "2Y"], zticks = [g => string(g) for g = 0.01:0.01:hi], xlabel = "spot", ylabel = "maturity", zlabel = "gamma", label = "Gamma of a European option across spot and maturity")
+# The hero of the home page: the Newton basins of the complex implied volatility, the zoom of the fractal figure, alone.
+function hero_figure(theme)
+    (xs, ys), basins = BASIN_ZOOM, BASINS[2]
+    p = plot(xs, ys, basin_colour.(Ref(theme), basins); size = (640, 640), background_color = :transparent, framestyle = :none, grid = false, legend = false, aspect_ratio = :equal, xlims = extrema(xs), ylims = extrema(ys), yflip = false, margin = 0Plots.mm)
+    return p
 end
+save_themes(hero_figure, "hero-fractal")
 
 using BenchmarkTools, Printf
 "The key numbers of the home page, timed on the machine that builds the documentation."
