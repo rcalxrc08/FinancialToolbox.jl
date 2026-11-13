@@ -1,5 +1,22 @@
+```@raw html
+<div class="fc-page-head">
+<p class="fc-kicker"><span>Reference</span> Bibliography</p>
+```
+
 # References
 
+
+```@raw html
+<nav class="fc-toc">
+<a href="#Option-pricing"><b>01</b>Option pricing</a>
+<a href="#Implied-volatility"><b>02</b>Implied volatility</a>
+<a href="#Implicit-function-theorem"><b>03</b>Implicit function theorem</a>
+<a href="#Automatic-differentiation"><b>04</b>Automatic differentiation</a>
+<a href="#Calibration"><b>05</b>Calibration</a>
+<a href="#Dates"><b>06</b>Dates</a>
+</nav>
+</div>
+```
 ## Option pricing
 
 - F. Black and M. Scholes, *The Pricing of Options and Corporate Liabilities*, Journal of Political Economy 81(3),

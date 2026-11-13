@@ -1,8 +1,22 @@
+```@raw html
+<div class="fc-page-head">
+<p class="fc-kicker"><span>Guide 03</span> Every backend, every order</p>
+```
+
 # Automatic differentiation
 
 Pricers and sensitivities are plain Julia code, differentiable by any AD engine capable of differentiating the `erfc`
 function (rules for `erfc` are provided for TaylorSeries and TaylorDiff). The implied volatility is never
 differentiated through the numerical solver: its derivatives are defined analytically, as shown below.
+
+```@raw html
+<div class="fc-meta"><span>ForwardDiff</span><span>Zygote</span><span>Mooncake</span><span>Enzyme</span><span>TaylorSeries</span><span class="is-live">computed at build time</span></div>
+<nav class="fc-toc">
+<a href="#Examples"><b>01</b>Examples</a>
+<a href="#Derivatives-of-the-implied-volatility"><b>02</b>Derivatives of the implied volatility</a>
+</nav>
+</div>
+```
 
 | Support | Backends |
 |:--|:--|

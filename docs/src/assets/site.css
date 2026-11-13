@@ -1,0 +1,621 @@
+/* The design system of the documentation of the rcalxrc08 packages (the same file in every repository), for every
+   page: layout, type, the page header of the guides, numbered sections, figures, maths, code, tables, docstrings,
+   admonitions and the page footer. Built on the palette variables of style.css (Dark Quant in the dark theme, its light
+   counterpart otherwise); home.css adds the landing page. Classes are fc-…. */
+
+html:root {
+  --fc-cyan: #0b7fb3;
+  --fc-green: #2f8a3c;
+  --fc-glow: rgba(37, 99, 217, .10);
+  --fc-card: var(--surface);
+  --fc-line: var(--border);
+  --fc-gap: clamp(16px, 2.4vw, 24px);
+}
+
+html.theme--documenter-dark {
+  --fc-cyan: #38cfff;
+  --fc-green: #7ee787;
+  --fc-glow: rgba(79, 140, 255, .16);
+}
+
+/* ---------- Layout and type ---------- */
+
+html:root #documenter .docs-main {
+  max-width: 62rem;
+}
+
+html:root body {
+  font-size: 16.5px;
+}
+
+html:root .content p,
+html:root .content li {
+  line-height: 1.7;
+}
+
+/* the page title: sans, heavy, tight */
+html:root .content h1 {
+  font-family: var(--font);
+  font-size: clamp(2rem, 4.2vw, 2.9rem);
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+html:root .content h1 a.docs-heading-anchor-permalink,
+html:root .content h2 a.docs-heading-anchor-permalink {
+  opacity: .5;
+}
+
+/* numbered sections on every page but the home page */
+html:root .content:not(:has(.fc-hero)) {
+  counter-reset: fc-section;
+}
+
+html:root .content > h2 {
+  margin-top: 3.4rem;
+  padding: 1.8rem 0 0;
+  font-size: clamp(1.4rem, 2.6vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-bottom: 0;
+  border-top: 1px solid var(--fc-line);
+}
+
+html:root .content > h2::before {
+  display: none;
+}
+
+html:root .content:not(:has(.fc-hero)) > h2 {
+  counter-increment: fc-section;
+}
+
+html:root .content:not(:has(.fc-hero)) > h2 > a.docs-heading-anchor::before {
+  content: counter(fc-section, decimal-leading-zero);
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--accent);
+}
+
+html:root .content > h3 {
+  margin-top: 2.2rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+/* ---------- The header of a guide ---------- */
+
+html:root .content .fc-page-head {
+  position: relative;
+  margin: 12px 0 8px;
+  padding: clamp(20px, 3vw, 32px) 0 26px;
+}
+
+html:root .content .fc-page-head::before {
+  content: "";
+  position: absolute;
+  inset: -30px -40px auto 40%;
+  height: 300px;
+  background: radial-gradient(closest-side, var(--fc-glow), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+html:root .content .fc-page-head > * {
+  position: relative;
+  z-index: 1;
+}
+
+html:root .content .fc-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+html:root .content .fc-kicker span {
+  padding: 3px 10px;
+  font-family: var(--mono);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px;
+}
+
+html:root .content .fc-page-head h1 {
+  margin: 0 0 16px;
+}
+
+html:root .content .fc-page-lede,
+html:root .content .fc-page-head > p:not(.fc-kicker) {
+  max-width: 44rem;
+  margin: 0 0 20px;
+  font-size: clamp(1.02rem, 1.5vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+html:root .content .fc-page-lede strong,
+html:root .content .fc-page-head > p:not(.fc-kicker) strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+html:root .content .fc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+
+html:root .content .fc-meta span {
+  padding: 3px 11px;
+  font-size: .8rem;
+  font-weight: 550;
+  color: var(--text);
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 999px;
+}
+
+html:root .content .fc-meta span.is-live {
+  color: var(--secondary);
+  border-color: color-mix(in srgb, var(--secondary) 45%, transparent);
+}
+
+html:root .content .fc-meta span.is-live::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  vertical-align: 1px;
+  border-radius: 50%;
+  background: var(--secondary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--secondary) 25%, transparent);
+}
+
+/* the steps of a page, as a strip of links to its sections */
+html:root .content nav.fc-toc {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--fc-line);
+  border: 1px solid var(--fc-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+html:root .content nav.fc-toc a,
+html:root .content nav.fc-toc a:visited {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  font-size: .84rem;
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--fc-card);
+  transition: background .15s;
+}
+
+html:root .content nav.fc-toc a:hover {
+  text-decoration: none;
+  background: color-mix(in srgb, var(--accent) 10%, var(--fc-card));
+}
+
+html:root .content nav.fc-toc b {
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--accent);
+}
+
+/* ---------- Cards, tiles, tags (shared by the home page and the guides) ---------- */
+
+html:root .content .fc-grid {
+  display: grid;
+  gap: var(--fc-gap);
+  margin: 0 0 var(--fc-gap);
+}
+
+html:root .content .fc-grid-3 {
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+}
+
+html:root .content .fc-card {
+  position: relative;
+  padding: 20px 20px 18px;
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 14px;
+  transition: border-color .2s, transform .2s;
+}
+
+html:root .content .fc-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--fc-line));
+}
+
+html:root .content .fc-card h3 {
+  margin: 12px 0 8px;
+  font-size: 1.02rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+html:root .content .fc-card p {
+  margin: 0 0 10px;
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+html:root .content .fc-card p:last-child {
+  margin-bottom: 0;
+}
+
+html:root .content .fc-card .fc-card-k {
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+html:root .content .fc-card .fc-card-k.is-amber { color: var(--highlight); }
+html:root .content .fc-card .fc-card-k.is-blue { color: var(--accent); }
+
+html:root .content .fc-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 1px;
+  margin: 0 0 8px;
+  background: var(--fc-line);
+  border: 1px solid var(--fc-line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+html:root .content .fc-stat {
+  padding: 18px 20px;
+  background: var(--fc-card);
+}
+
+html:root .content .fc-stat-value {
+  font-family: var(--mono);
+  font-size: clamp(1.45rem, 2.4vw, 1.95rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+
+html:root .content .fc-stat.is-teal .fc-stat-value { color: var(--secondary); }
+html:root .content .fc-stat.is-amber .fc-stat-value { color: var(--highlight); }
+
+html:root .content .fc-stat-value span {
+  margin-left: 2px;
+  font-size: .55em;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+html:root .content .fc-stat-label {
+  margin-top: 8px;
+  font-size: .86rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+html:root .content .fc-machine {
+  margin: 10px 0 1.6rem;
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+html:root .content .fc-tag {
+  display: inline-block;
+  padding: 1px 9px;
+  font-size: .72rem;
+  font-weight: 650;
+  white-space: nowrap;
+  color: var(--secondary);
+  border: 1px solid color-mix(in srgb, var(--secondary) 45%, transparent);
+  border-radius: 999px;
+}
+
+html:root .content .fc-tag-alt {
+  color: var(--fc-cyan);
+  border-color: color-mix(in srgb, var(--fc-cyan) 45%, transparent);
+}
+
+html:root .content .fc-tag-amber {
+  color: var(--highlight);
+  border-color: color-mix(in srgb, var(--highlight) 45%, transparent);
+}
+
+/* Documenter wraps the output of the hidden @example blocks: no frame around HTML fragments */
+html:root .content .documenter-example-output:has(.fc-stats),
+html:root .content .documenter-example-output:has(.fc-table-wrap),
+html:root .content .documenter-example-output:has(.fc-grid) {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* ---------- Figures ---------- */
+
+/* a paragraph that only holds the two variants of a figure is a figure card */
+html:root .content p:has(> img[src$="-dark.svg"]) {
+  margin: 1.4rem 0 1.8rem;
+  padding: clamp(12px, 2vw, 20px);
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 16px;
+}
+
+html:root .content p:has(> img[src$="-dark.svg"]) img {
+  margin: 0 auto;
+}
+
+html:root .content .fc-figure {
+  margin: 0 0 var(--fc-gap);
+  padding: clamp(16px, 2.6vw, 26px);
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 16px;
+}
+
+html:root .content .fc-figure-head {
+  display: grid;
+  grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+  gap: 8px 28px;
+  margin-bottom: 10px;
+}
+
+html:root .content .fc-figure-head h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+html:root .content .fc-figure-head p {
+  margin: 0;
+  font-size: .92rem;
+  color: var(--muted);
+}
+
+html:root .content .fc-figure-head p b {
+  color: var(--highlight);
+  font-weight: 650;
+}
+
+html:root .content .fc-figure img {
+  margin: 0 auto;
+}
+
+@media (max-width: 760px) {
+  html:root .content .fc-figure-head {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Maths ---------- */
+
+html:root .content .math-container {
+  margin: 1.2rem 0 1.4rem;
+  padding: 18px 20px;
+  overflow-x: auto;
+  background: color-mix(in srgb, var(--fc-card) 70%, transparent);
+  border: 1px solid var(--fc-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+}
+
+/* ---------- Code ---------- */
+
+html:root .content pre {
+  border-radius: 12px;
+}
+
+html:root .content .documenter-example-output {
+  border-left: 3px solid var(--secondary);
+}
+
+/* ---------- Tables ---------- */
+
+html:root .content table th {
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+html:root .content table td[style*="right"] {
+  font-family: var(--mono);
+  font-size: .88rem;
+  white-space: nowrap;
+}
+
+html:root .content table tbody tr:hover td {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+html:root .content .fc-table-wrap {
+  overflow-x: auto;
+  margin: 0 0 var(--fc-gap);
+}
+
+html:root .content table.fc-table {
+  margin: 0;
+}
+
+html:root .content table.fc-table td:not(:first-child),
+html:root .content table.fc-table th:not(:first-child) {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: .88rem;
+}
+
+/* ---------- Admonitions ---------- */
+
+html:root .content .admonition {
+  border-left-width: 3px;
+  border-radius: 12px;
+}
+
+html:root .content .admonition > .admonition-header {
+  font-size: .95rem;
+  font-weight: 650;
+}
+
+/* ---------- Docstrings ---------- */
+
+html:root .content details.docstring {
+  margin: 0 0 1.4rem;
+  border-left: 3px solid var(--accent);
+}
+
+html:root .content details.docstring > summary {
+  padding: 12px 16px;
+  font-size: 1rem;
+}
+
+html:root .content details.docstring > summary a.docstring-binding code {
+  font-size: 1rem;
+  color: var(--text);
+}
+
+html:root .content details.docstring > summary .docstring-category {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 9px;
+  font-size: .72rem;
+  font-weight: 650;
+  font-style: normal;
+  color: var(--secondary);
+  border: 1px solid color-mix(in srgb, var(--secondary) 45%, transparent);
+  border-radius: 999px;
+}
+
+html:root .content details.docstring > section {
+  padding: 4px 18px 6px;
+}
+
+/* ---------- References ---------- */
+
+html:root .content ul.fc-refs,
+html:root .content:has(.fc-refs-page) > ul {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+html:root .content:has(.fc-refs-page) > ul > li {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: .93rem;
+  line-height: 1.55;
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-left: 3px solid var(--fc-cyan);
+  border-radius: 10px;
+}
+
+html:root .content:has(.fc-refs-page) > ul > li em {
+  color: var(--text);
+  font-style: italic;
+  font-weight: 550;
+}
+
+/* ---------- Footer: previous and next page as cards ---------- */
+
+html:root #documenter .docs-main .docs-footer {
+  gap: 12px;
+  padding-top: 2rem;
+  border-top: 1px solid var(--fc-line);
+}
+
+html:root #documenter .docs-main .docs-footer a.docs-footer-prevpage,
+html:root #documenter .docs-main .docs-footer a.docs-footer-nextpage {
+  flex: 1 1 14rem;
+  padding: 14px 18px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 12px;
+  transition: border-color .15s;
+}
+
+html:root #documenter .docs-main .docs-footer a.docs-footer-nextpage {
+  text-align: right;
+}
+
+html:root #documenter .docs-main .docs-footer a.docs-footer-prevpage:hover,
+html:root #documenter .docs-main .docs-footer a.docs-footer-nextpage:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+}
+
+/* ---------- Sidebar ---------- */
+
+html:root #documenter .docs-sidebar ul.docs-menu .tocitem {
+  font-size: .92rem;
+}
+
+html:root #documenter .docs-sidebar ul.docs-menu > li > input + label.tocitem,
+html:root #documenter .docs-sidebar ul.docs-menu > li > span.tocitem {
+  margin-top: 10px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Cards that are links (the choices of a guide) ---------- */
+
+html:root .content a.fc-card-link,
+html:root .content a.fc-card-link:visited {
+  display: block;
+  color: var(--text);
+}
+
+html:root .content a.fc-card-link:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+html:root .content .fc-card p.fc-pick {
+  margin-top: 12px;
+  padding-top: 10px;
+  font-size: .86rem;
+  color: var(--muted);
+  border-top: 1px dashed var(--fc-line);
+}
+
+html:root .content .fc-card p.fc-pick b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}

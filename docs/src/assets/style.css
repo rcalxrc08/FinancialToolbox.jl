@@ -11,21 +11,28 @@
   --border: #e6e3de;
   --link: #2f6fb3;
   --accent: #3b6fb6;
+  --secondary: #0e8f74;
+  --highlight: #9a6a12;
+  --danger: #b3352d;
   --shadow: 0 1px 2px rgba(20, 20, 20, .04), 0 8px 24px rgba(20, 20, 20, .06);
   --radius: 14px;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, monospace;
 }
 
+/* Dark Quant: the dark theme is the default (assets/dark.js), the light one stays for who picks it in the settings */
 html.theme--documenter-dark {
-  --bg: #111316;
-  --surface: #181b20;
-  --text: #e6e8eb;
-  --muted: #9aa3ad;
-  --border: #2a2f36;
-  --link: #7fb2ec;
-  --accent: #7fb2ec;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  --bg: #0b1020;
+  --surface: #151b2e;
+  --text: #f5f7fa;
+  --muted: #a0aec0;
+  --border: #252d47;
+  --link: #4f8cff;
+  --accent: #4f8cff;
+  --secondary: #00d4aa;
+  --highlight: #ffb84d;
+  --danger: #ff6b6b;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 30px rgba(0, 0, 0, .3);
 }
 
 /* ---------- Page ---------- */
@@ -408,4 +415,23 @@ html:root .content .pkg-links a.pkg-btn svg {
 
 @media (max-width: 560px) {
   html:root body { font-size: 16px; }
+}
+
+/* ---------- Admonitions by kind ---------- */
+
+html:root .content .admonition.is-success { --accent: var(--secondary); }
+html:root .content .admonition.is-warning,
+html:root .content .admonition.is-compat { --accent: var(--highlight); }
+html:root .content .admonition.is-danger { --accent: var(--danger); }
+
+/* ---------- Dark Quant details ---------- */
+
+/* the active page of the sidebar */
+html:root #documenter .docs-sidebar ul.docs-menu li.is-active > .tocitem {
+  box-shadow: inset 3px 0 0 var(--accent), inset 0 0 0 1px var(--border);
+}
+
+/* inline code in the text in the highlight colour, in links it stays a link */
+html.theme--documenter-dark .content :not(pre):not(a) > code {
+  color: var(--highlight);
 }

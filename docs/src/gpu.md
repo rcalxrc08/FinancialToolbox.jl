@@ -1,9 +1,24 @@
+```@raw html
+<div class="fc-page-head">
+<p class="fc-kicker"><span>Guide 04</span> One kernel per broadcast</p>
+```
+
 # GPU and calibration
 
 The pricers, the Greeks and the implied volatility are plain scalar functions without allocations, so they broadcast
 over GPU arrays as they are: a broadcast over `CuArray`s ([CUDA.jl](https://github.com/JuliaGPU/CUDA.jl)) compiles
 to a single GPU kernel, with no scalar indexing. Every option of a smile, a surface or a book is priced, or inverted,
 in parallel.
+
+```@raw html
+<div class="fc-meta"><span>CUDA</span><span>Zygote</span><span>calibration</span><span>implicit function theorem</span><span class="is-live">computed at build time</span></div>
+<nav class="fc-toc">
+<a href="#Automatic-differentiation-on-the-GPU"><b>01</b>Automatic differentiation on the GPU</a>
+<a href="#A-calibration"><b>02</b>A calibration</a>
+<a href="#Performance"><b>03</b>Performance</a>
+</nav>
+</div>
+```
 
 ```julia
 using FinancialToolbox, CUDA

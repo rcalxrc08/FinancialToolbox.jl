@@ -1,3 +1,8 @@
+```@raw html
+<div class="fc-page-head">
+<p class="fc-kicker"><span>Guide 05</span> Timed on the machine that builds this page</p>
+```
+
 # Performance
 
 Time to compute the price and the implied volatility, and their gradients with respect to all the six inputs with
@@ -5,6 +10,11 @@ the AD backends the package is tested with (DualNumbers, HyperDualNumbers and Ta
 six inputs) and Enzyme (batched, the six tangents in one pass), reverse mode with Zygote, ReverseDiff (compiled tape), Mooncake and Enzyme. Caches, tapes and
 configurations are prepared once, outside the timings, and every gradient is checked against ForwardDiff. The table is
 generated when this documentation is built, on the machine that builds it.
+
+```@raw html
+<div class="fc-meta"><span>BenchmarkTools</span><span>gradients</span><span class="is-live">computed at build time</span></div>
+</div>
+```
 
 ```@eval
 using FinancialToolbox, BenchmarkTools, Enzyme, ForwardDiff, Mooncake, ReverseDiff, TaylorSeries, Zygote, Printf, Logging, Markdown

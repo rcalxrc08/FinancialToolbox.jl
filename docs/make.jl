@@ -10,11 +10,4 @@ module DocumentationFigures
 include(joinpath(@__DIR__, "figures.jl"))
 end
 DocMeta.setdocmeta!(FinancialToolbox, :DocTestSetup, :(using FinancialToolbox); recursive = true)
-makedocs(
-    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true", assets = ["assets/favicon.ico", "assets/figures.css", "assets/style.css"], edit_link = "master"),
-    repo = Remotes.GitHub("rcalxrc08", "FinancialToolbox.jl"),
-    sitename = "FinancialToolbox.jl",
-    modules = [FinancialToolbox],
-    checkdocs = :exports,
-    pages = ["index.md", "pricing.md", "implied_volatility.md", "ad.md", "gpu.md", "performance.md", "dates.md", "api.md", "references.md"],
-)
+makedocs(format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true", assets = ["assets/favicon.ico", "assets/figures.css", "assets/style.css", "assets/site.css", "assets/home.css", "assets/dark.js"], edit_link = "master"), repo = Remotes.GitHub("rcalxrc08", "FinancialToolbox.jl"), sitename = "FinancialToolbox.jl", modules = [FinancialToolbox], checkdocs = :exports, pages = ["Home" => "index.md", "Guides" => ["Pricing and Greeks" => "pricing.md", "Implied volatility" => "implied_volatility.md", "Automatic differentiation" => "ad.md", "GPU and calibration" => "gpu.md", "Performance" => "performance.md", "Dates" => "dates.md"], "Reference" => ["API" => "api.md", "References" => "references.md"]])

@@ -61,6 +61,11 @@ from Actions (no gh-pages branch).
   copy changes across). `docs/figures.jl` computes the figures at build time, a light and a dark SVG each; the
   performance table is measured at build time too; the GPU page (`gpu.md`) has a static table measured on an MX150,
   since CI has no GPU. Markdown tables need `|:--|` columns.
+  The design is shared by all the rcalxrc08 docs (identical copies, edit together): `style.css` (Dark Quant),
+  `dark.js`, `figures.css`, `site.css` (page headers with kicker, lede and section links, numbered sections, cards) and
+  `home.css` (landing page: hero, stat tiles, feature cards, flow, tabbed results, quick start steps); `docs/surface.jl`
+  draws the hero, the gamma surface of `blsgamma` in perspective. The home page's stat tiles are timed at build time by
+  `hero_stats()` in `figures.jl` (called from a hidden `@example` block). The sidebar groups Guides and Reference.
   The calibration example of `gpu.md` runs at build time on the CPU (the same code runs on CUDA inside a function):
   an SVI-type smile (nonlinear in its parameters) fitted on implied volatilities by Gauss-Newton with
   `Zygote.jacobian`, on prices with deterministic 1% noise so that the residuals do not vanish and the Hessian differs

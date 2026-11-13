@@ -1,5 +1,22 @@
+```@raw html
+<div class="fc-page-head">
+<p class="fc-kicker"><span>Guide 02</span> Let&#x27;s Be Rational, to machine precision</p>
+```
+
 # Implied volatility
 
+
+```@raw html
+<div class="fc-meta"><span>Jäckel 2024</span><span>Householder</span><span>complex</span><span>BigFloat</span><span class="is-live">computed at build time</span></div>
+<nav class="fc-toc">
+<a href="#Black-and-Scholes-model"><b>01</b>Black and Scholes model</a>
+<a href="#Black-model"><b>02</b>Black model</a>
+<a href="#Accuracy"><b>03</b>Accuracy</a>
+<a href="#Complex-numbers"><b>04</b>Complex numbers</a>
+<a href="#Domain"><b>05</b>Domain</a>
+</nav>
+</div>
+```
 ## Black and Scholes model
 
 Given the price ``V`` of a European option, the Black and Scholes implied volatility is the positive number ``\sigma``

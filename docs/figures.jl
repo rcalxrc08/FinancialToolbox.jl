@@ -10,7 +10,7 @@ const FIGURES = mkpath(joinpath(@__DIR__, "src", "assets", "figures"))
 
 # Categorical slots in fixed order (validated for colour vision deficiencies on adjacent pairs, in both modes), and
 # the ink of the text, of the axes and of the grid: the palette of the figures of FinancialFFT.jl.
-const THEMES = (light = (series = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300"], text = "#1f2328", muted = "#5b6470", axis = "#b9b4ab", grid = "#e6e3de"), dark = (series = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300"], text = "#e6e8eb", muted = "#9aa3ad", axis = "#4a525c", grid = "#2a2f36"))
+const THEMES = (light = (series = ["#2563d9", "#0a8a6f", "#b86e0b", "#0b7fb3", "#2f8a3c", "#c2456e"], text = "#1f2328", muted = "#5b6470", axis = "#b9b4ab", grid = "#e6e3de", diverging = ["#2563d9", "#f7f6f3", "#c47a12"]), dark = (series = ["#4f8cff", "#00d4aa", "#ffb84d", "#38cfff", "#7ee787", "#ff6b9d"], text = "#f5f7fa", muted = "#a0aec0", axis = "#3a4466", grid = "#252d47", diverging = ["#4f8cff", "#151b2e", "#ffb84d"]))
 # The secondary encoding of the series: the light slots 3-5 are below 3:1 contrast on the surface.
 const MARKERS = [:circle, :rect, :utriangle, :diamond, :dtriangle, :star5]
 
@@ -140,3 +140,25 @@ save_themes(greeks_figure, "greeks")
 save_themes(accuracy_figure, "accuracy")
 save_themes(fractal_figure, "fractal")
 save_themes(implied_volatility_derivatives_figure, "impv_derivatives")
+# The hero of the home page: the gamma of a European option across spot and maturity, one broadcast of blsgamma, drawn
+# in perspective by surface.jl.
+include(joinpath(@__DIR__, "surface.jl"))
+let spots = collect(range(60.0, 140.0; length = 46)), maturities = collect(range(0.15, 2.0; length = 34))
+    gammas = blsgamma.(permutedims(spots), K, r, maturities, σ, d)
+    hi = ceil(maximum(gammas) / 0.01) * 0.01
+    write_surface(FIGURES, "hero-surface", spots, maturities, gammas; zlims = (0.0, hi), xticks = [s => string(round(Int, s)) for s = 60:20:140], yticks = [0.5 => "6M", 1.0 => "1Y", 1.5 => "18M", 2.0 => "2Y"], zticks = [g => string(g) for g = 0.01:0.01:hi], xlabel = "spot", ylabel = "maturity", zlabel = "gamma", label = "Gamma of a European option across spot and maturity")
+end
+
+using BenchmarkTools, Printf
+"The key numbers of the home page, timed on the machine that builds the documentation."
+function hero_stats()
+    S0, K, r, T, σ, d = 100.0, 100.0, 0.02, 1.2, 0.2, 0.01
+    price = blsprice(S0, K, r, T, σ, d)
+    t_price = @belapsed blsprice($S0, $K, $r, $T, $σ, $d)
+    t_impv = @belapsed blsimpv($S0, $K, $r, $T, $price, $d)
+    tile(v, u, l; tone = "") = "<div class=\"fc-stat $tone\"><div class=\"fc-stat-value\">$v<span>$u</span></div><div class=\"fc-stat-label\">$l</div></div>"
+    fmt(t) = t < 1e-6 ? @sprintf("%.0f", 1e9 * t) : @sprintf("%.2f", 1e6 * t)
+    unit(t) = t < 1e-6 ? " ns" : " μs"
+    tiles = [tile(fmt(t_price), unit(t_price), "one blsprice, on the machine that built this page"), tile(fmt(t_impv), unit(t_impv), "one blsimpv, at most two Householder steps"; tone = "is-teal"), tile("≤ 2", " steps", "Householder iterations of order four after the rational initial guess"; tone = "is-amber"), tile("9", "", "AD backends tested, plus Symbolics.jl")]
+    return HTML("<div class=\"fc-stats\">" * join(tiles) * "</div>")
+end

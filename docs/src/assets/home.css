@@ -1,0 +1,682 @@
+/* The home page of the documentation of the rcalxrc08 packages (the same file in every repository): a landing page
+   inside Documenter, on top of the design system of site.css. Everything here is scoped to a content that holds the
+   hero (.fc-hero). */
+
+/* a wider column for the landing page */
+html:root #documenter .docs-main:has(.fc-hero) {
+  max-width: 76rem;
+}
+
+/* the section titles: no dot, a thin rule above, an eyebrow-sized weight */
+html:root .content:has(.fc-hero) > h2 {
+  margin-top: 4.5rem;
+  padding: 2.2rem 0 0;
+  border-bottom: 0;
+  border-top: 1px solid var(--fc-line);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  letter-spacing: -0.02em;
+}
+
+html:root .content .fc-section-lede {
+  max-width: 46rem;
+  margin: .4rem 0 1.8rem;
+  font-size: 1.08rem;
+  color: var(--muted);
+}
+
+html:root .content .fc-section-lede em {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ---------- Hero ---------- */
+
+html:root .content .fc-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(16px, 3vw, 40px);
+  align-items: center;
+  margin: 8px 0 28px;
+  padding: clamp(20px, 3vw, 36px) 0 8px;
+}
+
+/* the glow behind the surface */
+html:root .content .fc-hero::before {
+  content: "";
+  position: absolute;
+  inset: -40px -20px auto 35%;
+  height: 520px;
+  background: radial-gradient(closest-side, var(--fc-glow), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+html:root .content .fc-hero > * {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+html:root .content .fc-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 4px 14px 4px 6px;
+  font-family: var(--mono);
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 999px;
+}
+
+html:root .content .fc-eyebrow img {
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  display: inline;
+}
+
+html:root .content .fc-hero h1 {
+  margin: 0 0 18px;
+  font-family: var(--font);
+  font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+  font-weight: 750;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+
+html:root .content .fc-hero h1 a.docs-heading-anchor-permalink {
+  display: none;
+}
+
+html:root .content .fc-lede {
+  max-width: 34rem;
+  margin: 0 0 26px;
+  font-size: clamp(1.05rem, 1.6vw, 1.22rem);
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+html:root .content .fc-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+html:root .content a.fc-btn,
+html:root .content a.fc-btn:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 10px;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+
+html:root .content a.fc-btn:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+  border-color: var(--muted);
+}
+
+html:root .content a.fc-btn-primary,
+html:root .content a.fc-btn-primary:visited {
+  color: #0b1020;
+  background: var(--highlight);
+  border-color: transparent;
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--highlight) 30%, transparent);
+}
+
+html.theme--documenter-dark .content a.fc-btn-primary,
+html.theme--documenter-dark .content a.fc-btn-primary:visited {
+  background: #ffb84d;
+}
+
+html:root:not(.theme--documenter-dark) .content a.fc-btn-primary,
+html:root:not(.theme--documenter-dark) .content a.fc-btn-primary:visited {
+  color: #ffffff;
+  background: #1f2328;
+  box-shadow: none;
+}
+
+html:root .content a.fc-btn-primary:hover {
+  border-color: transparent;
+}
+
+html:root .content a.fc-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+html:root .content pre.fc-hero-code {
+  max-width: 36rem;
+  margin: 0;
+  padding: 14px 16px;
+  font-size: .8rem;
+  line-height: 1.7;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--fc-card) 80%, transparent);
+}
+
+html:root .content pre.fc-hero-code .k {
+  color: var(--secondary);
+}
+
+html:root .content pre.fc-hero-code .c {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+}
+
+html:root .content .fc-hero-figure {
+  margin: 0;
+}
+
+html:root .content .fc-hero-figure img {
+  width: 100%;
+  margin: 0;
+}
+
+html:root .content .fc-hero-figure figcaption {
+  margin-top: 4px;
+  font-style: normal;
+  font-size: .82rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+html:root .content .fc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px 8px;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+html:root .content .fc-legend i {
+  display: inline-block;
+  margin-left: 6px;
+}
+
+html:root .content .fc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--highlight);
+}
+
+html:root .content .fc-dot-hollow {
+  background: transparent;
+  border: 1.5px solid var(--highlight);
+}
+
+html:root .content .fc-ramp {
+  width: 56px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #22346b, #4f8cff, #38cfff, #00d4aa, #7ee787, #ffb84d);
+}
+
+html:root:not(.theme--documenter-dark) .content .fc-ramp {
+  background: linear-gradient(90deg, #c7d6f5, #4f8cff, #1ea6d4, #00a585, #4db55c, #e8962a);
+}
+
+@media (max-width: 1000px) {
+  html:root .content .fc-hero {
+    grid-template-columns: 1fr;
+  }
+  html:root .content .fc-hero::before {
+    inset: 30% -20px auto 0;
+  }
+  html:root .content .fc-hero-figure figcaption {
+    text-align: left;
+  }
+  html:root .content .fc-legend {
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- Feature cards and use cases ---------- */
+
+html:root .content .fc-grid {
+  display: grid;
+  gap: var(--fc-gap);
+}
+
+html:root .content .fc-features {
+  grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+}
+
+html:root .content .fc-card,
+html:root .content .fc-case {
+  position: relative;
+  padding: 22px 22px 20px;
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 14px;
+  transition: border-color .2s, transform .2s;
+}
+
+html:root .content .fc-card:hover,
+html:root .content .fc-case:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--fc-line));
+  transform: translateY(-2px);
+}
+
+html:root .content .fc-card h3,
+html:root .content .fc-case h3 {
+  margin: 14px 0 8px;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+html:root .content .fc-card p {
+  margin: 0 0 10px;
+  font-size: .92rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+html:root .content .fc-card p.fc-why {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--fc-line);
+  color: var(--muted);
+}
+
+html:root .content .fc-card p.fc-why::before {
+  content: "Why it matters  ";
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+html:root .content .fc-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+html:root .content .fc-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html:root .content .fc-icon svg .hl,
+html:root .content .fc-icon svg circle {
+  fill: var(--highlight);
+  stroke: none;
+}
+
+html:root .content .fc-icon svg ellipse {
+  fill: none;
+}
+
+html:root .content .fc-case header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+html:root .content .fc-case header h3 {
+  margin: 0 0 12px;
+}
+
+/* ---------- Architecture ---------- */
+
+html:root .content .fc-arch {
+  padding: clamp(16px, 3vw, 28px);
+  background:
+    radial-gradient(circle at 50% 0%, var(--fc-glow), transparent 60%),
+    var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 16px;
+}
+
+html:root .content ol.fc-flow {
+  display: grid;
+  grid-template-columns: repeat(var(--fc-steps, 6), minmax(0, 1fr));
+  gap: 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+html:root .content ol.fc-flow li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 14px 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--fc-line);
+  border-radius: 12px;
+}
+
+/* the arrows between the stages */
+html:root .content ol.fc-flow li + li::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -22px;
+  width: 18px;
+  height: 2px;
+  background: var(--accent);
+}
+
+html:root .content ol.fc-flow li + li::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 4px);
+  left: -9px;
+  border: 5px solid transparent;
+  border-left: 6px solid var(--accent);
+}
+
+html:root .content ol.fc-flow b {
+  font-size: .95rem;
+  line-height: 1.25;
+}
+
+html:root .content ol.fc-flow li > span:last-child {
+  font-size: .78rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+html:root .content ol.fc-flow code {
+  font-size: .74rem;
+}
+
+html:root .content .fc-node-k {
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+html:root .content ol.fc-flow li.fc-core {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent), 0 12px 32px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+html:root .content ol.fc-flow li.fc-core .fc-node-k { color: var(--accent); }
+
+html:root .content ol.fc-flow li.fc-out {
+  border-color: color-mix(in srgb, var(--highlight) 60%, var(--fc-line));
+}
+
+html:root .content ol.fc-flow li.fc-out .fc-node-k { color: var(--highlight); }
+
+html:root .content .fc-backflow {
+  position: relative;
+  margin-top: 26px;
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: .88rem;
+  color: var(--text);
+  border: 1px dashed color-mix(in srgb, var(--secondary) 60%, transparent);
+  border-radius: 10px;
+}
+
+html:root .content .fc-backflow span {
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+html:root .content .fc-backflow em {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font);
+  font-style: normal;
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  html:root .content ol.fc-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html:root .content ol.fc-flow li:nth-child(3n+1)::before,
+  html:root .content ol.fc-flow li:nth-child(3n+1)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  html:root .content ol.fc-flow {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  html:root .content ol.fc-flow li + li::before {
+    display: block;
+    top: -18px;
+    left: 24px;
+    width: 2px;
+    height: 14px;
+  }
+  html:root .content ol.fc-flow li + li::after {
+    display: block;
+    top: -8px;
+    left: 20px;
+    border: 5px solid transparent;
+    border-top: 6px solid var(--accent);
+  }
+}
+
+/* ---------- Figures ---------- */
+
+/* ---------- Quick start ---------- */
+
+html:root .content .fc-step {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 16px;
+  margin: 2.2rem 0 .6rem;
+}
+
+html:root .content .fc-step-n {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+html:root .content .fc-step h3 {
+  margin: 4px 0 4px;
+  font-size: 1.1rem;
+}
+
+html:root .content .fc-step p {
+  margin: 0;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+/* the code and the output of a step sit under its text, as one card */
+html:root .content .fc-next {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 2.6rem 0 0;
+}
+
+html:root .content .fc-next a,
+html:root .content .fc-next a:visited {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  color: var(--text);
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 12px;
+  transition: border-color .15s;
+}
+
+html:root .content .fc-next a:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+}
+
+html:root .content .fc-next b::after {
+  content: " →";
+  color: var(--accent);
+}
+
+html:root .content .fc-next span {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  html:root .content .fc-step ~ pre,
+  html:root .content .fc-step ~ .documenter-example-output {
+    margin-left: 0;
+  }
+}
+
+/* the code of the last section is not part of a step */
+html:root .content > h2#The-ecosystem ~ pre {
+  margin-left: 0;
+}
+
+/* ---------- Results: one large figure at a time, chosen by tabs (radio buttons, no script) ---------- */
+
+html:root .content .fc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px;
+  background: var(--fc-card);
+  border: 1px solid var(--fc-line);
+  border-radius: 16px;
+}
+
+html:root .content .fc-tabs > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+html:root .content .fc-tabs > label {
+  padding: 7px 14px;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .15s, background .15s;
+}
+
+html:root .content .fc-tabs > label:hover {
+  color: var(--text);
+}
+
+html:root .content .fc-tabs > input:checked + label {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+html:root .content .fc-tabs > input:focus-visible + label {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+html:root .content .fc-tab-panels {
+  flex-basis: 100%;
+  margin-top: 8px;
+}
+
+html:root .content figure.fc-tab-panel {
+  display: none;
+  margin: 0;
+}
+
+html:root .content #fc-results-1:checked ~ .fc-tab-panels > .fc-tab-panel:nth-child(1),
+html:root .content #fc-results-2:checked ~ .fc-tab-panels > .fc-tab-panel:nth-child(2),
+html:root .content #fc-results-3:checked ~ .fc-tab-panels > .fc-tab-panel:nth-child(3),
+html:root .content #fc-results-4:checked ~ .fc-tab-panels > .fc-tab-panel:nth-child(4) {
+  display: block;
+}
+
+html:root .content figure.fc-tab-panel img {
+  width: 100%;
+  margin: 0 0 10px;
+}
+
+html:root .content figure.fc-tab-panel figcaption {
+  max-width: 48rem;
+  font-size: .92rem;
+  font-style: normal;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+html:root .content figure.fc-tab-panel figcaption b {
+  color: var(--text);
+}
+
+/* ---------- Use cases, compact ---------- */
+
+html:root .content .fc-cases {
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+}
+
+html:root .content .fc-case p {
+  margin: 0 0 8px;
+  font-size: .88rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+html:root .content .fc-case p.fc-outcome {
+  margin: 0;
+  padding-top: 8px;
+  color: var(--text);
+  font-weight: 550;
+  border-top: 1px dashed var(--fc-line);
+}
+
+html:root .content .fc-case p.fc-outcome::before {
+  content: "→ ";
+  color: var(--secondary);
+}

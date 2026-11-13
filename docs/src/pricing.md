@@ -1,5 +1,20 @@
+```@raw html
+<div class="fc-page-head">
+<p class="fc-kicker"><span>Guide 01</span> Closed forms and their sensitivities</p>
+```
+
 # Pricing and Greeks
 
+
+```@raw html
+<div class="fc-meta"><span>Black–Scholes</span><span>Black</span><span>binaries</span><span>Greeks</span><span class="is-live">computed at build time</span></div>
+<nav class="fc-toc">
+<a href="#Black-and-Scholes-model"><b>01</b>Black and Scholes model</a>
+<a href="#Black-model"><b>02</b>Black model</a>
+<a href="#Greeks"><b>03</b>Greeks</a>
+</nav>
+</div>
+```
 ## Black and Scholes model
 
 In the Black and Scholes model ([Black and Scholes](references.md#Option-pricing)) the prices of a European call and
