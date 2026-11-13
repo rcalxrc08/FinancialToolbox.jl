@@ -23,7 +23,7 @@ julia --project=docs docs/make.jl                # Documenter site, into docs/bu
 julia -e 'using JuliaFormatter; format(".")'     # .JuliaFormatter.toml
 ```
 
-CI tests Julia 1.10 and 1. The default branch is `master`. The docs are deployed by DeployPage.yml with GitHub Pages
+CI tests Julia 1.10 and 1. Since 2026-11-14 CI pins 1.13.3 instead of 1: Enzyme aborts on Julia 1.13.4 ("unsupported tag julia.gc_alloc_ptr_offsets"); the local Julia is 1.13.4, so the Enzyme tests need `juliaup add 1.13.3` and `julia +1.13.3` until Enzyme supports it, then put '1' back. The default branch is `master`. The docs are deployed by DeployPage.yml with GitHub Pages
 from Actions (no gh-pages branch).
 
 ## Architecture
