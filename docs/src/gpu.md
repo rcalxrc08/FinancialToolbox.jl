@@ -1,6 +1,6 @@
 ```@raw html
 <div class="fc-page-head">
-<p class="fc-kicker"><span>Guide 04</span> One kernel per broadcast</p>
+<p class="fc-kicker"><span>Guide 05</span> One kernel per broadcast</p>
 ```
 
 # GPU and calibration

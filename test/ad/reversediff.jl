@@ -14,9 +14,13 @@ using ReverseDiff, ForwardDiff
         "blkprice" => (x -> blkprice(x...), x1[1:5], x2[1:5]),
         "blsimpv call" => (x -> blsimpv(x...), [x1[1:4]; p(x1, true); x1[6]], [x2[1:4]; p(x2, true); x2[6]]),
         "blsimpv put" => (x -> blsimpv(x..., false), [x1[1:4]; p(x1, false); x1[6]], [x2[1:4]; p(x2, false); x2[6]]),
+        # generic code: max and min of the strike and the barrier are recorded as instructions too, a tape recorded
+        # at one side of the barrier is evaluated at the other
+        "blsdownout call" => (x -> blsdownout(x...), [100.0, 110.0, 0.08, 1.0, 0.25, 0.04, 95.0], [100.0, 90.0, 0.03, 2.0, 0.3, 0.0, 92.0]),
+        "blsupout put" => (x -> blsupout(x..., false), [100.0, 90.0, 0.08, 1.0, 0.25, 0.04, 105.0], [100.0, 110.0, 0.03, 2.0, 0.3, 0.0, 107.0]),
         "blkimpv" => (x -> blkimpv(x...), [x1[1:4]; blkprice(x1[1:5]...)], [x2[1:4]; blkprice(x2[1:5]...)]),
         # only some inputs tracked
-        "blsimpv, spot and price" => (y -> blsimpv(y[1], 95.0, 0.02, 1.2, y[2], 0.01), [100.0, p(x1, true)], [105.0, blsprice(105.0, 95.0, 0.02, 1.2, 0.25, 0.01)]),
+        "blsimpv, spot and price" => (y -> blsimpv(y[1], 95.0, 0.02, 1.2, y[2], 0.01), [100.0, p(x1, true)], [105.0, blsprice(105.0, 95.0, 0.02, 1.2, 0.25, 0.01)])
     )
     @testset "$name" for (name, (f, a, b)) in cases
         g_a, g_b = ForwardDiff.gradient(f, a), ForwardDiff.gradient(f, b)

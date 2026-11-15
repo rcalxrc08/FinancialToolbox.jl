@@ -10,6 +10,7 @@ It currently contains the following functions:
 
 - blsprice : Black & Scholes Price for European Options.
 - blsbin   : Black & Scholes Price for Binary European Options.
+- blsdownout, blsdownin, blsupout, blsupin : Black & Scholes Price for Barrier Options (continuous monitoring, no rebate).
 - blkprice : Black Price for European Options.
 - blsdelta : Black & Scholes Delta sensitivity for European Options.
 - blsgamma : Black & Scholes Gamma sensitivity for European Options.
@@ -30,6 +31,10 @@ It also contains some functions that could be useful for the Dates Management:
 - yearfrac : fraction of years between two Dates (currently only the first seven convention of Matlab are supported).
 - daysact  : number of days between two Dates.
 - fromExcelNumberToDate : conversion of an Excel serial number to a Date.
+
+The barrier options are combinations of `blsprice` and `blsbin` by the reflection principle, with no branches on the
+type of the option (reverse mode AD records no control flow). They are the references of the barrier options of
+[FinancialMonteCarlo.jl](https://github.com/rcalxrc08/FinancialMonteCarlo.jl).
 
 ## Supported number types and automatic differentiation
 Every function is generic in the number type:
@@ -88,6 +93,14 @@ Price=blsprice(spot,K,r,T,σ,d)
 #Check the Result
 Volatility=blsimpv(spot,K,r,T,Price,d)
 #Volatility=0.20000000000000002
+```
+A down-and-out call with barrier 8, and its parity with the down-and-in call:
+```Julia
+H = 8.0
+Price_out = blsdownout(spot, K, r, T, σ, d, H)
+Price_in = blsdownin(spot, K, r, T, σ, d, H)
+Price_out + Price_in ≈ blsprice(spot, K, r, T, σ, d)
+#true
 ```
 The gradient of the implied volatility with respect to all the inputs, for instance with Mooncake:
 ```Julia

@@ -1,9 +1,8 @@
+# Day counts with the conventions of the Matlab Financial Toolbox. Integer arithmetic on the day counts (exact), one
+# division at the end: every year fraction is a Float64.
 
-function dayNumber(inDate::Date)
-    return Dates.date2epochdays(inDate)::Integer
-end
-
-const excelcostant = 693959
+# Day 0 of the Excel date system (Windows), December 30, 1899, in the epoch days of Dates
+const EXCEL_EPOCH = 693959
 
 """
     fromExcelNumberToDate(ExcelNumber::Integer)
@@ -20,9 +19,7 @@ julia> fromExcelNumberToDate(45000)
 2023-03-15
 ```
 """
-function fromExcelNumberToDate(num::Integer)::Date
-    return Dates.Dates.epochdays2date(excelcostant + num)
-end
+fromExcelNumberToDate(ExcelNumber::Integer) = Dates.epochdays2date(EXCEL_EPOCH + ExcelNumber)
 
 """
     daysact(Date1::Date, Date2::Date)
@@ -41,18 +38,73 @@ julia> daysact(Date(1996, 10, 12), Date(1998, 1, 10))
 455
 ```
 """
-function daysact(Date1::Date, Date2::Date)::Integer
-    D1 = dayNumber(Date1)
-    D2 = dayNumber(Date2)
-    dayCount = D2 - D1
-    return dayCount
+daysact(Date1::Date, Date2::Date) = Dates.value(Date2 - Date1)
+
+is_last_of_february(date::Date) = Dates.month(date) == 2 && Dates.day(date) == Dates.daysinmonth(date)
+
+# Days between (y1, m1, d1) and (y2, m2, d2) with months of 30 days and years of 360
+days_30_360(y1, m1, d1, y2, m2, d2) = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)
+
+# Days of a non-leap year before the first of each month (ACT/365 JPN ignores February 29)
+const DAYS_BEFORE_MONTH = (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)
+
+# ACT/ACT: actual days over the days of the year starting at the start date (February 29 to March 1)
+function year_fraction_act_act(startDate::Date, endDate::Date)
+    y1, m1, d1 = Dates.yearmonthday(startDate)
+    anniversary = m1 == 2 && d1 == 29 ? Date(y1 + 1, 3, 1) : Date(y1 + 1, m1, d1)
+    return daysact(startDate, endDate) / daysact(startDate, anniversary)
 end
 
-function isLastOfFebruary(inDate::Date)::Bool
-    return (Dates.isleapyear(Dates.year(inDate)) && (Dates.day(inDate) == 29) && (Dates.month(inDate) == 2)) || ((!Dates.isleapyear(Dates.year(inDate))) && (Dates.day(inDate) == 28) && (Dates.month(inDate) == 2))
+# The 30/360 conventions differ only by the adjustment of the days of the month
+function days_30_360_sia(startDate::Date, endDate::Date)
+    y1, m1, d1 = Dates.yearmonthday(startDate)
+    y2, m2, d2 = Dates.yearmonthday(endDate)
+    start_last_of_february = is_last_of_february(startDate)
+    if start_last_of_february && is_last_of_february(endDate)
+        d2 = 30
+    end
+    if start_last_of_february || d1 == 31
+        d1 = 30
+    end
+    if d1 == 30 && d2 == 31
+        d2 = 30
+    end
+    return days_30_360(y1, m1, d1, y2, m2, d2)
+end
+function days_30_360_psa(startDate::Date, endDate::Date)
+    y1, m1, d1 = Dates.yearmonthday(startDate)
+    y2, m2, d2 = Dates.yearmonthday(endDate)
+    start_last_of_february = is_last_of_february(startDate)
+    # the end of the month is checked on the day of the start date before its adjustment
+    if (d1 == 30 || start_last_of_february) && d2 == 31
+        d2 = 30
+    end
+    if d1 == 31 || start_last_of_february
+        d1 = 30
+    end
+    return days_30_360(y1, m1, d1, y2, m2, d2)
+end
+function days_30_360_isda(startDate::Date, endDate::Date)
+    y1, m1, d1 = Dates.yearmonthday(startDate)
+    y2, m2, d2 = Dates.yearmonthday(endDate)
+    d1 = min(d1, 30)
+    if d2 == 31 && d1 > 29
+        d2 = 30
+    end
+    return days_30_360(y1, m1, d1, y2, m2, d2)
+end
+function days_30e_360(startDate::Date, endDate::Date)
+    y1, m1, d1 = Dates.yearmonthday(startDate)
+    y2, m2, d2 = Dates.yearmonthday(endDate)
+    return days_30_360(y1, m1, min(d1, 30), y2, m2, min(d2, 30))
+end
+function days_act_365_jpn(startDate::Date, endDate::Date)
+    y1, m1, d1 = Dates.yearmonthday(startDate)
+    y2, m2, d2 = Dates.yearmonthday(endDate)
+    return 365 * (y2 - y1) + DAYS_BEFORE_MONTH[m2] - DAYS_BEFORE_MONTH[m1] + (d2 - d1)
 end
 
-const currMaxImplemented = 7
+const YEARFRAC_MAX_BASIS = 7
 
 """
     yearfrac(Date1::Date, Date2::Date, basis::Integer)
@@ -83,101 +135,20 @@ julia> yearfrac(Date(1996, 10, 12), Date(1998, 1, 10), 1)
 1.2444444444444445
 ```
 """
-function yearfrac(startDate::Date, endDate::Date, convention::Integer)::Real
-    if (convention < 0)
-        error("Negative basis are not defined, check the help")
+function yearfrac(Date1::Date, Date2::Date, basis::Integer)
+    basis < 0 && error("Negative basis are not defined, check the help")
+    basis > YEARFRAC_MAX_BASIS && error("Convention not implemented yet")
+    if Date1 > Date2
+        return -yearfrac(Date2, Date1, basis)
     end
-    if (convention > currMaxImplemented)
-        error("Convention not implemented yet")
-    end
-    if (startDate > endDate)
-        return -yearfrac(endDate, startDate, convention)
-    elseif (startDate == endDate)
-        return 0.0
-    end
-    yearFrac = 0.0
-    y1 = Dates.year(startDate)
-    m1 = Dates.month(startDate)
-    y2 = Dates.year(endDate)
-    m2 = Dates.month(endDate)
-    d1 = Dates.day(startDate)
-    d2 = Dates.day(endDate)
-    if (convention == 0)#(ACT/ACT)
-        Nday = daysact(startDate, endDate)
-        EndOFYear = Date(1)
-        if (isLastOfFebruary(startDate) && (Dates.day(startDate) == 29))
-            EndOFYear = Date(Dates.year(startDate) + 1, 3, 1)
-        else
-            EndOFYear = Date(Dates.year(startDate) + 1, Dates.month(startDate), Dates.day(startDate))
-        end
-        yearFrac = (Nday) / daysact(startDate, EndOFYear)
-    elseif (convention == 1)  #(30/360 SIA)
-        if (isLastOfFebruary(startDate) && isLastOfFebruary(endDate))
-            d2 = 30
-        end
-        if (isLastOfFebruary(startDate) || Dates.day(startDate) == 31)
-            d1 = 30
-        end
-        if (d1 == 30 && d2 == 31)
-            d2 = 30
-        end
-        dy = y2 - y1
-        dm = m2 - m1
-        dd = d2 - d1
-        yearFrac = (360.0 * dy + 30.0 * dm + dd) / 360.0
-    elseif (convention == 2)#(ACT/360)
-        Nday = daysact(startDate, endDate)
-        yearFrac = (Nday) / 360.0
-    elseif (convention == 3)# (ACT/365)
-        Nday = daysact(startDate, endDate)
-        yearFrac = (Nday) / 365.0
-    elseif (convention == 4)# (30/360 PSA)
-        if ((Dates.day(startDate) == 31) || isLastOfFebruary(startDate))
-            d1 = 30
-        end
-        if ((Dates.day(startDate) == 30 || isLastOfFebruary(startDate)) && Dates.day(endDate) == 31)
-            d2 = 30
-        end
-        dy = y2 - y1
-        dm = m2 - m1
-        dd = d2 - d1
-        yearFrac = (360.0 * dy + 30.0 * dm + dd) / 360.0
-
-    elseif (convention == 5)#(30/360 ISDA)
-        y1 = Dates.year(startDate)
-        m1 = Dates.month(startDate)
-        y2 = Dates.year(endDate)
-        m2 = Dates.month(endDate)
-        if (Dates.day(startDate) < 31)
-            d1 = Dates.day(startDate)
-        else
-            d1 = 30
-        end
-        if ((Dates.day(endDate) == 31) && (d1 > 29))
-            d2 = 30
-        else
-            d2 = Dates.day(endDate)
-        end
-        yearFrac = (360.0 * ((y2 - y1)) + 30.0 * ((m2 - m1)) + (d2 - d1)) / 360.0
-
-    elseif (convention == 6)#(30E/360)
-        if (d1 == 31)
-            d1 = 30
-        end
-        if (d2 == 31)
-            d2 = 30
-        end
-        dy = y2 - y1
-        dm = m2 - m1
-        dd = d2 - d1
-        yearFrac = (360.0 * dy + 30.0 * dm + dd) / 360.0
-    elseif (convention == 7)#(ACT/365 JPN)
-        daydistance = [0; 31; 59; 90; 120; 151; 181; 212; 243; 273; 304; 334]
-        dy = y2 - y1
-        dd = d2 - d1
-        dayCount = (365.0 * dy + daydistance[m2] - daydistance[m1] + dd)
-        yearFrac = dayCount / 365.0
-    end
-
-    return yearFrac
+    # zero for every convention (30/360 PSA would adjust the two days of the same date differently)
+    Date1 == Date2 && return 0.0
+    basis == 0 && return year_fraction_act_act(Date1, Date2)
+    basis == 1 && return days_30_360_sia(Date1, Date2) / 360
+    basis == 2 && return daysact(Date1, Date2) / 360
+    basis == 3 && return daysact(Date1, Date2) / 365
+    basis == 4 && return days_30_360_psa(Date1, Date2) / 360
+    basis == 5 && return days_30_360_isda(Date1, Date2) / 360
+    basis == 6 && return days_30e_360(Date1, Date2) / 360
+    return days_act_365_jpn(Date1, Date2) / 365
 end

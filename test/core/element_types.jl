@@ -23,7 +23,7 @@ lifts = (
     "HyperDualNumbers" => x -> HyperDualNumbers.Hyper(x, one(x), one(x), zero(x)),
     "TaylorSeries" => x -> x + Taylor1(Float32, 3),
     # the imaginary part relative to the input, as for the complex step
-    "Complex" => x -> complex(x, 1.0f-3 * x),
+    "Complex" => x -> complex(x, 1.0f-3 * x)
 )
 
 @testset "Element types" begin
@@ -38,6 +38,12 @@ lifts = (
                 args = Any[S0_32, K_32, r_32, T_32, PRICE_32, d_32]
                 args[i] = lift(args[i])
                 @test base_value(blsimpv(args...)) isa Float32
+            end
+            # barrier options: the barrier too (down 90, up 110)
+            for i = 1:7, (f, H) in ((blsdownout, 90.0f0), (blsdownin, 90.0f0), (blsupout, 110.0f0), (blsupin, 110.0f0)), FlagIsCall in (true, false)
+                args = Any[S0_32, K_32, r_32, T_32, σ_32, d_32, H]
+                args[i] = lift(args[i])
+                @test base_value(f(args..., FlagIsCall)) isa Float32
             end
             args = Any[S0_32, K_32, r_32, T_32, σ_32]
             args[5] = lift(args[5])

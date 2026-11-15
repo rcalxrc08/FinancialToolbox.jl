@@ -2,10 +2,16 @@ using IrrationalConstants
 const one_internal = Int8(1)
 const minus_one_internal = Int8(-1)
 const two_internal = Int8(2)
+const minus_two_internal = Int8(-2)
 # ±1 for calls and puts. Declared non differentiable rather than wrapped in @ignore_derivatives at the call site,
 # which costs Zygote tens of microseconds per call.
 call_put_sign(FlagIsCall::Bool) = ifelse(FlagIsCall, one_internal, minus_one_internal)
 ChainRulesCore.@non_differentiable call_put_sign(::Bool)
+# x² and x³ as products: the same values as x^2 and x^3, faster for BigFloat (x^2 is 1.3 times slower, x^3 1.8 times)
+# and DualNumbers (its power is 6 times slower). The TaylorSeries extension specializes square for TaylorN, whose own
+# x^2 is 1.5 times faster than the product.
+square(x) = x * x
+cube(x) = square(x) * x
 # sqrt of the maturity. Plain sqrt; the extensions of DualNumbers and HyperDualNumbers add methods that keep the
 # element type, since their own sqrt promotes Float32 to Float64 (Float64 constants in their derivative rules).
 internal_sqrt(x) = sqrt(x)
@@ -42,7 +48,7 @@ julia> normpdf(0.0)
 ```
 """
 function normpdf(x)
-    return exp(x^2 / (-two_internal)) * invsqrt2π
+    return exp(square(x) / minus_two_internal) * invsqrt2π
 end
 
 """
@@ -115,7 +121,7 @@ function blprice_impl(S0, K, T, σ, FlagIsCall::Bool = true)
     iscall = call_put_sign(FlagIsCall)
     sigma_sqrtT = σ * internal_sqrt(T)
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
-    Price = iscall * (S0 * normcdf(iscall * d1) - K * normcdf(iscall * (d1 - sigma_sqrtT)))
+    Price = iscall * muladd(S0, normcdf(iscall * d1), -K * normcdf(iscall * (d1 - sigma_sqrtT)))
     return Price
 end
 
@@ -128,7 +134,7 @@ function blprice_and_sensitivities(S0, K, T, σ, FlagIsCall::Bool)
     d1 = log(S0 / K) / sigma_sqrtT + sigma_sqrtT / two_internal
     der_S0 = iscall * normcdf(iscall * d1)
     der_K = -iscall * normcdf(iscall * (d1 - sigma_sqrtT))
-    Price = S0 * der_S0 + K * der_K
+    Price = muladd(S0, der_S0, K * der_K)
     vega = S0 * normpdf(d1) * sqrtT
     return Price, der_S0, der_K, vega * σ / (two_internal * T), vega
 end
@@ -145,7 +151,7 @@ end
 
 function ChainRulesCore.frule((_, dS0, dK, dT, dσ, _)::Tuple, ::typeof(blprice_impl), S0, K, T, σ, FlagIsCall::Bool)
     Price, der_S0, der_K, der_T, der_σ = blprice_and_sensitivities(S0, K, T, σ, FlagIsCall)
-    return Price, dS0 * der_S0 + dK * der_K + dT * der_T + dσ * der_σ
+    return Price, muladd(dS0, der_S0, muladd(dK, der_K, muladd(dT, der_T, dσ * der_σ)))
 end
 
 function blprice(S0, K, T, σ, FlagIsCall::Bool = true)
@@ -169,10 +175,10 @@ Price of a European option in the Black and Scholes model.
 # Example
 ```jldoctest
 julia> blsprice(10.0, 10.0, 0.01, 2.0, 0.2, 0.01)
-1.102360010773319
+1.1023600107733187
 
 julia> blsprice(10.0, 10.0, 0.01, 2.0, 0.2, 0.01, false)
-1.102360010773319
+1.1023600107733194
 ```
 
 See also [`blkprice`](@ref), [`blsimpv`](@ref).
@@ -199,7 +205,7 @@ Price of a European option on a forward in the Black model.
 # Example
 ```jldoctest
 julia> blkprice(10.0, 10.0, 0.01, 2.0, 0.2)
-1.102360010773319
+1.1023600107733187
 ```
 
 See also [`blsprice`](@ref), [`blkimpv`](@ref).
@@ -349,7 +355,7 @@ function blstheta(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     t1 = r * K * exp(-rt)
     t2 = d * S0_adj
     iscall = call_put_sign(FlagIsCall)
-    Θ = shift - iscall * (t1 * normcdf(iscall * d2) - t2 * normcdf(iscall * d1))
+    Θ = muladd(iscall, muladd(t2, normcdf(iscall * d1), -t1 * normcdf(iscall * d2)), shift)
     return Θ
 end
 
@@ -386,7 +392,7 @@ function blslambda(S0, K, r, T, σ, d, FlagIsCall::Bool = true)
     iscall = call_put_sign(FlagIsCall)
     Δ = exp(dt) * normcdf(iscall * d1) * iscall
     Δ_adj = S0 * Δ
-    Price = Δ_adj - iscall * K * exp(-rt) * normcdf(iscall * d2)
+    Price = muladd(-iscall * K, exp(-rt) * normcdf(iscall * d2), Δ_adj)
     Λ = Δ_adj / Price
     return Λ
 end
@@ -416,7 +422,9 @@ function blcheck(S0, K, T, σ)
     check_positive(σ, "Volatility must be positive")
     return
 end
-# Domain checks only (see call_put_sign)
+# Domain checks only (see call_put_sign). check_positive too, when called directly (barrier options): otherwise Zygote
+# differentiates through it, and the gradients of its arguments become type unstable (15 times slower)
+ChainRulesCore.@non_differentiable check_positive(::Any, ::String)
 ChainRulesCore.@non_differentiable blcheck(::Any, ::Any, ::Any)
 ChainRulesCore.@non_differentiable blcheck(::Any, ::Any, ::Any, ::Any)
 ##	ADDITIONAL Functions

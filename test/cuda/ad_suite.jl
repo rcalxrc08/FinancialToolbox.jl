@@ -61,6 +61,16 @@ function test_gpu_ad(element_types)
                 @test dP isa CuArray
                 @test Array(dP) ≈ ref_P rtol = rtol
             end
+            @testset "Barrier options" begin
+                # generic code (no rules of its own): the derivative of a loss with respect to σ and to the barrier
+                loss_barrier(s, H, K) = sum(blsdownout.(S0, K, r, T, s, d, H) .+ blsupin.(S0, K, r, T, s, d, H + 50, false))
+                ref_s = ForwardDiff.derivative(s -> loss_barrier(s, Tp(90), strikes), σ)
+                ref_H = ForwardDiff.derivative(h -> loss_barrier(σ, h, strikes), Tp(90))
+                @test ForwardDiff.derivative(s -> loss_barrier(s, Tp(90), K), σ) ≈ ref_s rtol = rtol
+                @test collect(Zygote.gradient((s, h) -> loss_barrier(s, h, K), σ, Tp(90))) ≈ [ref_s, ref_H] rtol = rtol
+                cache = Mooncake.prepare_gradient_cache(loss_barrier, σ, Tp(90), K)
+                @test collect(Mooncake.value_and_gradient!!(cache, loss_barrier, σ, Tp(90), K)[2][2:3]) ≈ [ref_s, ref_H] rtol = rtol
+            end
             @testset "Mooncake" begin
                 cache = Mooncake.prepare_gradient_cache(loss_σ, σ, K, P)
                 @test Mooncake.value_and_gradient!!(cache, loss_σ, σ, K, P)[2][2] ≈ ref_σ rtol = rtol

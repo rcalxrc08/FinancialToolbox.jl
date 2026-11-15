@@ -19,11 +19,15 @@ const toll = 1e-14
     end
 end
 
+@testset "Prices" begin
+    # European and barrier options, against the shared references (DERIVATIVE_CASES)
+    partial(f, x, i, order) = TaylorDiff.derivative(y -> f(ntuple(j -> j == i ? y : x[j], length(x))...), x[i], Val(order))
+    test_derivative_cases((f, x) -> ntuple(i -> partial(f, x, i, 1), length(x)), gamma = (f, x) -> partial(f, x, 1, 2))
+end
+
 @testset "Greeks and implied volatility" begin
     (; S0, K, r, T, σ, d) = REFERENCE
     g = closed_form_greeks(true)
-    @test abs(TaylorDiff.derivative(s -> blsprice(s, K, r, T, σ, d), S0, Val(1)) - g.delta) < toll
-    @test abs(TaylorDiff.derivative(s -> blsprice(s, K, r, T, σ, d), S0, Val(2)) - g.gamma) < toll
     @test abs(TaylorDiff.derivative(p -> blsimpv(S0, K, r, T, p, d), g.price, Val(1)) - 1 / g.vega) < toll
     # the implied volatility of blsprice(S0 series, σ series) is the σ series
     spot_t = TaylorScalar(S0, (1.0, 0.0, 0.0, 0.0, 0.0, 0.0))

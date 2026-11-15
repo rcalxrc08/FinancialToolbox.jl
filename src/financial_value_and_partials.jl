@@ -11,7 +11,7 @@ function value_and_partials(::typeof(blsprice), S0, K, r, T, σ, d, FlagIsCall)
     B, ∂F, ∂K, ∂T, ∂σ = blprice_and_sensitivities(F, K, T, σ, FlagIsCall)
     Price = B * inv_cv
     F∂F = F * ∂F * inv_cv
-    return Price, (F∂F / S0, ∂K * inv_cv, T * (F∂F - Price), muladd(r - d, F∂F, ∂T * inv_cv) - r * Price, ∂σ * inv_cv, -T * F∂F)
+    return Price, (F∂F / S0, ∂K * inv_cv, T * (F∂F - Price), muladd(-r, Price, muladd(r - d, F∂F, ∂T * inv_cv)), ∂σ * inv_cv, -T * F∂F)
 end
 
 # blkprice = blprice(F0, K, T, σ) / cv with cv = e^(r T)
@@ -32,7 +32,7 @@ function value_and_partials(::typeof(blsimpv), S0, K, r, T, Price, d, (FlagIsCal
     ∂F, ∂K, ∂T, ∂price = blimpv_sensitivities(F, K, T, σ, FlagIsCall)
     F∂F = F * ∂F
     P∂P = adj_price * ∂price
-    return σ, (F∂F / S0, ∂K, T * (F∂F + P∂P), ∂T + muladd(r - d, F∂F, r * P∂P), ∂price * cv, -T * F∂F)
+    return σ, (F∂F / S0, ∂K, T * (F∂F + P∂P), muladd(r - d, F∂F, muladd(r, P∂P, ∂T)), ∂price * cv, -T * F∂F)
 end
 
 # blkimpv = blimpv(F0, K, T, Price e^(r T))

@@ -10,6 +10,8 @@ const BENCHMARKED_FUNCTIONS = (
     "blsprice" => (blsprice, (S0, K, r, T, σ, d)),
     "blsvega" => (blsvega, (S0, K, r, T, σ, d)),
     "blsimpv" => (blsimpv, (S0, K, r, T, blsprice(S0, K, r, T, σ, d), d)),
+    # generic code over blsprice and blsbin, branch free: a branch on the flag made the Zygote gradient 20 times slower
+    "blsdownout" => (blsdownout, (S0, K, r, T, σ, d, 90.0))
 )
 
 # Inputs: Float64, Float32 and Float16 values, the derivative with respect to S0 with DualNumbers, gradients with

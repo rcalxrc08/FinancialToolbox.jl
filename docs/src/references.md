@@ -23,6 +23,10 @@
   637–654, 1973. The Black and Scholes model ([Pricing and Greeks](pricing.md)).
 - F. Black, *The Pricing of Commodity Contracts*, Journal of Financial Economics 3(1–2), 167–179, 1976. The Black model,
   options on forwards.
+- R. C. Merton, *Theory of Rational Option Pricing*, Bell Journal of Economics and Management Science 4(1), 141–183,
+  1973. The down-and-out call ([Barrier options](barriers.md)).
+- E. Reiner and M. Rubinstein, *Breaking Down the Barriers*, Risk 4(8), 28–35, 1991. The eight standard barrier
+  options, by the reflection principle.
 
 ## Implied volatility
 

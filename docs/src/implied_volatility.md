@@ -1,6 +1,6 @@
 ```@raw html
 <div class="fc-page-head">
-<p class="fc-kicker"><span>Guide 02</span> Let&#x27;s Be Rational, to machine precision</p>
+<p class="fc-kicker"><span>Guide 03</span> Let&#x27;s Be Rational, to machine precision</p>
 ```
 
 # Implied volatility

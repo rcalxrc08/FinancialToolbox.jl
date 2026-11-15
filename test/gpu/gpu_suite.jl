@@ -24,6 +24,10 @@ function test_gpu(to_device, element_types)
                     @test Array(f.(S0_device, K, r, T, σ, d, FlagIsCall)) ≈ f.(S0, strikes, r, T, σ, d, FlagIsCall) rtol = rtol
                 end
                 @test Array(blsimpv.(S0_device, K, r, T, price, d, FlagIsCall)) ≈ fill(σ, n) rtol = rtol
+                # barrier options, strikes on both sides of the barriers
+                for (f, H) in ((blsdownout, Tp(90)), (blsdownin, Tp(90)), (blsupout, Tp(120)), (blsupin, Tp(120)))
+                    @test Array(f.(S0_device, K, r, T, σ, d, H, FlagIsCall)) ≈ f.(S0, strikes, r, T, σ, d, H, FlagIsCall) rtol = rtol atol = rtol * S0
+                end
                 price_black = blkprice.(S0_device, K, r, T, σ, FlagIsCall)
                 @test Array(price_black) ≈ blkprice.(S0, strikes, r, T, σ, FlagIsCall) rtol = rtol
                 @test Array(blkimpv.(S0_device, K, r, T, price_black, FlagIsCall)) ≈ fill(σ, n) rtol = rtol

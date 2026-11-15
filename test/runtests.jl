@@ -5,8 +5,9 @@
 using Test
 
 const TEST_FILES = [
-    # prices, Greeks, implied volatility, dates
+    # prices, Greeks, barrier options, implied volatility, dates
     "core/pricing.jl",
+    "core/barrier.jl",
     "core/implied_volatility.jl",
     "core/implied_volatility_dataset.jl",
     "core/dates.jl",
@@ -25,7 +26,7 @@ const TEST_FILES = [
     "ad/enzyme.jl",
     # GPU code path on JLArrays, package quality
     "gpu/jlarrays.jl",
-    "aqua.jl",
+    "aqua.jl"
 ]
 
 function run_test_file(file)

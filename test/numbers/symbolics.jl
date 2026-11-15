@@ -37,3 +37,17 @@ substitute_value(ex, vals) = Symbolics.unwrap_const(Symbolics.unwrap(substitute(
         @test isequal(Symbolics.unwrap_const(Symbolics.@derivative_rule(FinancialToolbox.blimpv(S0_s, K_s, T_s, price_s, true, 1e-14, 4), i)), 0)
     end
 end
+
+# Symbolic prices of the European and barrier options, derivatives against the shared references (DERIVATIVE_CASES):
+# one case per function and type of option, the strike on the side of the barrier where both terms of the images matter
+@variables x_s[1:7]
+@testset "Symbolic derivatives of the prices" begin
+    cases = filter(c -> c.f === blsprice || c.x[2] == (c.x[7] < c.x[1] ? 110.0 : 90.0), DERIVATIVE_CASES)
+    function gradient(f, x)
+        vars = collect(x_s[1:length(x)])
+        price = f(vars...)
+        vals = Dict(zip(vars, x))
+        return ntuple(i -> substitute_value(Symbolics.derivative(price, vars[i]; simplify = false), vals), length(x))
+    end
+    test_derivative_cases(gradient; cases = cases, rtol = 1e-10, atol = 1e-10)
+end

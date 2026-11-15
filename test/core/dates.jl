@@ -3,7 +3,7 @@ include(joinpath(@__DIR__, "..", "setup.jl"))
 using Dates
 
 function yearFractionTester(StartDate, EndDate, MatlabResults, TestToll = 1e-14)
-    for i = 0:FinancialToolbox.currMaxImplemented
+    for i = 0:FinancialToolbox.YEARFRAC_MAX_BASIS
         @test(abs(MatlabResults[i+1] - yearfrac(StartDate, EndDate, i)) < TestToll)
     end
     return
@@ -40,7 +40,7 @@ EndDate6 = Date(1996, 12, 30);
 MatlabResults6 = [4.75342465753425; 4.75000000000000; 4.81944444444445; 4.75342465753425; 4.75000000000000; 4.75000000000000; 4.75000000000000; 4.75068493150685; 4.75342465753425; 4.81944444444445; 4.75342465753425; 4.75000000000000; 4.74863387978144]
 yearFractionTester(StartDate4, EndDate6, MatlabResults6);
 
-@test_throws(ErrorException, yearfrac(StartDate, EndDate3, FinancialToolbox.currMaxImplemented + 1));
+@test_throws(ErrorException, yearfrac(StartDate, EndDate3, FinancialToolbox.YEARFRAC_MAX_BASIS + 1));
 @test_throws(ErrorException, yearfrac(StartDate, EndDate3, -1));
 
 @test(daysact(Date(1992, 12, 14), Date(1992, 12, 13)) == -1)

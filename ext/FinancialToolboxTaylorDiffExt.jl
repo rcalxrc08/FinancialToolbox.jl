@@ -22,9 +22,19 @@ function FinancialToolbox.normcdf(a::TaylorScalar{T, P}) where {T, P}
     q = Vector{typeof(av[1] * p0)}(undef, P + 1)
     c[1], p[1], q[1] = c0, p0, av[1] * p0
     for k = 1:P
-        c[k+1] = sum(j * av[j+1] * p[k-j+1] for j = 1:k) / k
-        p[k+1] = -sum(j * av[j+1] * q[k-j+1] for j = 1:k) / k
-        q[k+1] = sum(av[i+1] * p[k-i+1] for i = 0:k)
+        ck = zero(c0)
+        pk = zero(p0)
+        for j = 1:k
+            ck = muladd(j * av[j+1], p[k-j+1], ck)
+            pk = muladd(j * av[j+1], q[k-j+1], pk)
+        end
+        c[k+1] = ck / k
+        p[k+1] = -pk / k
+        qk = zero(q[1])
+        for i = 0:k
+            qk = muladd(av[i+1], p[k-i+1], qk)
+        end
+        q[k+1] = qk
     end
     return TaylorScalar(c[1], ntuple(i -> c[i+1], Val(P)))
 end

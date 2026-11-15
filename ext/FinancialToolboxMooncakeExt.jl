@@ -3,7 +3,7 @@ module FinancialToolboxMooncakeExt
 using FinancialToolbox
 using FinancialToolbox: blimpv, blprice_diff_impl, blvega_impl
 using Mooncake
-using Mooncake: @from_chainrules, DefaultCtx
+using Mooncake: @from_chainrules, @zero_adjoint, DefaultCtx
 
 # frule!! and rrule!! are derived from the ChainRulesCore rules of blimpv
 @from_chainrules DefaultCtx Tuple{
@@ -16,6 +16,13 @@ using Mooncake: @from_chainrules, DefaultCtx
     Base.IEEEFloat,
     Int,
 }
+
+# Domain checks and the sign of the option: no derivatives. Mooncake does not read the @non_differentiable of
+# ChainRulesCore, and differentiating through them made the gradient of blsdownout twice as slow (4.2 μs, 1.9 μs)
+@zero_adjoint DefaultCtx Tuple{typeof(FinancialToolbox.check_positive), Any, String}
+@zero_adjoint DefaultCtx Tuple{typeof(FinancialToolbox.blcheck), Any, Any, Any}
+@zero_adjoint DefaultCtx Tuple{typeof(FinancialToolbox.blcheck), Any, Any, Any, Any}
+@zero_adjoint DefaultCtx Tuple{typeof(FinancialToolbox.call_put_sign), Bool}
 
 # Same for the Black formula, whose derivatives are known in closed form
 @from_chainrules DefaultCtx Tuple{typeof(FinancialToolbox.blprice_impl), Base.IEEEFloat, Base.IEEEFloat, Base.IEEEFloat, Base.IEEEFloat, Bool}

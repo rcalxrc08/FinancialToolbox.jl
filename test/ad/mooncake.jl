@@ -6,8 +6,15 @@ import DifferentiationInterface as DI
 
 const S0, K, r, T, σ, d = 100.0, 100.0, 0.02, 1.0, 0.2, 0.01
 
-for sig in (Tuple{typeof(FinancialToolbox.blimpv),Float64,Float64,Float64,Float64,Bool,Float64,Int}, Tuple{typeof(FinancialToolbox.blprice_impl),Float64,Float64,Float64,Float64,Bool})
+for sig in (Tuple{typeof(FinancialToolbox.blimpv), Float64, Float64, Float64, Float64, Bool, Float64, Int}, Tuple{typeof(FinancialToolbox.blprice_impl), Float64, Float64, Float64, Float64, Bool})
     @test Mooncake.is_primitive(Mooncake.DefaultCtx, Mooncake.ReverseMode, sig, Base.get_world_counter())
+end
+
+# European and barrier options, against the shared references
+@testset "Derivative cases" begin
+    for backend in (DI.AutoMooncake(), DI.AutoMooncakeForward())
+        test_derivative_cases((f, x) -> Tuple(DI.gradient(y -> f(y...), backend, collect(x))))
+    end
 end
 
 @testset "Gradients" begin
@@ -45,11 +52,11 @@ if isdefined(Mooncake, :Nfwd) && isdefined(Mooncake.Nfwd, :NDual)
         K = 95.0
         price = blsprice(S0, K, r, T, σ, d)
         vega = blsvega(S0, K, r, T, σ, d)
-        y = blsimpv(S0, K, r, T, Mooncake.Nfwd.NDual{Float64,2}(price, (1.0, 2.0)), d)
+        y = blsimpv(S0, K, r, T, Mooncake.Nfwd.NDual{Float64, 2}(price, (1.0, 2.0)), d)
         @test y.value ≈ σ
         @test y.partials[1] ≈ inv(vega)
         @test y.partials[2] ≈ 2 * inv(vega)
-        y = blsimpv(Mooncake.Nfwd.NDual{Float64,1}(S0, (1.0,)), K, r, T, price, d)
+        y = blsimpv(Mooncake.Nfwd.NDual{Float64, 1}(S0, (1.0,)), K, r, T, price, d)
         @test y.partials[1] ≈ ForwardDiff.derivative(s -> blsimpv(s, K, r, T, price, d), S0)
     end
 end

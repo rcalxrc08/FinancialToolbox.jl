@@ -8,13 +8,11 @@ taylorn_variables(names; order) = isdefined(TaylorSeries, :variables!) ? TaylorS
 const x_n, y_n = taylorn_variables("x y", order = 5)
 
 @testset "Prices" begin
+    # European and barrier options, against the shared references (DERIVATIVE_CASES)
+    test_derivative_cases((f, x) -> ntuple(i -> f(seeded(y -> y + Taylor1(Float64, 1), x, i)...)[1], length(x)), gamma = (f, x) -> 2 * f(seeded(y -> y + Taylor1(Float64, 2), x, 1)...)[2])
     (; S0, K, r, T, σ, d) = REFERENCE
     toll = 1e-12
     g = closed_form_greeks(true)
-    price = blsprice(S0 + Taylor1(Float64, 4), K, r, T, σ, d)
-    @test abs(price[0] - MATLAB.call.price) < toll
-    @test abs(price[1] - g.delta) < toll
-    @test abs(2 * price[2] - g.gamma) < toll
     # TaylorN in S0 and σ: price, delta, gamma, vega, vanna
     price = blsprice(S0 + x_n, K, r, T, σ + y_n, d)
     @test abs(price[0][1] - MATLAB.call.price) < toll

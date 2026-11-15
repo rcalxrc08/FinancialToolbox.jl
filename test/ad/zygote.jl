@@ -3,6 +3,11 @@
 include(joinpath(@__DIR__, "..", "setup.jl"))
 using Zygote, ForwardDiff, ChainRulesCore
 
+# European and barrier options (generic code down to the rules of blprice_impl), against the shared references
+@testset "Derivative cases" begin
+    test_derivative_cases((f, x) -> Zygote.gradient(f, x...))
+end
+
 @testset "Zygote" begin
     x = [100.0, 95.0, 0.02, 1.5, 0.25, 0.01]
     for FlagIsCall in (true, false)

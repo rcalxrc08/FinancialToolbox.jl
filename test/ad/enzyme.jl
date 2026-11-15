@@ -7,6 +7,15 @@ const S0, K, r, T, σ, d = 100.0, 95.0, 0.02, 1.2, 0.25, 0.01
 
 @test Base.get_extension(FinancialToolbox, :FinancialToolboxEnzymeCoreExt) !== nothing
 
+# European and barrier options, differentiated by Enzyme itself, against the shared references. A function barrier:
+# the closure of each case (it captures the case, with its Float64 fields) is passed as Const with a concrete type,
+# otherwise Enzyme reaches it through a dynamic call and asks for a shadow of it
+enzyme_gradient(mode, f, x) = Enzyme.gradient(mode, Const(f), x...)
+@testset "Derivative cases" begin
+    test_derivative_cases((f, x) -> enzyme_gradient(Enzyme.Reverse, f, x))
+    test_derivative_cases((f, x) -> enzyme_gradient(Enzyme.Forward, f, x))
+end
+
 for FlagIsCall in (true, false)
     price = blsprice(S0, K, r, T, σ, d, FlagIsCall)
     x = [S0, K, r, T, price, d]

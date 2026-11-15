@@ -7,16 +7,8 @@ const h = 1e-15
 complex_step(f, x) = imag(f(complex(x, h))) / h
 
 @testset "Complex step sensitivities" begin
-    (; S0, K, r, T, σ, d) = REFERENCE
-    toll = 1e-13
-    for FlagIsCall in (true, false)
-        g = closed_form_greeks(FlagIsCall)
-        @test abs(complex_step(x -> blsprice(x, K, r, T, σ, d, FlagIsCall), S0) - g.delta) < toll
-        @test abs(complex_step(x -> blsprice(S0, K, x, T, σ, d, FlagIsCall), r) - g.rho) < toll
-        @test abs(-complex_step(x -> blsprice(S0, K, r, x, σ, d, FlagIsCall), T) - g.theta) < toll
-        @test abs(complex_step(x -> blsprice(S0, K, r, T, x, d, FlagIsCall), σ) - g.vega) < toll
-        @test abs(complex_step(x -> blsprice(S0, K, r, T, σ, x, FlagIsCall), d) - g.psi) < toll
-    end
+    # prices of the European and barrier options, against the shared references (DERIVATIVE_CASES)
+    test_derivative_cases((f, x) -> ntuple(i -> imag(f(seeded(y -> complex(y, h), x, i)...)) / h, length(x)))
 end
 
 @testset "Input validation" begin

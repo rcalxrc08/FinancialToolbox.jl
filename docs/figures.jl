@@ -136,7 +136,38 @@ function implied_volatility_derivatives_figure(theme)
     return plot(plots...; layout = (2, 3), size = (900, 560), plot_title = "Derivatives of the implied volatility of a call, S0 = 100, σ = 20%, T = 1", plot_titlefontsize = 12, plot_titlefontcolor = theme.text, background_color = :transparent)
 end
 
+# Barrier options against the spot: the knock-out, the knock-in and the European option (their sum) for a down barrier
+# (call) and an up barrier (put), and the deltas from ForwardDiff through the generic code. The knock-outs vanish on the
+# barrier, the knock-ins become the European option there.
+function barrier_figure(theme)
+    panels = (("Down barrier H = 90, call", range(90.0, 150.0, length = 181), 90.0, true, blsdownout, blsdownin), ("Up barrier H = 110, put", range(50.0, 110.0, length = 181), 110.0, false, blsupout, blsupin))
+    marked(spots) = 1:20:length(spots)
+    plots = []
+    for (title, spots, H, iscall, knock_out, knock_in) in panels
+        spots = collect(spots)[2:(end-1)] # strictly on the alive side
+        curves = ["knock-out" => s -> knock_out(s, K, r, T, σ, d, H, iscall), "knock-in" => s -> knock_in(s, K, r, T, σ, d, H, iscall), "European" => s -> blsprice(s, K, r, T, σ, d, iscall)]
+        for (row, transform) in enumerate((f -> f, f -> (s -> ForwardDiff.derivative(f, s))))
+            p = base_plot(theme; title = row == 1 ? title : "Delta", xlabel = row == 2 ? "spot" : "", legend = row == 1 ? (iscall ? :topleft : :topright) : false, left_margin = 2Plots.mm, bottom_margin = 2Plots.mm)
+            vline!(p, [H]; color = theme.muted, linestyle = :dash, label = nothing)
+            lo, hi = Inf, -Inf
+            for (j, (label, f)) in enumerate(curves)
+                values = transform(f).(spots)
+                lo, hi = min(lo, minimum(values)), max(hi, maximum(values))
+                plot!(p, spots, values; label = nothing, color = theme.series[j], linewidth = 2)
+                scatter!(p, spots[marked(spots)], values[marked(spots)]; label = label, color = theme.series[j], marker = MARKERS[j], markersize = 5, markerstrokewidth = 0)
+            end
+            # the vertical line of the barrier would stretch the vertical axis
+            pad = (hi - lo) / 20
+            ylims!(p, lo - pad, hi + pad)
+            push!(plots, p)
+        end
+    end
+    # columns: down, up; rows: price, delta
+    return plot(plots[1], plots[3], plots[2], plots[4]; layout = (2, 2), size = (900, 620), plot_title = "Barrier options, K = 100, r = 2%, d = 1%, T = 1, σ = 20%", plot_titlefontsize = 12, plot_titlefontcolor = theme.text, background_color = :transparent)
+end
+
 save_themes(greeks_figure, "greeks")
+save_themes(barrier_figure, "barriers")
 save_themes(accuracy_figure, "accuracy")
 save_themes(fractal_figure, "fractal")
 save_themes(implied_volatility_derivatives_figure, "impv_derivatives")

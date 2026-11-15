@@ -9,11 +9,12 @@
 ```@raw html
 <nav class="fc-toc">
 <a href="#Pricing"><b>01</b>Pricing</a>
-<a href="#Sensitivities"><b>02</b>Sensitivities</a>
-<a href="#Implied-volatility"><b>03</b>Implied volatility</a>
-<a href="#Dates"><b>04</b>Dates</a>
-<a href="#Gaussian-distribution"><b>05</b>Gaussian distribution</a>
-<a href="#Index"><b>06</b>Index</a>
+<a href="#Barrier-options"><b>02</b>Barrier options</a>
+<a href="#Sensitivities"><b>03</b>Sensitivities</a>
+<a href="#Implied-volatility"><b>04</b>Implied volatility</a>
+<a href="#Dates"><b>05</b>Dates</a>
+<a href="#Gaussian-distribution"><b>06</b>Gaussian distribution</a>
+<a href="#Index"><b>07</b>Index</a>
 </nav>
 </div>
 ```
@@ -23,6 +24,15 @@
 blsprice
 blkprice
 blsbin
+```
+
+## Barrier options
+
+```@docs
+blsdownout
+blsdownin
+blsupout
+blsupin
 ```
 
 ## Sensitivities

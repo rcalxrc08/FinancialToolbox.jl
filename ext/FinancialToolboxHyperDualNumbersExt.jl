@@ -10,14 +10,14 @@ import FinancialToolbox: blimpv_impl, normcdf, normpdf, internal_sqrt
 function normcdf(x::Hyper)
     a = HyperDualNumbers.value(x)
     φ = normpdf(a)
-    return Hyper(normcdf(a), φ * eps1(x), φ * eps2(x), φ * (eps1eps2(x) - a * eps1(x) * eps2(x)))
+    return Hyper(normcdf(a), φ * eps1(x), φ * eps2(x), φ * muladd(-a * eps1(x), eps2(x), eps1eps2(x)))
 end
 # sqrt' = 1 / (2 √a), sqrt'' = -1 / (4 a √a)
 function internal_sqrt(x::Hyper)
     a = HyperDualNumbers.value(x)
     root = sqrt(a)
     d1 = inv(2 * root)
-    return Hyper(root, d1 * eps1(x), d1 * eps2(x), d1 * eps1eps2(x) - eps1(x) * eps2(x) / (4 * a * root))
+    return Hyper(root, d1 * eps1(x), d1 * eps2(x), muladd(d1, eps1eps2(x), -eps1(x) * eps2(x) / (4 * a * root)))
 end
 
 function blimpv_impl(::Type{<:Hyper}, S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)

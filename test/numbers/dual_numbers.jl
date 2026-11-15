@@ -1,26 +1,19 @@
-# Forward mode number types: ForwardDiff, DualNumbers and HyperDualNumbers. First derivatives against the closed
-# form sensitivities, the implied volatility (solved on the values, derivatives by the implicit function theorem),
-# second derivatives with HyperDualNumbers.
+# Forward mode number types: ForwardDiff, DualNumbers and HyperDualNumbers. First derivatives of the prices against the
+# shared references (DERIVATIVE_CASES), of blsdelta against the closed form vanna, the implied volatility (solved on
+# the values, derivatives by the implicit function theorem), second derivatives with HyperDualNumbers.
 include(joinpath(@__DIR__, "..", "setup.jl"))
 using ForwardDiff, DualNumbers, HyperDualNumbers
 
 # name => (x -> number seeded with dx = 1, first derivative, value)
-const FORWARD_TYPES = (
-    "ForwardDiff" => (x -> ForwardDiff.Dual(x, one(x)), y -> ForwardDiff.partials(y)[1], ForwardDiff.value),
-    "DualNumbers" => (x -> DualNumbers.Dual(x, one(x)), DualNumbers.epsilon, DualNumbers.value),
-    "HyperDualNumbers" => (x -> HyperDualNumbers.Hyper(x, one(x), one(x), zero(x)), y -> y.epsilon1, y -> y.value),
-)
+const FORWARD_TYPES = ("ForwardDiff" => (x -> ForwardDiff.Dual(x, one(x)), y -> ForwardDiff.partials(y)[1], ForwardDiff.value), "DualNumbers" => (x -> DualNumbers.Dual(x, one(x)), DualNumbers.epsilon, DualNumbers.value), "HyperDualNumbers" => (x -> HyperDualNumbers.Hyper(x, one(x), one(x), zero(x)), y -> y.epsilon1, y -> y.value))
 
 @testset "$name" for (name, (seed, derivative, value)) in FORWARD_TYPES
+    # prices of the European and barrier options, against the shared references
+    test_derivative_cases((f, x) -> ntuple(i -> derivative(f(seeded(seed, x, i)...)), length(x)))
     (; S0, K, r, T, σ, d) = REFERENCE
     toll = 1e-13
     for FlagIsCall in (true, false)
         g = closed_form_greeks(FlagIsCall)
-        @test abs(derivative(blsprice(seed(S0), K, r, T, σ, d, FlagIsCall)) - g.delta) < toll
-        @test abs(derivative(blsprice(S0, K, seed(r), T, σ, d, FlagIsCall)) - g.rho) < toll
-        @test abs(-derivative(blsprice(S0, K, r, seed(T), σ, d, FlagIsCall)) - g.theta) < toll
-        @test abs(derivative(blsprice(S0, K, r, T, seed(σ), d, FlagIsCall)) - g.vega) < toll
-        @test abs(derivative(blsprice(S0, K, r, T, σ, seed(d), FlagIsCall)) - g.psi) < toll
         @test abs(derivative(blsdelta(S0, K, r, T, seed(σ), d, FlagIsCall)) - g.vanna) < toll
         # implied volatility: of a price with the same dependence on S0, σ is constant; dσ/dprice = 1 / vega
         vol = blsimpv(seed(S0), K, r, T, blsprice(seed(S0), K, r, T, σ, d, FlagIsCall), d, FlagIsCall)
@@ -44,6 +37,7 @@ const FORWARD_TYPES = (
 end
 
 @testset "HyperDualNumbers: second order" begin
+    test_derivative_cases(gamma = (f, x) -> f(hyper(x[1], 1.0, 1.0, 0.0), Base.tail(x)...).epsilon12)
     (; S0, K, r, T, σ, d) = REFERENCE
     toll = 1e-13
     S0_h = hyper(S0, 1.0, 1.0, 0.0)
@@ -51,7 +45,6 @@ end
     σ_h = hyper(σ, 1.0, 2.0, 3.0)
     for FlagIsCall in (true, false)
         g = closed_form_greeks(FlagIsCall)
-        @test abs(blsprice(S0_h, K, r, T, σ, d, FlagIsCall).epsilon12 - g.gamma) < toll
         @test abs(blsprice(hyper(S0, 1.0, 0.0, 0.0), K, r, T, hyper(σ, 0.0, 1.0, 0.0), d, FlagIsCall).epsilon12 - g.vanna) < toll
         # the implied volatility recovers σ to the second order
         vol = blsimpv(S0_h, K, r, T, blsprice(S0_h, K, r, T, σ, d, FlagIsCall), d, FlagIsCall)

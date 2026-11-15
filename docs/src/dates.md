@@ -1,6 +1,6 @@
 ```@raw html
 <div class="fc-page-head">
-<p class="fc-kicker"><span>Guide 06</span> Year fractions and day counts</p>
+<p class="fc-kicker"><span>Guide 07</span> Year fractions and day counts</p>
 ```
 
 # Dates

@@ -66,6 +66,8 @@ price_call - price_put ≈ S * exp(-d * T) - K * exp(-r * T)
 blsbin(S, K, r, T, σ, d), blsbin(S, K, r, T, σ, d, false)
 ```
 
+Barrier options are combinations of these two functions, see [Barrier options](barriers.md).
+
 ## Black model
 
 The Black model ([Black](references.md#Option-pricing)) prices options on a forward ``F``:

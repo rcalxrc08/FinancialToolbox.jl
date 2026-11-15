@@ -78,7 +78,7 @@ moneyness, maturity and volatility.
 julia> price = blsprice(10.0, 10.0, 0.01, 2.0, 0.2, 0.01);
 
 julia> blsimpv(10.0, 10.0, 0.01, 2.0, price, 0.01)
-0.20000000000000018
+0.20000000000000015
 ```
 
 See also [`blkimpv`](@ref), [`blsprice`](@ref).
@@ -116,7 +116,7 @@ Implied volatility of a European option on a forward in the Black model: the `σ
 julia> price = blkprice(10.0, 10.0, 0.01, 2.0, 0.2);
 
 julia> blkimpv(10.0, 10.0, 0.01, 2.0, price)
-0.19999999999999996
+0.1999999999999999
 ```
 
 See also [`blsimpv`](@ref), [`blkprice`](@ref).
@@ -138,7 +138,8 @@ end
 function blimpv_sensitivities(S0, K, T, σ, FlagIsCall::Bool)
     _, der_S0, der_K, _, vega = blprice_and_sensitivities(S0, K, T, σ, FlagIsCall)
     inv_vega = inv(vega)
-    return -der_S0 * inv_vega, -der_K * inv_vega, -σ / (two_internal * T), inv_vega
+    minus_inv_vega = -inv_vega
+    return der_S0 * minus_inv_vega, der_K * minus_inv_vega, -σ / (two_internal * T), inv_vega
 end
 
 # Implied volatility of truncated Taylor polynomials (TaylorSeries and TaylorDiff extensions). σ(t) is only
@@ -149,7 +150,7 @@ end
 # and no convergence check; only rounding and the accuracy of the constant term (xtol) remain.
 # Solving one coefficient at a time with the constant vega is equivalent but needs `order` steps.
 function blimpv_series_newton(σ, S0, K, T, price_d, FlagIsCall::Bool, order::Integer)
-    for _ = 1:ceil(Int, log2(order + 1))
+    for _ = 1:ceil(Int, log2(order+1))
         σ += (price_d - blprice_impl(S0, K, T, σ, FlagIsCall)) / blvega_impl(S0, K, T, σ)
     end
     return σ
@@ -167,5 +168,5 @@ end
 function frule((_, dS, dK, dT, dprice, _, _, _)::Tuple, ::typeof(blimpv), S0, K, T, price_d, FlagIsCall::Bool, xtol, n_iter_max::Integer)
     σ = blimpv(S0, K, T, price_d, FlagIsCall, xtol, n_iter_max)
     der_S0, der_K, der_T, der_price = blimpv_sensitivities(S0, K, T, σ, FlagIsCall)
-    return σ, dS * der_S0 + dK * der_K + dT * der_T + dprice * der_price
+    return σ, muladd(dS, der_S0, muladd(dK, der_K, muladd(dT, der_T, dprice * der_price)))
 end

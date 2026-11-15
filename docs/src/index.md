@@ -35,7 +35,7 @@ Main.DocumentationFigures.hero_stats()  # hide
 <p class="fc-section-lede">Plain scalar functions without allocations: <em>generic in the number type, so the same call prices, differentiates, runs in any precision and broadcasts on a GPU</em>.</p>
 <div class="fc-grid fc-features">
 <article class="fc-card"><div class="fc-icon"><svg viewBox="0 0 32 32"><path d="M3 24 C9 24 10 8 16 8 S23 20 29 12"/><circle cx="16" cy="8" r="2.4"/></svg></div>
-<h3>Pricing</h3><p><code>blsprice</code>, <code>blkprice</code> and <code>blsbin</code>: European and binary options in the Black–Scholes and Black models.</p><p class="fc-why">The Matlab syntax, so existing code ports line by line.</p></article>
+<h3>Pricing</h3><p><code>blsprice</code>, <code>blkprice</code> and <code>blsbin</code>: European and binary options in the Black–Scholes and Black models; <code>blsdownout</code>, <code>blsdownin</code>, <code>blsupout</code>, <code>blsupin</code>: barrier options.</p><p class="fc-why">The Matlab syntax, so existing code ports line by line.</p></article>
 <article class="fc-card"><div class="fc-icon"><svg viewBox="0 0 32 32"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="12.5" y="4" width="7" height="7" rx="1.5"/><rect x="21" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="12.5" width="7" height="7" rx="1.5"/><rect x="12.5" y="12.5" width="7" height="7" rx="1.5" class="hl"/><rect x="21" y="12.5" width="7" height="7" rx="1.5"/><path d="M16 21v7"/></svg></div>
 <h3>Greeks</h3><p><code>blsdelta</code>, <code>blsgamma</code>, <code>blstheta</code>, <code>blsvega</code>, <code>blsrho</code>, <code>blslambda</code>, <code>blspsi</code>, <code>blsvanna</code>.</p><p class="fc-why">Closed forms, cheaper and exact compared with differentiating the price.</p></article>
 <article class="fc-card"><div class="fc-icon"><svg viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="12" ry="6"/><ellipse cx="16" cy="16" rx="7" ry="3.2"/><circle cx="16" cy="16" r="1.6" class="hl"/></svg></div>
@@ -60,7 +60,7 @@ Main.DocumentationFigures.hero_stats()  # hide
 <div class="fc-arch">
 <ol class="fc-flow" style="--fc-steps: 6">
 <li><span class="fc-node-k">01</span><b>Inputs</b><span>spot, strike, rate, maturity, volatility, dividend</span></li>
-<li class="fc-core"><span class="fc-node-k">02</span><b>Black–Scholes formula</b><span><code>blsprice</code>, <code>blkprice</code>, <code>blsbin</code></span></li>
+<li class="fc-core"><span class="fc-node-k">02</span><b>Black–Scholes formula</b><span><code>blsprice</code>, <code>blkprice</code>, <code>blsbin</code>, barriers</span></li>
 <li><span class="fc-node-k">03</span><b>Price and Greeks</b><span><code>blsdelta</code>, <code>blsvega</code>, …</span></li>
 <li><span class="fc-node-k">04</span><b>Market price</b><span>a quote, a model price</span></li>
 <li class="fc-core"><span class="fc-node-k">05</span><b>Implied volatility</b><span><code>blsimpv</code>, <code>blkimpv</code><br>Let's Be Rational</span></li>
