@@ -23,7 +23,7 @@ julia --project=docs docs/make.jl                # Documenter site, into docs/bu
 julia -e 'using JuliaFormatter; format(".")'     # .JuliaFormatter.toml
 ```
 
-CI tests Julia 1.10 and 1. (From 2026-11-14 to 2026-11-18 it pinned 1.13.3: Enzyme aborted on Julia 1.13.4,
+CI tests Julia 1.10 (the lowest version of the compat since 0.8.1: AutoMerge could not even start Julia 1.9.4 on its runner, "libopenlibm.so: cannot enable executable stack") and 1. (From 2026-11-14 to 2026-11-18 it pinned 1.13.3: Enzyme aborted on Julia 1.13.4,
 EnzymeAD/Enzyme.jl#4051, fixed in Enzyme 0.13.220, the floor of the test environments; the full suite passes on 1.13.4.) The default branch is `master`. The docs are deployed by DeployPage.yml with GitHub Pages
 from Actions (no gh-pages branch).
 
