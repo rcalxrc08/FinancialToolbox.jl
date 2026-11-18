@@ -500,7 +500,7 @@ function blimpv_lets_be_rational_promoted(F, K, T, price, FlagIsCall::Bool, ::Re
 end
 
 # Float16 is solved in Float32: some approximations of the solver return Float64 for Float16 arguments, which made
-# their types unstable (runtime dispatch, allocations), erfinv of SpecialFunctions is wrong for Float16
+# their types unstable (runtime dispatch, allocations), erfinv of SpecialFunctions was wrong for Float16 before 2.9.2
 # (JuliaMath/SpecialFunctions.jl#571), and CPUs emulate Float16 arithmetic through Float32 anyway.
 function blimpv_lets_be_rational_promoted(F::Float16, K::Float16, T::Float16, price::Float16, FlagIsCall::Bool, xtol::Real, niter::Integer)
     return Float16(blimpv_lets_be_rational_promoted(Float32(F), Float32(K), Float32(T), Float32(price), FlagIsCall, xtol, niter))

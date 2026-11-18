@@ -1,6 +1,6 @@
 # Automatic differentiation on CUDA, as in a calibration: the derivative of a loss over device data with respect to a
 # shared parameter, and the gradient with respect to a device vector of prices. References are computed on the CPU.
-using FinancialToolbox, CUDA, Test, ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme
+using FinancialToolbox, CUDA, Test, ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme, TaylorDiff
 
 function calibration_data(Tp, n)
     S0, r, T, d, σ = Tp(100), Tp(0.02), Tp(1.2), Tp(0.01), Tp(0.2)
@@ -60,6 +60,18 @@ function test_gpu_ad(element_types)
                 dP = only(Zygote.gradient(p -> loss_P(p, K), P))
                 @test dP isa CuArray
                 @test Array(dP) ≈ ref_P rtol = rtol
+            end
+            @testset "TaylorDiff" begin
+                # TaylorDiff's own erfc in a broadcast kernel (no allocation): second order Taylor coefficients of the
+                # prices in σ, and the implied volatility of the price series (Newton on the whole series) is the σ series
+                σt = TaylorDiff.TaylorScalar(σ, (one(σ), zero(σ)))
+                pt = blsprice.(S0, K, r, T, σt, d)
+                ref_vega = blsvega.(S0, strikes, r, T, σ, d)
+                @test Array(map(x -> TaylorDiff.partials(x)[1], pt)) ≈ ref_vega rtol = rtol
+                ref_volga = map(k -> ForwardDiff.derivative(s -> blsvega(S0, k, r, T, s, d), σ), strikes) ./ 2
+                @test Array(map(x -> TaylorDiff.partials(x)[2], pt)) ≈ ref_volga rtol = 10 * rtol atol = 10 * rtol
+                vt = blsimpv.(S0, K, r, T, pt, d)
+                @test Array(map(TaylorDiff.value, vt)) ≈ fill(σ, n) rtol = rtol
             end
             @testset "Barrier options" begin
                 # generic code (no rules of its own): the derivative of a loss with respect to σ and to the barrier

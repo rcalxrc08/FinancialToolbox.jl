@@ -101,7 +101,8 @@ end
 function days_act_365_jpn(startDate::Date, endDate::Date)
     y1, m1, d1 = Dates.yearmonthday(startDate)
     y2, m2, d2 = Dates.yearmonthday(endDate)
-    return 365 * (y2 - y1) + DAYS_BEFORE_MONTH[m2] - DAYS_BEFORE_MONTH[m1] + (d2 - d1)
+    # the month of a Date is in 1:12, the indices of DAYS_BEFORE_MONTH (about 10% faster without the checks)
+    return 365 * (y2 - y1) + @inbounds(DAYS_BEFORE_MONTH[m2] - DAYS_BEFORE_MONTH[m1]) + (d2 - d1)
 end
 
 const YEARFRAC_MAX_BASIS = 7

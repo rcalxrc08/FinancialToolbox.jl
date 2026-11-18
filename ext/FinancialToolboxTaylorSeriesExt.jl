@@ -62,7 +62,10 @@ function erfc(a::ScalarTaylor1)
 end
 
 # General method (TaylorN, nested series): the same recurrences on the coefficients, which are homogeneous
-# polynomials for TaylorN and series for nested series.
+# polynomials for TaylorN and series for nested series. Every product and sum of coefficients allocates a new series
+# here, which dominates the time: @inbounds, loops with muladd instead of the generator sums, and folding j into
+# convolution instead of the vector ja were measured (#86, #87) and gained nothing (folding j allocates n² series
+# instead of n), so they are left out.
 # Coefficient k of a², Σ_{i=0}^{k} a_i a_{k-i}, from the symmetric half of the sum (vectors are 1-based)
 function square_coefficient(a, k)
     acc = sum(a[i+1] * a[k-i+1] for i = 0:((k-1)>>1))
@@ -71,8 +74,14 @@ function square_coefficient(a, k)
 end
 # Coefficient k of a product without the j = 0 term: Σ_{j=1}^{k} a_j b_{k-j}
 convolution(a, b, k) = sum(a[j+1] * b[k-j+1] for j = 1:k)
-# x * num / den with integer num, den (exact for any coefficient type)
-scale(x, num, den) = x * num / den
+# Innermost number type of a coefficient: num / den is computed in it, so a Float32 series stays Float32 and a BigFloat
+# one gets a BigFloat ratio
+scalar_type(::Type{T}) where {T} = T
+scalar_type(::Type{<:Union{Taylor1{T}, TaylorN{T}, HomogeneousPolynomial{T}}}) where {T} = scalar_type(T)
+ratio(x, num, den) = convert(scalar_type(typeof(x)), num) / den
+# x * num / den with integer num, den, as a single product by the ratio: one series less for nested series (a quarter
+# faster for Taylor1{TaylorN}), at the cost of one rounding of the ratio
+scale(x, num, den) = x * ratio(x, num, den)
 # Homogeneous polynomials: accumulated and scaled in place, in a single polynomial of degree k
 function square_coefficient(a::AbstractVector{<:HomogeneousPolynomial}, k)
     acc = HomogeneousPolynomial(zero(a[1][1] * a[1][1]), k)
@@ -92,7 +101,7 @@ function convolution(a::AbstractVector{<:HomogeneousPolynomial}, b::AbstractVect
     end
     return acc
 end
-scale(x::HomogeneousPolynomial, num, den) = (x.coeffs .*= num ./ den; x)
+scale(x::HomogeneousPolynomial, num, den) = (x.coeffs .*= ratio(x, num, den); x)
 
 function erfc(a::TaylorType)
     n = series_order(a)

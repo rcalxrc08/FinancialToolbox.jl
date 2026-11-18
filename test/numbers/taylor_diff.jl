@@ -1,4 +1,4 @@
-# TaylorDiff: normcdf of a TaylorScalar (coefficient recurrence), Greeks, and the implied volatility by Newton on the
+# TaylorDiff: normcdf of a TaylorScalar (TaylorDiff's own erfc), Greeks, and the implied volatility by Newton on the
 # whole series.
 include(joinpath(@__DIR__, "..", "setup.jl"))
 using TaylorDiff

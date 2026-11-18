@@ -6,7 +6,7 @@
 # Automatic differentiation
 
 Pricers and sensitivities are plain Julia code, differentiable by any AD engine capable of differentiating the `erfc`
-function (rules for `erfc` are provided for TaylorSeries and TaylorDiff). The implied volatility is never
+function (rules for `erfc` are provided for TaylorSeries; TaylorDiff has its own). The implied volatility is never
 differentiated through the numerical solver: its derivatives are defined analytically, as shown below.
 
 ```@raw html

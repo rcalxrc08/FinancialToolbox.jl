@@ -23,7 +23,8 @@ julia --project=docs docs/make.jl                # Documenter site, into docs/bu
 julia -e 'using JuliaFormatter; format(".")'     # .JuliaFormatter.toml
 ```
 
-CI tests Julia 1.10 and 1. Since 2026-11-14 CI pins 1.13.3 instead of 1: Enzyme aborts on Julia 1.13.4 ("unsupported tag julia.gc_alloc_ptr_offsets"); the local Julia is 1.13.4, so the Enzyme tests need `juliaup add 1.13.3` and `julia +1.13.3` until Enzyme supports it, then put '1' back. The default branch is `master`. The docs are deployed by DeployPage.yml with GitHub Pages
+CI tests Julia 1.10 and 1. (From 2026-11-14 to 2026-11-18 it pinned 1.13.3: Enzyme aborted on Julia 1.13.4,
+EnzymeAD/Enzyme.jl#4051, fixed in Enzyme 0.13.220, the floor of the test environments; the full suite passes on 1.13.4.) The default branch is `master`. The docs are deployed by DeployPage.yml with GitHub Pages
 from Actions (no gh-pages branch).
 
 ## Architecture
@@ -66,8 +67,11 @@ from Actions (no gh-pages branch).
   as single tape instructions written by hand (with `value_and_partials`): `ReverseDiff.@grad` keeps the pullback of the point where a
   compiled tape was recorded, so its gradients elsewhere are wrong. Enzyme has `forward`/`augmented_primal`/`reverse`
   rules for `blimpv`. DualNumbers also defines `normcdf` and `internal_sqrt` of a `Dual` (its own `erfc` and `sqrt`
-  promote to Float64; `normpdf` needs nothing since `square` is a product); HyperDualNumbers `normcdf` and `internal_sqrt`. TaylorSeries/TaylorDiff define `erfc` of a series (a coefficient recurrence) and the implied
-  volatility by Newton on the whole series.
+  promote to Float64; `normpdf` needs nothing since `square` is a product); HyperDualNumbers `normcdf` and `internal_sqrt`. TaylorSeries defines `erfc` of a series (a coefficient
+  recurrence: one pass with `@inbounds`/`muladd` for scalar `Taylor1`, a generic one for `TaylorN` and nested series);
+  TaylorSeries and TaylorDiff both define the implied volatility by Newton on the whole series. TaylorDiff needs no
+  `normcdf`: its own `erfc` (fixed in 0.3.6, the compat floor) is exact, keeps Float32, does not allocate, runs in GPU
+  kernels and is faster than the recurrence the extension had until then (removed 2026-11-18).
 - [docs/](docs/): Documenter, in the style of the other packages of rcalxrc08 (`docs/src/assets/style.css` is shared,
   copy changes across). `docs/figures.jl` computes the figures at build time, a light and a dark SVG each; the
   performance table is measured at build time too; the GPU page (`gpu.md`) has a static table measured on an MX150,
@@ -127,7 +131,7 @@ file's directory, inside a testset. Each file includes `test/setup.jl` (Test, Fi
   shape), `reversediff.jl` (evaluates compiled tapes away from the recording point: the only test of the forward pass
   of the hand-written instructions), `mooncake.jl`, `enzyme.jl`.
 - `gpu/jlarrays.jl` runs `gpu/gpu_suite.jl` on JLArrays (GPU code path without a GPU, on CI); `test/cuda/` runs the same
-  suite and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, Enzyme in kernels) on CUDA, locally only.
+  suite and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, TaylorDiff, Enzyme in kernels) on CUDA, locally only.
   CI has no GPU: run the CUDA tests locally (this machine has an NVIDIA GPU) before pushing any change to `src/` or
   `ext/`, together with the CPU suite. JLArrays does not catch everything CUDA rejects (allocations, dynamic dispatch,
   strings built at run time in kernels).
@@ -136,8 +140,6 @@ file's directory, inside a testset. Each file includes `test/setup.jl` (Test, Fi
 Keep the tests lean: a property checked once per code path, not once per number type (input validation is generic
 code, the Greeks are checked against Matlab once, the number types against `DERIVATIVE_CASES`).
 
-The test environment caps ChainRules at 1.74.10: 1.74.11 breaks the precompilation of TaylorDiff
-(JuliaDiff/TaylorDiff.jl#113). Lift the cap once that is fixed, and close CompatHelper PRs that remove it before.
 
 ## Conventions
 
@@ -146,7 +148,10 @@ The test environment caps ChainRules at 1.74.10: 1.74.11 breaks the precompilati
 - No `Float64` constants or buffers in generic code: use `@irrational`, integer literals or `one`/`zero` of the input
   type. Upstream rules that promote are wrapped in the extensions (`normcdf`, `internal_sqrt` for DualNumbers and
   HyperDualNumbers).
-- Code reachable from GPU kernels must not allocate and must not index arrays element by element.
+- Code reachable from GPU kernels must not allocate and must not index arrays element by element. Julia 1.13 removes
+  small fixed-size `Vector`s (CPU and GPU), so a kernel that builds one works there and fails on 1.10-1.12: check
+  `@allocated` on Julia 1.10, not only on the local Julia (the old `normcdf(::TaylorScalar)`: 0 B on 1.13, 288 B on 1.10).
+  `CUDA.allowscalar(false)` only concerns host access to device arrays: it does not catch this.
 - No `if` on flags or values in differentiable code: Zygote is about 20 times slower on control flow (a barrier
   gradient, #80: 55 μs with `if FlagIsCall`, 2.8 μs branch free). Use `call_put_sign`, 0/1 weights derived from it
   (`(call_put_sign(c) - one_internal) ÷ two_internal` is minus the put indicator), `max`/`min` and parity identities,
@@ -164,8 +169,16 @@ The test environment caps ChainRules at 1.74.10: 1.74.11 breaks the precompilati
 
 ## Known upstream issues
 
-- SpecialFunctions `erfinv(::Float16)` is wrong for `|x| <= 0.75` (JuliaMath/SpecialFunctions.jl#571): Float16 is
-  solved in Float32.
+Every workaround for an upstream bug (an override in an extension, a compat cap, a `@test_broken`) is listed here with
+the upstream issue and the broken version. At the start of a session check the upstream releases and drop the
+workarounds they made useless. Resolved: TaylorDiff 0.3.6 (2026-11-12) fixed its `erfc` and the precompilation with
+ChainRules 1.74.11 (JuliaDiff/TaylorDiff.jl#113), so the own `normcdf(::TaylorScalar)` and the ChainRules cap of the
+test environment were removed on 2026-11-18. Enzyme 0.13.220 fixed the abort on Julia 1.13.4 (EnzymeAD/Enzyme.jl#4051):
+CI is back to '1'.
+
+- SpecialFunctions `erfinv(::Float16)` was wrong for `|x| <= 0.75` before 2.9.2 (JuliaMath/SpecialFunctions.jl#571,
+  fixed 2026-11-10). Float16 is still solved in Float32: some approximations of the solver return Float64 for Float16
+  (type instability), and CPUs emulate Float16 through Float32 anyway.
 - ForwardDiff `gradient`/`jacobian` do not support GPU arrays (JuliaDiff/ForwardDiff.jl#759): broadcast
   `ForwardDiff.derivative` per element instead.
 - Enzyme custom rules miss CUDA's device overrides inside kernels (EnzymeAD/Enzyme.jl#3962): `blsimpv` cannot be

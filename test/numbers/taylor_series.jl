@@ -46,6 +46,13 @@ end
         @test all(k -> maximum(abs, difference[k].coeffs) < 1e-15, 0:5)
     end
     @test normcdf(x0 + x_n)[0][1] == normcdf(x0)
+    # generic path in BigFloat and Float32: the ratios of the recurrence are computed in the coefficient type
+    u_big = big(x0) + x_n + 2 * y_n
+    difference_big = normcdf(u_big) - evaluate(normcdf_big, x_n + 2 * y_n)
+    @test all(k -> maximum(abs, difference_big[k].coeffs) < 1e-60, 0:5)
+    @test eltype(normcdf(Float32(x0) + TaylorN(Float32, 1; order = 5))[3].coeffs) == Float32
+    nested_big = normcdf(Taylor1([Taylor1([big(x0), big(1)], 3), Taylor1([big(1)], 3)], 3))
+    @test abs(nested_big[3][0] - normcdf_big[3]) < 1e-60
 end
 
 # the implied volatility of blsprice(..., σ series) is the σ series
