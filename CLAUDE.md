@@ -183,6 +183,14 @@ CI is back to '1'.
   `ForwardDiff.derivative` per element instead.
 - Enzyme custom rules miss CUDA's device overrides inside kernels (EnzymeAD/Enzyme.jl#3962): `blsimpv` cannot be
   differentiated with Enzyme in kernels (`@test_broken` in `test/cuda/ad_suite.jl`).
+- Zygote (0.7.18), reported 2026-11-19 from FinancialCalibrator#39, the reasons behind the branch-free convention: code
+  with branches and no loops keeps untyped `Vector{Any}` stacks on purpose (FluxML/Zygote.jl#1736; #1754: one ternary in
+  a scalar kernel 6.9 μs vs 22 ns with `ifelse`); `oftype` is `y isa typeof(x) ? y : convert(...)`, a branch with an
+  uninferred pullback (#1751: use `promote` or `convert(typeof(x), y)` on differentiated paths; `typed_literal` and
+  `tau` in the solver are not traced, the implied volatility has rules); `gradient`/`pullback` are compiled for
+  `f::Function` (#1752: microseconds of dynamic dispatch once the pullback is not inlined, 57 ns when specialized),
+  which may also affect the Zygote rows of BenchmarkCI (not checked). Benchmark Zygote with interpolated non-constant arguments and no
+  `$(args)...` splat: literals constant-fold the gradient, the splat adds its own run-time `_apply_iterate`.
 
 ## Releasing
 
