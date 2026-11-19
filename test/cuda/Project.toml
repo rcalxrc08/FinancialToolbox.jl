@@ -16,6 +16,7 @@ FinancialToolbox = {path = "../.."}
 CUDA = "5, 6"
 DualNumbers = "0.5, 0.6"
 Enzyme = "0.13.220"
+FinancialToolbox = "0.8"
 ForwardDiff = "0.10, 1"
 Mooncake = "0.5"
 TaylorDiff = "0.3.6"

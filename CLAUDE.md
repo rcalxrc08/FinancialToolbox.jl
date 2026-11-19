@@ -191,3 +191,7 @@ commit. TagBot creates the tag and the release; if it opens a "manual interventi
 registered commit with `gh release create vX.Y.Z --target <full sha> --latest=false` (for an old version).
 
 Keep this file up to date at every push.
+
+## Sub-environments
+
+- **Compat of the package itself in the sub-environments** (`test/`, `test/cuda/`, `docs/` and `benchmark/gpu/`, which load it through `[sources]` with a path): each has a `[compat]` entry for the package, so CompatHelper does not open PRs to add one (it has no option to skip a dependency). Bump these entries in the same commit as a breaking version bump, otherwise the local package no longer satisfies them and the environment fails to resolve.
