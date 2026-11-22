@@ -29,7 +29,8 @@ Rules for every change (details in `references/conventions.md`):
 
 - No `Float64` constants or buffers in generic code (`@irrational`, integer literals, `one`/`zero`); Float32 in,
   Float32 out.
-- No `if` on flags or values in differentiable code (`call_put_sign`, weights, `max`/`min`); domain checks through
+- Branches on flags or values are allowed in differentiable code (Zygote ≥ 0.7.19, D-009); where a select is wanted,
+  `call_put_sign` weights or `max`/`min`, not `ifelse` on a scalar flag; selects in GPU kernels; domain checks through
   `check_positive`/`blcheck`, non-differentiable, with constant messages.
 - Code reachable from GPU kernels does not allocate nor index element by element (check `@allocated` on Julia 1.10).
 - `@muladd`/`muladd` for every `a * b + c`, never negating an `Irrational` inside it; `square`/`cube`, never `x^2`/`x^3`.

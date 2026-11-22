@@ -9,9 +9,11 @@ _Coding standards that hold in every stage._ (Layer 3 reference.)
   HyperDualNumbers). Type-stability checks do not catch a promotion to a well-defined wider type (#74):
   `test/core/element_types.jl` does.
 - Code reachable from GPU kernels does not allocate nor index element by element (`gpu.md`).
-- No `if` on flags or values in differentiable code: Zygote is about 20 times slower on control flow (a barrier
-  gradient, #80: 55 μs with `if FlagIsCall`, 2.8 μs branch free). Use `call_put_sign`, 0/1 weights derived from it,
-  `max`/`min` and parity identities, so one formula covers every case. Compute directly the quantity used (the negated
+- Branches (`if`, ternaries) on flags or values are allowed in differentiable code since Zygote 0.7.19, which the
+  tests require (D-009): it fixed the branch stacks (FluxML/Zygote.jl#1754) that made control flow ~20 times slower (a
+  barrier gradient, #80: 55 μs with `if FlagIsCall`, 2.8 μs branch free, on Zygote 0.7.18). Where one formula covers
+  every case, `call_put_sign`, 0/1 weights derived from it, `max`/`min` and parity identities are still the simpler
+  code; as a select, a sign weight beats `ifelse` on a scalar flag under Zygote (~4x); GPU kernels keep selects. Compute directly the quantity used (the negated
   weight, `-inv_vega` once), not a value negated at each use. Domain checks (`check_positive`, non-differentiable) are
   the exception. On differentiated paths use `promote` or `convert(typeof(x), y)`, not `oftype` (a branch, #1751).
 - `a * b + c` is `muladd(a, b, c)` (or `@muladd` of MuladdMacro on a whole function), frules and extensions included:

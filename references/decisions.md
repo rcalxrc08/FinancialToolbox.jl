@@ -42,10 +42,10 @@ _Architecture decisions, oldest first. Append; a reversed decision gets a new en
 - **Why:** Zygote ~20x slower on control flow (barrier gradient 55 μs vs 2.8 μs, #80; FluxML/Zygote.jl#1736, #1754);
   `x^2` 1.3-6x slower than the product on BigFloat and duals. Zygote 0.7.19 (2026-11-22) fixed #1754: re-measured in
   fresh processes, a ternary on a flag 18-21 → 2.8-2.9 μs against 3.2-3.4 μs for a select, two nested branches 30-43 →
-  5.4-5.7 μs against 5.1-5.2 μs for `ifelse`. The Zygote reason for the rule is gone from 0.7.19 on; whether the rule
-  stays (consistency, the GPU, older Zygote) is to decide.
+  5.4-5.7 μs against 5.1-5.2 μs for `ifelse`. The Zygote reason for the rule is gone from 0.7.19 on; the rule is relaxed
+  in D-009.
 - **Consequences:** rules in `CLAUDE.md`, `conventions.md`.
-- **Status:** active
+- **Status:** active for `muladd` and `square`/`cube`; the branch-free part is superseded by D-009.
 
 ## D-006 (2026-11-15, 90a53d4; 0.8.1) Barrier options from `blsprice` and `blsbin`
 
@@ -68,4 +68,15 @@ _Architecture decisions, oldest first. Append; a reversed decision gets a new en
 - **Why:** the same layout worked in FinancialCalibrator and VibratoMonteCarlo; a single `CLAUDE.md` loads everything
   for every task and drifts.
 - **Consequences:** every source file belongs to a stage folder and its contract.
+- **Status:** active
+
+## D-009 (2026-11-22) Branches allowed in differentiable code (supersedes the branch-free part of D-005)
+
+- **Decision:** `if` and ternaries on flags or values are allowed in differentiable code; selects (`call_put_sign`
+  weights, `max`/`min`) remain where they make one formula, and in GPU kernels; a sign weight rather than `ifelse` on a
+  scalar flag.
+- **Why:** Zygote 0.7.19 fixed the `Vector{Any}` stacks of branch-only code (FluxML/Zygote.jl#1754): re-measured, a
+  ternary on a flag 18-21 → 2.8-2.9 μs against 3.2-3.4 μs for a sign weight, nested branches as fast as nested `ifelse`;
+  `ifelse` on a scalar flag stays ~4x a sign weight. Mooncake and Enzyme never cared.
+- **Consequences:** the tests require Zygote 0.7.19; rule in `CLAUDE.md`, `conventions.md`.
 - **Status:** active
