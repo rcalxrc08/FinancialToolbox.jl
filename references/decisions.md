@@ -40,7 +40,10 @@ _Architecture decisions, oldest first. Append; a reversed decision gets a new en
 - **Decision:** no `if` on flags or values in differentiable code; `muladd` for `a * b + c`; `square`/`cube` instead of
   powers.
 - **Why:** Zygote ~20x slower on control flow (barrier gradient 55 μs vs 2.8 μs, #80; FluxML/Zygote.jl#1736, #1754);
-  `x^2` 1.3-6x slower than the product on BigFloat and duals.
+  `x^2` 1.3-6x slower than the product on BigFloat and duals. Zygote 0.7.19 (2026-11-22) fixed #1754: re-measured in
+  fresh processes, a ternary on a flag 18-21 → 2.8-2.9 μs against 3.2-3.4 μs for a select, two nested branches 30-43 →
+  5.4-5.7 μs against 5.1-5.2 μs for `ifelse`. The Zygote reason for the rule is gone from 0.7.19 on; whether the rule
+  stays (consistency, the GPU, older Zygote) is to decide.
 - **Consequences:** rules in `CLAUDE.md`, `conventions.md`.
 - **Status:** active
 

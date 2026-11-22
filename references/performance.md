@@ -15,7 +15,7 @@ How to measure:
 - Zygote: interpolated non-constant arguments and no `$(args)...` splat: literals constant-fold the gradient, the splat
   adds its own run-time `_apply_iterate` (FluxML/Zygote.jl#1752: `gradient`/`pullback` are compiled for
   `f::Function`, microseconds of dynamic dispatch once the pullback is not inlined, 57 ns when specialized; it may also
-  affect the Zygote rows of BenchmarkCI, not checked).
+  affect the Zygote rows of BenchmarkCI, not checked). Fixed in Zygote 0.7.19 (2026-11-22).
 - After adding or renaming a benchmark, rerun `benchmark/tune.jl` and commit `tune.json`.
 - Timings that get written down come from an idle machine and fresh processes; `@allocated` also on Julia 1.10
   (`gpu.md`).

@@ -26,7 +26,7 @@ Upstream workarounds (cite issue and version; recheck on every upstream release,
 | `Float16` solved in `Float32` | JuliaMath/SpecialFunctions.jl#571 (fixed in 2.9.2); kept because some approximations return Float64 for Float16 | < 2.9.2 | 2026-11-18 |
 | broadcast `ForwardDiff.derivative` on GPU arrays | JuliaDiff/ForwardDiff.jl#759 | ForwardDiff 1 | 2026-11-19 |
 | `@test_broken` Enzyme `blsimpv` in CUDA kernels | EnzymeAD/Enzyme.jl#3962 | Enzyme 0.13 | 2026-11-19 |
-| branch-free code, `promote` instead of `oftype`, Zygote benchmarks without splats | FluxML/Zygote.jl#1736, #1751, #1752, #1754 (reported 2026-11-19 from FinancialCalibrator#39) | Zygote 0.7.18 | 2026-11-19 |
+| branch-free code, `promote` instead of `oftype`, Zygote benchmarks without splats | FluxML/Zygote.jl#1736, #1751 (open); #1752, #1754 fixed in Zygote 0.7.19 (reported 2026-11-19 from FinancialCalibrator#39) | Zygote 0.7.19 | 2026-11-22 |
 
 Resolved: TaylorDiff 0.3.6 (2026-11-12) fixed its `erfc` and the precompilation with ChainRules 1.74.11
 (JuliaDiff/TaylorDiff.jl#113): the own `normcdf(::TaylorScalar)` and the ChainRules cap were removed on 2026-11-18.

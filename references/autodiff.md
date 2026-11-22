@@ -28,5 +28,5 @@ _What each backend needs and why._ (Layer 3 reference.)
 - Symbolics: `domain_value(::Num)` is `nothing` (no check); `blimpv` is a registered symbolic function with its
   derivative; derivatives are not simplified in tests (slow).
 - Complex numbers: complex step through the whole code; the implied volatility by Newton (analytic continuation).
-- Zygote and branches: see `conventions.md` and the upstream issues in `dependencies.md` (FluxML/Zygote.jl#1736, #1751,
-  #1752, #1754).
+- Zygote and branches: see `conventions.md` and the upstream issues in `dependencies.md` (FluxML/Zygote.jl#1736, #1751;
+  #1752 and #1754 fixed in Zygote 0.7.19, which the tests require: a branch now costs Zygote no more than a select, D-005).
