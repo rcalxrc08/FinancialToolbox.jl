@@ -5,14 +5,14 @@ the index an agent reads first._ Updated: 2026-11-22
 
 ## Current focus
 
-TaylorSeries `JetSpace` (#91, #90) on branch `taylorseries-jetspace`, for review. Last release 0.8.1 (2026-11-18,
+TaylorSeries `JetSpace` (#91, #90) merged on `master`, for the next patch release. Last release 0.8.1 (2026-11-18,
 barrier options #80).
 
 ## Active work
 
 | Item | Branch | Issue | Next step |
 |:--|:--|:--|:--|
-| TaylorSeries `JetSpace` | `taylorseries-jetspace` | #91 #90 | review, merge, push |
+| TaylorSeries `JetSpace` | `master` | #91 #90 | CI green, patch release 0.8.2, tag |
 
 ## Known issues
 
