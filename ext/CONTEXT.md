@@ -12,7 +12,7 @@ One extension per AD backend or number type; the package loads and works without
 | `FinancialToolboxMooncakeExt.jl` | `@from_chainrules` for the closed-form rules, `@zero_adjoint` for the checks; `Nfwd.NDual` (Mooncake inside GPU broadcasts) implied volatility |
 | `FinancialToolboxEnzymeCoreExt.jl` | `forward`/`augmented_primal`/`reverse` rules for `blimpv` |
 | `FinancialToolboxReverseDiffExt.jl` | `blsprice`, `blkprice`, `blsimpv`, `blkimpv` as single hand-written tape instructions with `value_and_partials` |
-| `FinancialToolboxTaylorSeriesExt.jl` | `erfc` of a series (coefficient recurrence), Newton on the series for the implied volatility, `square(::TaylorN)` |
+| `FinancialToolboxTaylorSeriesExt.jl` | `erfc` of a series (coefficient recurrence, coefficients in the input's `JetSpace`), Newton on the series for the implied volatility, `square(::TaylorN)` |
 | `FinancialToolboxTaylorDiffExt.jl` | implied volatility by Newton on the series (TaylorDiff's own `erfc` is exact since 0.3.6) |
 | `FinancialToolboxSymbolicsExt.jl` | `domain_value(::Num)` (`nothing`: no check), `blimpv` registered as a symbolic function with its derivative |
 | `references/autodiff.md` | what each backend needs and why |

@@ -11,7 +11,9 @@ _What each backend needs and why._ (Layer 3 reference.)
 - DualNumbers also defines `normcdf` and `internal_sqrt` of a `Dual` (its own `erfc` and `sqrt` promote to Float64;
   `normpdf` needs nothing since `square` is a product); HyperDualNumbers `normcdf` and `internal_sqrt`.
 - TaylorSeries defines `erfc` of a series (a coefficient recurrence: one pass with `@inbounds`/`muladd` for scalar
-  `Taylor1`, a generic one for `TaylorN` and nested series); TaylorSeries and TaylorDiff both define the implied
+  `Taylor1`, a generic one for `TaylorN` and nested series). The coefficients of a `TaylorN` are built from the input's own
+  polynomials (`zero(a[k])`), never from an order: those land in the global default `JetSpace`, which since TaylorSeries
+  0.23 need not be the input's (#91). TaylorSeries and TaylorDiff both define the implied
   volatility by Newton on the whole series. TaylorDiff needs no `normcdf`: its own `erfc` (fixed in 0.3.6, the compat
   floor) is exact, keeps Float32, does not allocate, runs in GPU kernels and is faster than the recurrence the extension
   had until then (removed 2026-11-18).

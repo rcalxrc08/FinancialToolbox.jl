@@ -20,7 +20,13 @@ constant_value(a::Taylor1) = a[0]
 constant_value(a::TaylorN) = a[0][1]
 constant_value(x) = x
 constant_coefficient(::Taylor1, v) = v
-constant_coefficient(::TaylorN, v) = HomogeneousPolynomial([v], 0)
+# The coefficients of a TaylorN are built from its own polynomials, never from orders: a polynomial built from an order is
+# in the global default JetSpace, which since TaylorSeries 0.23 need not be the space of the input (#91).
+function constant_coefficient(a::TaylorN, v)
+    c = zero(a[0]) * zero(v)
+    c.coeffs[1] = v
+    return c
+end
 # The order is the number of coefficients - 1 (get_order up to TaylorSeries 0.20, order from 0.23)
 series_order(a::TaylorType) = length(a.coeffs) - 1
 series(a::Taylor1, coeffs) = Taylor1(coeffs, series_order(a))
@@ -82,20 +88,22 @@ ratio(x, num, den) = convert(scalar_type(typeof(x)), num) / den
 # x * num / den with integer num, den, as a single product by the ratio: one series less for nested series (a quarter
 # faster for Taylor1{TaylorN}), at the cost of one rounding of the ratio
 scale(x, num, den) = x * ratio(x, num, den)
-# Homogeneous polynomials: accumulated and scaled in place, in a single polynomial of degree k
+# Homogeneous polynomials: accumulated and scaled in place, in a single polynomial of degree k, the zero of the input's
+# polynomial of that degree (its JetSpace, #91)
 function square_coefficient(a::AbstractVector{<:HomogeneousPolynomial}, k)
-    acc = HomogeneousPolynomial(zero(a[1][1] * a[1][1]), k)
+    acc = zero(a[k+1])
     for i = 0:((k-1)>>1)
         TaylorSeries.mul!(acc, a[i+1], a[k-i+1])
     end
     acc.coeffs .*= 2
     if iseven(k)
-        TaylorSeries.mul!(acc, a[(k>>1)+1], a[(k>>1)+1])
+        m = a[(k>>1)+1]
+        TaylorSeries.mul!(acc, m, m)
     end
     return acc
 end
 function convolution(a::AbstractVector{<:HomogeneousPolynomial}, b::AbstractVector{<:HomogeneousPolynomial}, k)
-    acc = HomogeneousPolynomial(zero(a[1][1] * b[1][1]), k)
+    acc = zero(a[k+1]) * zero(b[1][1])
     for j = 1:k
         TaylorSeries.mul!(acc, a[j+1], b[k-j+1])
     end

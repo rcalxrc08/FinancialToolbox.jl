@@ -84,3 +84,21 @@ end
     vol_n = blsimpv(S0 + x_n, K, r, T, blsprice(S0 + x_n, K, r, T, sigma_n, d), d) - sigma_n
     @test all(k -> maximum(abs, vol_n[k].coeffs) < 1e-14, 0:5)
 end
+
+# TaylorSeries ≥ 0.23: series of an explicit JetSpace, not the global default one, stay in their space and give the
+# results of the default space (#91: the coefficients of erfc were built in the default space)
+isdefined(TaylorSeries, :JetSpace) && @testset "Explicit JetSpace" begin
+    (; S0, K, r, T, σ, d) = REFERENCE
+    space = TaylorSeries.JetSpace(; order = 5, variables = "u v")
+    x_e, y_e = TaylorSeries.variables(space)
+    @test space !== x_n.space
+    same(a, b) = all(k -> maximum(abs, a[k].coeffs .- b[k].coeffs) == 0, 0:5)
+    price_e = blsprice(S0 + x_e, K, r, T, σ + y_e, d)
+    @test price_e.space === space
+    @test same(price_e, blsprice(S0 + x_n, K, r, T, σ + y_n, d))
+    @test same(normcdf(0.3 + x_e + 2 * y_e), normcdf(0.3 + x_n + 2 * y_n))
+    sigma_e = 0.2 + 0.05 * x_e + 0.01 * x_e * y_e
+    vol_e = blsimpv(S0 + x_e, K, r, T, blsprice(S0 + x_e, K, r, T, sigma_e, d), d)
+    @test vol_e.space === space
+    @test all(k -> maximum(abs, (vol_e - sigma_e)[k].coeffs) < 1e-14, 0:5)
+end

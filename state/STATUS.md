@@ -5,14 +5,14 @@ the index an agent reads first._ Updated: 2026-11-22
 
 ## Current focus
 
-Layered context (#89) on branch `context-layers`: done when `test/context.jl` and the full suite are green and the
-branch is merged. Last release 0.8.1 (2026-11-18, barrier options #80).
+TaylorSeries `JetSpace` (#91, #90) on branch `taylorseries-jetspace`, for review. Last release 0.8.1 (2026-11-18,
+barrier options #80).
 
 ## Active work
 
 | Item | Branch | Issue | Next step |
 |:--|:--|:--|:--|
-| Layered context | `context-layers` | #89 | review, merge, push |
+| TaylorSeries `JetSpace` | `taylorseries-jetspace` | #91 #90 | review, merge, push |
 
 ## Known issues
 
