@@ -12,7 +12,7 @@ using FinancialToolbox: value_and_partials
 # pass of an @grad function, which keeps the pullback of the point where the tape was recorded, so its gradients at
 # any other point are wrong. The forward pass here stores the partials at the current point in the instruction.
 
-# value_and_partials (src/financial_value_and_partials.jl): the value of f and its partials in closed form
+# value_and_partials (src/05_value_and_partials/financial_value_and_partials.jl): the value of f and its partials in closed form
 
 # Records out = f(inputs...) on the tape of the tracked inputs, with the partials in the cache of the instruction
 function record_instruction(f, inputs, parameters)

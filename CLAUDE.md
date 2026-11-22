@@ -1,205 +1,38 @@
 # CLAUDE.md
 
-Guidance for working in this repository.
+**FinancialToolbox.jl** prices European and barrier options under the Black and Black & Scholes models, with the
+Greeks, the implied volatility (Peter Jäckel's *Let's Be Rational*, 2024 version) and Matlab-style day counts, with the
+syntax of the Matlab Financial Toolbox (`blsprice`, `blsimpv`, `yearfrac`, …). Everything is generic in the number type:
+`Float16`, `Float32`, `Float64`, `BigFloat`, complex numbers (complex step), every AD backend in `ext/`, and GPU arrays.
+Registered in General; FinancialFFT, FinancialMonteCarlo, VibratoMonteCarlo and FinancialCalibrator depend on it.
+Goals and non-goals: `references/mission.md`; why things are the way they are: `references/decisions.md`.
 
-## What this is
+This workspace follows the Interpretable Context Methodology (layered context, arXiv:2603.16021): load only what the
+task needs.
 
-`FinancialToolbox.jl` prices European and barrier options under the Black and Black & Scholes models, with the Greeks, the implied
-volatility (Peter Jäckel's *Let's Be Rational*, 2024 version) and Matlab-style day counts, with the syntax of the
-Matlab Financial Toolbox (`blsprice`, `blsimpv`, `yearfrac`, ...). Everything is generic in the number type: `Float16`,
-`Float32`, `Float64`, `BigFloat`, complex numbers (complex step), every AD backend in [ext/](ext/), and GPU arrays.
+| Layer | Where | What |
+|:--|:--|:--|
+| 0 | this file | identity, map, rules that hold everywhere |
+| 1 | `CONTEXT.md` | which stage or folder a task belongs to, shared references |
+| 2 | `src/0N_*/CONTEXT.md`, `ext/`, `test/`, `docs/`, `benchmark/`, `etc/` | a contract per stage: inputs, process, outputs, runtime checks |
+| 3 | `references/*.md` | stable facts, decisions and measurements, loaded when a contract lists them |
+| 4 | `state/STATUS.md` | what is in flight: current focus, open issues, known problems |
 
-Registered in General. FinancialFFT, FinancialMonteCarlo and VibratoMonteCarlo depend on it.
+Startup: read `state/STATUS.md`, then route the task through `CONTEXT.md`. Runtime truth comes from a Kaimon session
+for this project (`kaimon.toml` pins the Julia); each contract's Verify table lists the checks to run after a change.
 
-## Commands
+Map: `src/FinancialToolbox.jl` includes the stages in order, `01_dates` → `02_pricing` → `03_barriers` →
+`04_implied_volatility` → `05_value_and_partials`; `ext/` one extension per AD backend or number type; `test/` the suite
+(`test/cuda/` local GPU tests); `docs/` the Documenter site; `benchmark/` the BenchmarkCI suite and the GPU table.
 
-```bash
-julia --project -e 'import Pkg; Pkg.test()'      # test/runtests.jl: every file of TEST_FILES, prints the time of each
-julia --project=test -e 'include("test/core/element_types.jl")'   # a single test file
-julia --project=test/cuda -e 'import Pkg; Pkg.instantiate(); include("test/cuda/runtests.jl")'  # needs an NVIDIA GPU
-julia benchmark/run.jl                           # benchmark suite (BenchmarkCI runs it on CI); benchmark/tune.jl retunes tune.json
-julia --project=benchmark/gpu -e 'import Pkg; Pkg.instantiate(); include("benchmark/gpu/run.jl")'  # GPU vs CPU table of docs/src/gpu.md
-julia --project=docs docs/make.jl                # Documenter site, into docs/build
-julia -e 'using JuliaFormatter; format(".")'     # .JuliaFormatter.toml
-```
+Rules for every change (details in `references/conventions.md`):
 
-CI tests Julia 1.10 (the lowest version of the compat since 0.8.1: AutoMerge could not even start Julia 1.9.4 on its runner, "libopenlibm.so: cannot enable executable stack") and 1. (From 2026-11-14 to 2026-11-18 it pinned 1.13.3: Enzyme aborted on Julia 1.13.4,
-EnzymeAD/Enzyme.jl#4051, fixed in Enzyme 0.13.220, the floor of the test environments; the full suite passes on 1.13.4.) The default branch is `master`. The docs are deployed by DeployPage.yml with GitHub Pages
-from Actions (no gh-pages branch).
-
-## Architecture
-
-- [src/financial.jl](src/financial.jl): `normcdf`, `normpdf`, the pricers and the Greeks. All of them reduce to
-  `blprice_impl(F, K, T, σ, FlagIsCall)`, the undiscounted Black formula, which has ChainRules `frule`/`rrule` with
-  closed form partials (`blprice_and_sensitivities`).
-- [src/financial_barrier.jl](src/financial_barrier.jl): `blsdownout`, `blsupout` (continuous monitoring, no rebate) by
-  the reflection principle, `V(S0) - (H/S0)^p V(H²/S0)`, over `blsprice` and `blsbin` (no formula of their own, no
-  differentiation rules: every backend differentiates through the code); the knock-ins by in-out parity. Branch free:
-  calls and puts differ by a 0/-1 weight from `call_put_sign`, the strike against the barrier is absorbed by
-  `barrier_max`/`barrier_min` (`max`/`min`, complex numbers compared by `domain_value`). They are the references of the
-  barrier options of FinancialMonteCarlo; more analytical options for it are listed in #85.
-- [src/financial_implied_volatility.jl](src/financial_implied_volatility.jl): `blsimpv`/`blkimpv` reduce to
-  `blimpv(F, K, T, price, ...)`, which dispatches on `promote_type` of the inputs (a type, not a value) through `blimpv_impl`: real
-  floats run the domain checks and Let's Be Rational, `Complex` runs Newton from the real solution (analytic
-  continuation, for the complex step), and the extensions add methods for their number types. The derivatives of
-  the implied volatility never go through the solver: they come from the implicit function theorem
-  (`blimpv_sensitivities`), in the ChainRules rules here and in every extension.
-- [src/financial_lets_be_rational.jl](src/financial_lets_be_rational.jl): the solver. Constants are `@irrational`
-  (exact for `BigFloat`, no promotion for `Float32`); keep them so. `blimpv_lets_be_rational` promotes its inputs to a
-  common type first (`sqrt` of an `Int` strike is a `Float64`), and solves `Float16` in `Float32` (some approximations
-  return `Float64` for it, and `erfinv(::Float16)` is wrong).
-- [src/financial_value_and_partials.jl](src/financial_value_and_partials.jl): `value_and_partials(f, inputs...,
-  parameters)`, the value and all the partials in closed form of `blsprice`, `blkprice`, `blsimpv` and `blkimpv`. Used by the ReverseDiff extension and by the ChainRules `rrule`s of the broadcasts of
-  the four public functions: one fused pass, partials as thunks, gradients reduced over the broadcast dimensions.
-  Without them Zygote reruns a GPU broadcast once per argument with duals (5-8 times slower than the CPU in Float64).
-- Domain checks: `blcheck(S0, K, T[, σ])` and `check_positive(x, message)` (src/financial.jl), argument by argument
-  through `domain_value` (real part of a complex, constant term of a Taylor series, `nothing` for symbolic values: the
-  extensions add methods). Reuse `check_positive` for new checks; messages are constant strings (GPU kernels).
-  `check_positive`, `blcheck` and `call_put_sign` are non differentiable for ChainRules (Zygote) and `@zero_adjoint`
-  for Mooncake (it does not read ChainRules' `@non_differentiable`): differentiated, they made Zygote gradients type
-  unstable and Mooncake's twice as slow. Enzyme finds them inactive by itself (an `inactive` rule measured no gain).
-- [src/dates.jl](src/dates.jl): `yearfrac` (Matlab bases 0-7), `daysact`, `fromExcelNumberToDate`. Day counts in
-  integer arithmetic, one division at the end; one small function per 30/360 convention (they differ only by the
-  adjustment of the days). Equal dates return 0 before any convention (30/360 PSA would not).
-- [ext/](ext/): one extension per AD backend or number type. ForwardDiff, DualNumbers, HyperDualNumbers and
-  Mooncake's `Nfwd.NDual` (Mooncake inside GPU broadcasts) solve on the values and add
-  `(price - blprice(σ)) / vega`. ReverseDiff records `blsprice`, `blkprice`, `blsimpv` and `blkimpv`
-  as single tape instructions written by hand (with `value_and_partials`): `ReverseDiff.@grad` keeps the pullback of the point where a
-  compiled tape was recorded, so its gradients elsewhere are wrong. Enzyme has `forward`/`augmented_primal`/`reverse`
-  rules for `blimpv`. DualNumbers also defines `normcdf` and `internal_sqrt` of a `Dual` (its own `erfc` and `sqrt`
-  promote to Float64; `normpdf` needs nothing since `square` is a product); HyperDualNumbers `normcdf` and `internal_sqrt`. TaylorSeries defines `erfc` of a series (a coefficient
-  recurrence: one pass with `@inbounds`/`muladd` for scalar `Taylor1`, a generic one for `TaylorN` and nested series);
-  TaylorSeries and TaylorDiff both define the implied volatility by Newton on the whole series. TaylorDiff needs no
-  `normcdf`: its own `erfc` (fixed in 0.3.6, the compat floor) is exact, keeps Float32, does not allocate, runs in GPU
-  kernels and is faster than the recurrence the extension had until then (removed 2026-11-18).
-- [docs/](docs/): Documenter, in the style of the other packages of rcalxrc08 (`docs/src/assets/style.css` is shared,
-  copy changes across). `docs/figures.jl` computes the figures at build time, a light and a dark SVG each; the
-  performance table is measured at build time too; the GPU page (`gpu.md`) has a static table measured on an MX150,
-  since CI has no GPU. Markdown tables need `|:--|` columns.
-  The design is shared by all the rcalxrc08 docs (identical copies, edit together): `style.css` (Dark Quant),
-  `dark.js`, `figures.css`, `site.css` (page headers with kicker, lede and section links, numbered sections, cards) and
-  `home.css` (landing page: hero, stat tiles, feature cards, flow, tabbed results, quick start steps); the hero is
-  `hero_figure` in `figures.jl`, the zoom of the Newton basins of the complex implied volatility. The home page's stat tiles are timed at build time by
-  `hero_stats()` in `figures.jl` (called from a hidden `@example` block). The sidebar groups Guides and Reference.
-  The calibration example of `gpu.md` runs at build time on the CPU (the same code runs on CUDA inside a function):
-  an SVI-type smile (nonlinear in its parameters) fitted on implied volatilities by Gauss-Newton with
-  `Zygote.jacobian`, on prices with deterministic 1% noise so that the residuals do not vanish and the Hessian differs
-  from `JᵀJ`. The sensitivities to the quoted prices chain two implicit function theorems: `∂θ*/∂v = H⁻¹Jᵀ` (`H` from
-  `ForwardDiff.hessian`) and `∂v/∂m = 1/vega` (the AD rules of `blsimpv`). They are checked against bumping a price,
-  re-implying and recalibrating, and against the pseudo-inverse; keep the noise, without it the check cannot tell the
-  two apart. In top-level loops of `@example` blocks update globals in place (`θ .-= ...`, Documenter's soft scope).
-  `references.md` holds the bibliography; cite from the text with links to its sections. `barriers.md` (Guide 02) has
-  the barrier figure (`barrier_figure`: prices and ForwardDiff deltas against the spot) and a Brownian bridge Monte
-  Carlo check run at build time.
-
-## Benchmarks
-
-`benchmark/benchmarks.jl` is the suite of BenchmarkCI (CI compares a pull request with master, a push with the
-previous commit): scalar calls in Float64,
-Float32, Float16, DualNumbers and the gradients of Zygote, Mooncake and ReverseDiff (`blsprice`, `blsvega`,
-`blsimpv`, `blsdownout`: its Zygote gradient guards against branches), and a smile of 1000 options
-(broadcast rules). After adding or renaming a benchmark, rerun `benchmark/tune.jl` and commit `tune.json`.
-`benchmark/gpu/run.jl` regenerates the GPU table of the docs (static, CI has no GPU).
-
-## Tests
-
-Coverage is on codecov (100% before the GPU work): code reached only on GPUs (Mooncake's `NDual`) or by
-compiled tapes needs a CPU test that calls it directly.
-
-
-Number types and AD backends check against the same references: `DERIVATIVE_CASES` in `test/setup.jl` (value,
-gradient with respect to every real input and gamma; `blsprice` from its closed form Greeks, the barrier options at the
-QuantLib points by central differences in BigFloat, independent of any AD rule), through
-`test_derivative_cases(gradient; gamma)`. A new pricing function is a new row there, not a new check in every file.
-Enzyme gets the closure of each case through a function barrier (`enzyme_gradient` in `ad/enzyme.jl`): reached
-through a dynamic call, Enzyme asks for a shadow of the captured case and fails.
-
-`test/runtests.jl` runs every file of `TEST_FILES` (a new file must be added there) in a module of its own, from the
-file's directory, inside a testset. Each file includes `test/setup.jl` (Test, FinancialToolbox, the reference option
-`REFERENCE`, the Matlab values `MATLAB`, `closed_form_greeks`), so it also runs alone. Layout:
-- `core/`: `pricing.jl` (Matlab values, BigFloat/Float32/Float16, input validation), `barrier.jl` (QuantLib 1.32
-  `AnalyticBarrierEngine` values, in-out parity, limits, input validation), `implied_volatility.jl` (round
-  trips, accuracy grids in Float64 and Float32 against BigFloat), `implied_volatility_dataset.jl` with its `.json`
-  (prices and implied volatilities of a reference dataset, round trips; it reads the JSON by a relative path, hence
-  the `cd`), `dates.jl` (Matlab values), `element_types.jl`: Float32 in, Float32 out,
-  for every function, input position and number type. Type-stability checks do not catch a promotion to a
-  well-defined wider type (#74), this test does.
-- `numbers/`: `complex.jl` (complex step), `dual_numbers.jl` (ForwardDiff, DualNumbers, HyperDualNumbers in one loop
-  against the closed form Greeks), `taylor_series.jl`, `taylor_diff.jl`, `symbolics.jl` (derivatives not simplified:
-  simplification is slow).
-- `ad/`: `zygote.jl`, `broadcast_rules.jl` (the broadcast rules against ForwardDiff, for every argument and broadcast
-  shape), `reversediff.jl` (evaluates compiled tapes away from the recording point: the only test of the forward pass
-  of the hand-written instructions), `mooncake.jl`, `enzyme.jl`.
-- `gpu/jlarrays.jl` runs `gpu/gpu_suite.jl` on JLArrays (GPU code path without a GPU, on CI); `test/cuda/` runs the same
-  suite and `ad_suite.jl` (ForwardDiff, DualNumbers, Zygote, Mooncake, TaylorDiff, Enzyme in kernels) on CUDA, locally only.
-  CI has no GPU: run the CUDA tests locally (this machine has an NVIDIA GPU) before pushing any change to `src/` or
-  `ext/`, together with the CPU suite. JLArrays does not catch everything CUDA rejects (allocations, dynamic dispatch,
-  strings built at run time in kernels).
-- `aqua.jl`: Aqua (ambiguities, stale dependencies, compat, piracy, ...).
-
-Keep the tests lean: a property checked once per code path, not once per number type (input validation is generic
-code, the Greeks are checked against Matlab once, the number types against `DERIVATIVE_CASES`).
-
-
-## Conventions
-
-- Optimize: measure (BenchmarkTools, `@allocated`) and keep the faster version, unless it breaks a supported number
-  type (e.g. `sqrt(F * K)` overflows `Float16`).
-- No `Float64` constants or buffers in generic code: use `@irrational`, integer literals or `one`/`zero` of the input
-  type. Upstream rules that promote are wrapped in the extensions (`normcdf`, `internal_sqrt` for DualNumbers and
-  HyperDualNumbers).
-- Code reachable from GPU kernels must not allocate and must not index arrays element by element. Julia 1.13 removes
-  small fixed-size `Vector`s (CPU and GPU), so a kernel that builds one works there and fails on 1.10-1.12: check
-  `@allocated` on Julia 1.10, not only on the local Julia (the old `normcdf(::TaylorScalar)`: 0 B on 1.13, 288 B on 1.10).
-  `CUDA.allowscalar(false)` only concerns host access to device arrays: it does not catch this.
-- No `if` on flags or values in differentiable code: Zygote is about 20 times slower on control flow (a barrier
-  gradient, #80: 55 μs with `if FlagIsCall`, 2.8 μs branch free). Use `call_put_sign`, 0/1 weights derived from it
-  (`(call_put_sign(c) - one_internal) ÷ two_internal` is minus the put indicator), `max`/`min` and parity identities,
-  so one formula covers every case. Compute directly the quantity used (the negated weight, `-inv_vega` once), not a
-  value negated at each use. Domain checks (`check_positive`, non differentiable) are the exception.
-- `a * b + c` is `muladd(a, b, c)` (or `@muladd` of MuladdMacro on a whole function), frules and extensions included:
-  one rounding, a fused multiply-add on CPUs and GPUs. Never negate an `Irrational` inside it (`c - π * x` becomes
-  `muladd(-π, ...)`, a Float64): keep the variable first.
-- Squares and cubes are `square(x)` and `cube(x)` (src/financial.jl), never `x^2`/`x^3`: products, the same values,
-  `x^2` is 1.3 times slower for BigFloat and 6 times for DualNumbers, `x^3` 1.8 times for BigFloat; the same for
-  hardware floats, complex numbers, ForwardDiff and Taylor1. Specialize per number type where the power is faster:
-  `square(::TaylorN)` is `x^2` in the TaylorSeries extension (1.5 times faster than the product).
-- Every exported function documents all its arguments in its docstring.
-- Formatting: JuliaFormatter, `margin = 1200`.
-
-## Known upstream issues
-
-Every workaround for an upstream bug (an override in an extension, a compat cap, a `@test_broken`) is listed here with
-the upstream issue and the broken version. At the start of a session check the upstream releases and drop the
-workarounds they made useless. Resolved: TaylorDiff 0.3.6 (2026-11-12) fixed its `erfc` and the precompilation with
-ChainRules 1.74.11 (JuliaDiff/TaylorDiff.jl#113), so the own `normcdf(::TaylorScalar)` and the ChainRules cap of the
-test environment were removed on 2026-11-18. Enzyme 0.13.220 fixed the abort on Julia 1.13.4 (EnzymeAD/Enzyme.jl#4051):
-CI is back to '1'.
-
-- SpecialFunctions `erfinv(::Float16)` was wrong for `|x| <= 0.75` before 2.9.2 (JuliaMath/SpecialFunctions.jl#571,
-  fixed 2026-11-10). Float16 is still solved in Float32: some approximations of the solver return Float64 for Float16
-  (type instability), and CPUs emulate Float16 through Float32 anyway.
-- ForwardDiff `gradient`/`jacobian` do not support GPU arrays (JuliaDiff/ForwardDiff.jl#759): broadcast
-  `ForwardDiff.derivative` per element instead.
-- Enzyme custom rules miss CUDA's device overrides inside kernels (EnzymeAD/Enzyme.jl#3962): `blsimpv` cannot be
-  differentiated with Enzyme in kernels (`@test_broken` in `test/cuda/ad_suite.jl`).
-- Zygote (0.7.18), reported 2026-11-19 from FinancialCalibrator#39, the reasons behind the branch-free convention: code
-  with branches and no loops keeps untyped `Vector{Any}` stacks on purpose (FluxML/Zygote.jl#1736; #1754: one ternary in
-  a scalar kernel 6.9 μs vs 22 ns with `ifelse`); `oftype` is `y isa typeof(x) ? y : convert(...)`, a branch with an
-  uninferred pullback (#1751: use `promote` or `convert(typeof(x), y)` on differentiated paths; `typed_literal` and
-  `tau` in the solver are not traced, the implied volatility has rules); `gradient`/`pullback` are compiled for
-  `f::Function` (#1752: microseconds of dynamic dispatch once the pullback is not inlined, 57 ns when specialized),
-  which may also affect the Zygote rows of BenchmarkCI (not checked). Benchmark Zygote with interpolated non-constant arguments and no
-  `$(args)...` splat: literals constant-fold the gradient, the splat adds its own run-time `_apply_iterate`.
-
-## Releasing
-
-Bump `version` in `Project.toml`, push to `master`, wait for CI, then comment `@JuliaRegistrator register` on the
-commit. TagBot creates the tag and the release; if it opens a "manual intervention" issue, create the release at the
-registered commit with `gh release create vX.Y.Z --target <full sha> --latest=false` (for an old version).
-
-Keep this file up to date at every push.
-
-## Sub-environments
-
-- **Compat of the package itself in the sub-environments** (`test/`, `test/cuda/`, `docs/` and `benchmark/gpu/`, which load it through `[sources]` with a path): each has a `[compat]` entry for the package, so CompatHelper does not open PRs to add one (it has no option to skip a dependency). Bump these entries in the same commit as a breaking version bump, otherwise the local package no longer satisfies them and the environment fails to resolve.
+- No `Float64` constants or buffers in generic code (`@irrational`, integer literals, `one`/`zero`); Float32 in,
+  Float32 out.
+- No `if` on flags or values in differentiable code (`call_put_sign`, weights, `max`/`min`); domain checks through
+  `check_positive`/`blcheck`, non-differentiable, with constant messages.
+- Code reachable from GPU kernels does not allocate nor index element by element (check `@allocated` on Julia 1.10).
+- `@muladd`/`muladd` for every `a * b + c`, never negating an `Irrational` inside it; `square`/`cube`, never `x^2`/`x^3`.
+- Reuse the author's packages and established libraries; every exported function documents all its arguments.
+- Format with `.JuliaFormatter.toml`; update the CONTEXT.md, references and `state/STATUS.md` a change touches in the
+  same commit (a new rule also gets an entry in `references/decisions.md`); default branch `master`; push to `origin`.

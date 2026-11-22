@@ -26,7 +26,9 @@ const TEST_FILES = [
     "ad/enzyme.jl",
     # GPU code path on JLArrays, package quality
     "gpu/jlarrays.jl",
-    "aqua.jl"
+    "aqua.jl",
+    # the context layers follow the code
+    "context.jl"
 ]
 
 function run_test_file(file)

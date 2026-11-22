@@ -1,0 +1,6 @@
+# Launch recipe for Kaimon-managed sessions and run_tests (a user's projects.json entry overrides fields).
+[launch]
+julia_version = "1.13"   # the series this package is developed on; CI runs 1.10 (the compat floor) and 1
+threads = "auto"
+startup_file = false
+instantiate = "auto"

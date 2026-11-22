@@ -3,12 +3,12 @@ module FinancialToolbox
 
 using SpecialFunctions: erfc
 using Dates, ChainRulesCore
-include("dates.jl")
-include("financial.jl")
-include("financial_barrier.jl")
-include("financial_implied_volatility.jl")
-include("financial_lets_be_rational.jl")
-include("financial_value_and_partials.jl")
+include("01_dates/dates.jl")
+include("02_pricing/financial.jl")
+include("03_barriers/financial_barrier.jl")
+include("04_implied_volatility/financial_implied_volatility.jl")
+include("04_implied_volatility/financial_lets_be_rational.jl")
+include("05_value_and_partials/financial_value_and_partials.jl")
 export normcdf,
     normpdf,
     blsprice,
