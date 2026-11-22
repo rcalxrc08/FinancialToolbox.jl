@@ -2,8 +2,9 @@
 include(joinpath(@__DIR__, "..", "setup.jl"))
 using TaylorSeries
 
-# TaylorSeries 0.23 renamed set_variables to variables!
-taylorn_variables(names; order) = isdefined(TaylorSeries, :variables!) ? TaylorSeries.variables!(names; order = order) : TaylorSeries.set_variables(names; order = order)
+# TaylorN variables. From TaylorSeries 0.23 in a JetSpace of their own, which leaves the global default space alone
+# (variables! replaces it and warns, #90); before 0.23 the global set_variables.
+taylorn_variables(names; order) = isdefined(TaylorSeries, :JetSpace) ? TaylorSeries.variables(TaylorSeries.JetSpace(; order = order, variables = names)) : TaylorSeries.set_variables(names; order = order)
 
 const x_n, y_n = taylorn_variables("x y", order = 5)
 

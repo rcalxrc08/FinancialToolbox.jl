@@ -17,14 +17,13 @@ generated when this documentation is built, on the machine that builds it.
 ```
 
 ```@eval
-using FinancialToolbox, BenchmarkTools, Enzyme, ForwardDiff, Mooncake, ReverseDiff, TaylorSeries, Zygote, Printf, Logging, Markdown
+using FinancialToolbox, BenchmarkTools, Enzyme, ForwardDiff, Mooncake, ReverseDiff, TaylorSeries, Zygote, Printf, Markdown
 S0 = 100.0; K = 100.0; r = 0.02; T = 1.2; σ = 0.2; d = 0.01
 price = blsprice(S0, K, r, T, σ, d)
-# TaylorN variables of order 1: the gradient is in the first order coefficients (set_variables before TaylorSeries 0.23)
-taylorn_variables(names; order) = isdefined(TaylorSeries, :variables!) ? TaylorSeries.variables!(names; order = order) : TaylorSeries.set_variables(names; order = order)
-dx = with_logger(NullLogger()) do
-    taylorn_variables("x1 x2 x3 x4 x5 x6", order = 1)
-end
+# TaylorN variables of order 1: the gradient is in the first order coefficients. A JetSpace of their own (TaylorSeries
+# 0.23) leaves the global default space alone; set_variables before 0.23
+taylorn_variables(names; order) = isdefined(TaylorSeries, :JetSpace) ? TaylorSeries.variables(TaylorSeries.JetSpace(; order = order, variables = names)) : TaylorSeries.set_variables(names; order = order)
+dx = taylorn_variables("x1 x2 x3 x4 x5 x6", order = 1)
 format_time(t) = t < 1e-6 ? @sprintf("%.0f ns", 1e9 * t) : t < 1e-3 ? @sprintf("%.2f μs", 1e6 * t) : @sprintf("%.2f ms", 1e3 * t)
 format_ratio(x) = x < 10 ? @sprintf("%.1f×", x) : @sprintf("%.0f×", x)
 # Each backend: a gradient with respect to the six inputs, prepared once (cache, tape, configuration) and timed
