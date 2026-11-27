@@ -20,7 +20,7 @@ barrier options #80).
 | Issue | Symptom | Workaround |
 |:--|:--|:--|
 | EnzymeAD/Enzyme.jl#3962 | Enzyme custom rules miss CUDA device overrides: `blsimpv` not differentiable with Enzyme in kernels | `@test_broken` in `test/cuda/ad_suite.jl` |
-| XLA CPU JIT on Windows (Reactant 0.2.309, not reported yet) | barrier prices fail to link, `Symbols not found: [ ___chkstk_ms ]` | `@test_broken` on Windows in `test/reactant/runtests.jl`; Linux CPU and CUDA pass |
+| EnzymeAD/Reactant.jl#3848 (Reactant 0.2.309) | barrier prices fail to link, `Symbols not found: [ ___chkstk_ms ]` | `@test_broken` on Windows in `test/reactant/runtests.jl`; Linux CPU and CUDA pass |
 | JuliaDiff/ForwardDiff.jl#759 | ForwardDiff `gradient`/`jacobian` on GPU arrays | broadcast `ForwardDiff.derivative` |
 
 ## Enhancements

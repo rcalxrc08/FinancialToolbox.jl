@@ -24,7 +24,7 @@ vanna(K, T, σ) = blsvanna(S0, K, r, T, σ, d)
 down_out(K, T, σ) = blsdownout(S0, K, r, T, σ, d, H_down)
 up_in_put(K, T, σ) = blsupin(S0, K, r, T, σ, d, H_up, false)
 const FUNCTIONS = (call_price, put_price, black_price, binary, delta, gamma, vega, theta, rho, lambda, psi, vanna, down_out, up_in_put)
-# On Windows the XLA CPU JIT cannot link the barrier prices (Reactant 0.2.309: "Symbols not found: [ ___chkstk_ms ]",
+# On Windows the XLA CPU JIT cannot link the barrier prices (EnzymeAD/Reactant.jl#3848, Reactant 0.2.309: "___chkstk_ms",
 # the stack probe of a large fused kernel); they compile on Linux, CPU and CUDA.
 const WINDOWS_BROKEN = (down_out, up_in_put)
 
