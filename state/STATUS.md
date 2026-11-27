@@ -13,7 +13,7 @@ barrier options #80).
 | Item | Branch | Issue | Next step |
 |:--|:--|:--|:--|
 | TaylorSeries `JetSpace` | `master` | #91 #90 | CI green, patch release 0.8.2, tag |
-| Reactant extension (`domain_value(::TracedRNumber)`) | `master` | #92 | `blsimpv` under Reactant: `@trace` if/while/for work inside broadcasts (2026-11-27 probe), gradients only through `@trace for`; choose `ReactantCore.@trace` in Let's Be Rational or a select-based copy |
+| Reactant extension (`domain_value(::TracedRNumber)`) | `master` | #92 | `blsimpv` under Reactant: `@trace` if/while/for work inside broadcasts (2026-11-27 probe), gradients only through `@trace for`; decided 2026-11-27: no ReactantCore dependency, `blimpv_impl(::Type{<:TracedRNumber})` in the extension (Reactant's `@trace`, fixed Householder steps; gradients through `@trace for` only) |
 
 ## Known issues
 
