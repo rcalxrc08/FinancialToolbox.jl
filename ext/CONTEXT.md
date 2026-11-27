@@ -14,6 +14,7 @@ One extension per AD backend or number type; the package loads and works without
 | `FinancialToolboxReverseDiffExt.jl` | `blsprice`, `blkprice`, `blsimpv`, `blkimpv` as single hand-written tape instructions with `value_and_partials` |
 | `FinancialToolboxTaylorSeriesExt.jl` | `erfc` of a series (coefficient recurrence, coefficients in the input's `JetSpace`), Newton on the series for the implied volatility, `square(::TaylorN)` |
 | `FinancialToolboxTaylorDiffExt.jl` | implied volatility by Newton on the series (TaylorDiff's own `erfc` is exact since 0.3.6) |
+| `FinancialToolboxReactantExt.jl` | `domain_value(::TracedRNumber)` (`nothing`: no check, a branch on a traced value does not compile); prices, Greeks and their Enzyme derivatives compile with Reactant, `blsimpv` not yet (#92) |
 | `FinancialToolboxSymbolicsExt.jl` | `domain_value(::Num)` (`nothing`: no check), `blimpv` registered as a symbolic function with its derivative |
 | `references/autodiff.md` | what each backend needs and why |
 | `references/dependencies.md` | compat floors, upstream workarounds |
@@ -28,7 +29,7 @@ One extension per AD backend or number type; the package loads and works without
 ## Outputs
 
 `Base.get_extension(FinancialToolbox, :FinancialToolbox<Dep>Ext) !== nothing` after `using <Dep>`. Checked by
-`test/numbers/*.jl`, `test/ad/*.jl`, `test/cuda/ad_suite.jl`.
+`test/numbers/*.jl`, `test/ad/*.jl`, `test/cuda/ad_suite.jl`, `test/reactant/runtests.jl` (local only).
 
 ## Verify (Kaimon)
 

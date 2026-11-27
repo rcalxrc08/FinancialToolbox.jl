@@ -1,0 +1,13 @@
+[deps]
+Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
+FinancialToolbox = "2edd74a5-e968-5e45-af77-76d29aa6a478"
+Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+FinancialToolbox = {path = "../.."}
+
+[compat]
+Enzyme = "0.13.220"
+FinancialToolbox = "0.8"
+Reactant = "0.2.309"

@@ -16,6 +16,7 @@ in parallel.
 <a href="#Automatic-differentiation-on-the-GPU"><b>01</b>Automatic differentiation on the GPU</a>
 <a href="#A-calibration"><b>02</b>A calibration</a>
 <a href="#Performance"><b>03</b>Performance</a>
+<a href="#Reactant-(XLA)"><b>04</b>Reactant (XLA)</a>
 </nav>
 </div>
 ```
@@ -196,3 +197,23 @@ data-center GPUs narrow the gap between the two.
 
 Below about a thousand options the fixed cost of launching the kernels and of copying the reductions back to the host,
 about 100 μs on this machine, is comparable to the work: there the CPU is as fast.
+
+## Reactant (XLA)
+
+The prices, the Greeks and the barrier options also compile with [Reactant.jl](https://github.com/EnzymeAD/Reactant.jl),
+which traces a Julia function into an XLA program for the CPU, CUDA or TPUs, and Enzyme differentiates the compiled
+program. The domain checks are skipped on traced values (they are checked on concrete ones):
+
+```julia
+using FinancialToolbox, Reactant, Enzyme
+S0, r, T, d = 100.0, 0.02, 1.2, 0.01
+K = Reactant.to_rarray(collect(range(70.0, 140.0, length = 10^6)))
+σ = Reactant.to_rarray(fill(0.2, 10^6))
+prices(σ, K) = blsprice.(S0, K, r, T, σ, d)
+total(σ, K) = sum(prices(σ, K))
+@jit prices(σ, K)                                     # ConcreteRArray
+@jit Enzyme.gradient(Reverse, total, σ, Const(K))     # the vegas
+```
+
+`blsimpv` does not compile yet: Let's Be Rational branches on values, which XLA cannot express element by element
+([#92](https://github.com/rcalxrc08/FinancialToolbox.jl/issues/92)).

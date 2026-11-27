@@ -1,7 +1,7 @@
 # Status
 
 _What is in flight. Layer 4: volatile, rewritten freely; GitHub issues are the source of truth for tasks, this file is
-the index an agent reads first._ Updated: 2026-11-22
+the index an agent reads first._ Updated: 2026-11-27
 
 ## Current focus
 
@@ -13,12 +13,14 @@ barrier options #80).
 | Item | Branch | Issue | Next step |
 |:--|:--|:--|:--|
 | TaylorSeries `JetSpace` | `master` | #91 #90 | CI green, patch release 0.8.2, tag |
+| Reactant extension (`domain_value(::TracedRNumber)`) | `master` | #92 | `blsimpv` under Reactant: `@trace` if/while/for work inside broadcasts (2026-11-27 probe), gradients only through `@trace for`; choose `ReactantCore.@trace` in Let's Be Rational or a select-based copy |
 
 ## Known issues
 
 | Issue | Symptom | Workaround |
 |:--|:--|:--|
 | EnzymeAD/Enzyme.jl#3962 | Enzyme custom rules miss CUDA device overrides: `blsimpv` not differentiable with Enzyme in kernels | `@test_broken` in `test/cuda/ad_suite.jl` |
+| XLA CPU JIT on Windows (Reactant 0.2.309, not reported yet) | barrier prices fail to link, `Symbols not found: [ ___chkstk_ms ]` | `@test_broken` on Windows in `test/reactant/runtests.jl`; Linux CPU and CUDA pass |
 | JuliaDiff/ForwardDiff.jl#759 | ForwardDiff `gradient`/`jacobian` on GPU arrays | broadcast `ForwardDiff.derivative` |
 
 ## Enhancements

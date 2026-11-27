@@ -16,6 +16,7 @@ _How to run, test, document and release._ (Layer 3 reference.)
 julia --project -e 'import Pkg; Pkg.test()'      # test/runtests.jl: every file of TEST_FILES, prints the time of each
 julia --project=test -e 'include("test/core/element_types.jl")'   # a single test file
 julia --project=test/cuda -e 'import Pkg; Pkg.instantiate(); include("test/cuda/runtests.jl")'  # needs an NVIDIA GPU
+julia --project=test/reactant -e 'import Pkg; Pkg.instantiate(); include("test/reactant/runtests.jl")'  # Reactant (XLA), minutes to precompile; REACTANT_BACKEND=cuda on Linux
 julia benchmark/run.jl                           # benchmark suite (BenchmarkCI runs it on CI); benchmark/tune.jl retunes tune.json
 julia --project=benchmark/gpu -e 'import Pkg; Pkg.instantiate(); include("benchmark/gpu/run.jl")'  # GPU vs CPU table of docs/src/gpu.md
 julia --project=docs docs/make.jl                # Documenter site, into docs/build
@@ -30,7 +31,7 @@ dependabot, TagBot. CI has no GPU. Default branch `master`.
 
 ## Sub-environments
 
-`test/`, `test/cuda/`, `docs/` and `benchmark/gpu/` load the package through `[sources]` with a path; each has a
+`test/`, `test/cuda/`, `test/reactant/`, `docs/` and `benchmark/gpu/` load the package through `[sources]` with a path; each has a
 `[compat]` entry for the package itself, so CompatHelper does not open PRs to add one. Bump these entries in the same
 commit as a breaking version bump, otherwise the environment fails to resolve.
 

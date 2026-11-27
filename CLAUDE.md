@@ -23,7 +23,7 @@ for this project (`kaimon.toml` pins the Julia); each contract's Verify table li
 
 Map: `src/FinancialToolbox.jl` includes the stages in order, `01_dates` → `02_pricing` → `03_barriers` →
 `04_implied_volatility` → `05_value_and_partials`; `ext/` one extension per AD backend or number type; `test/` the suite
-(`test/cuda/` local GPU tests); `docs/` the Documenter site; `benchmark/` the BenchmarkCI suite and the GPU table.
+(`test/cuda/` local GPU tests, `test/reactant/` local Reactant tests); `docs/` the Documenter site; `benchmark/` the BenchmarkCI suite and the GPU table.
 
 Rules for every change (details in `references/conventions.md`):
 

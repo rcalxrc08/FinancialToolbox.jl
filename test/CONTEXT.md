@@ -28,6 +28,7 @@ How the suite is organized, how to run a part of it, what CI runs.
 | `gpu/gpu_suite.jl` | the GPU suite shared with CUDA |
 | `cuda/runtests.jl` | the GPU suite on CUDA, locally only |
 | `cuda/ad_suite.jl` | ForwardDiff, DualNumbers, Zygote, Mooncake, TaylorDiff, Enzyme in kernels |
+| `reactant/runtests.jl` | prices, Greeks and Enzyme derivatives compiled by Reactant against plain Julia, locally only (`blsimpv` `@test_broken`, #92) |
 | `aqua.jl` | Aqua |
 | `context.jl` | the context layers follow the code |
 | `references/testing.md` | the reference values and their sources, the layout rules |

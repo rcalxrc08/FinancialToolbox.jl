@@ -14,6 +14,7 @@ _Why each dependency exists, hard or weak, and its compat floor._ (Layer 3 refer
 | `Mooncake` | weak | `@from_chainrules`, `@zero_adjoint`, `NDual` | 0.5 |
 | `EnzymeCore` | weak | Enzyme rules for `blimpv` | 0.8 |
 | `ReverseDiff` | weak | hand-written tape instructions | 1 |
+| `Reactant` | weak | `domain_value(::TracedRNumber)` | 0.2.309 (the version tested; Enzyme 0.13.220) |
 | `Symbolics` | weak | `domain_value(::Num)`, registered `blimpv` | 7 |
 
 Julia floor 1.10 (CI tests 1.10 and 1; AutoMerge could not start Julia 1.9.4 on its runner, "libopenlibm.so: cannot
@@ -26,6 +27,7 @@ Upstream workarounds (cite issue and version; recheck on every upstream release,
 | `Float16` solved in `Float32` | JuliaMath/SpecialFunctions.jl#571 (fixed in 2.9.2); kept because some approximations return Float64 for Float16 | < 2.9.2 | 2026-11-18 |
 | broadcast `ForwardDiff.derivative` on GPU arrays | JuliaDiff/ForwardDiff.jl#759 | ForwardDiff 1 | 2026-11-19 |
 | `@test_broken` Enzyme `blsimpv` in CUDA kernels | EnzymeAD/Enzyme.jl#3962 | Enzyme 0.13 | 2026-11-19 |
+| `@test_broken` Reactant barrier prices on Windows (`___chkstk_ms` not found by the XLA CPU JIT) | not reported yet | Reactant 0.2.309 (Reactant_jll 0.0.447) | 2026-11-27 |
 | branch-free code, `promote` instead of `oftype`, Zygote benchmarks without splats | FluxML/Zygote.jl#1736, #1751 (open); #1752, #1754 fixed in Zygote 0.7.19 (reported 2026-11-19 from FinancialCalibrator#39) | Zygote 0.7.19 | 2026-11-22 |
 
 Resolved: TaylorDiff 0.3.6 (2026-11-12) fixed its `erfc` and the precompilation with ChainRules 1.74.11
